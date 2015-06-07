@@ -8,7 +8,7 @@
   </style><script type="text/javascript">//<![CDATA[ 
 $(window).on('load', function() {
 $(function(){
-  $('#video').css({ width: $(window).innerWidth()-150 + 'px', height: $(window).innerHeight() + 'px' });
+  $('#video').css({ width: $(window).innerWidth() + 'px', height: $(window).innerHeight() + 'px' });
 
   $(window).resize(function(){
     $('#video').css({ width: $(window).innerWidth() + 'px', height: $(window).innerHeight() + 'px' });
@@ -19,7 +19,7 @@ $(function(){
 
 </script></head>
 <body>
-<iframe id="video" width="560" height="315" src="https://www.youtube.com/embed/L8Gs_eyIPFA?rel=0" frameborder="0" allowfullscreen></iframe>
+<iframe id="video" width="560" height="315" src="https://www.youtube.com/embed/L8Gs_eyIPFA?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>
 </body>
 </html>
 
