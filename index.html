@@ -1,14 +1,25 @@
 <html>
-<head></head>
-<body>
-<iframe id="video" width="560" height="315" src="https://www.youtube.com/embed/L8Gs_eyIPFA?rel=0" frameborder="0" allowfullscreen></iframe>
-<script>$(function(){
-  $('#video').css({ width: $(window).innerWidth() + 'px', height: $(window).innerHeight() + 'px' });
+<head>
+  <script type="text/javascript" src="jquery-git.js"></script>
+    <style type="text/css">
+    body {
+    overflow: hidden;
+}
+  </style><script type="text/javascript">//<![CDATA[ 
+$(window).on('load', function() {
+$(function(){
+  $('#video').css({ width: $(window).innerWidth()-150 + 'px', height: $(window).innerHeight() + 'px' });
 
   $(window).resize(function(){
     $('#video').css({ width: $(window).innerWidth() + 'px', height: $(window).innerHeight() + 'px' });
   });
 });
-</script></body>
+
+});//]]>  
+
+</script></head>
+<body>
+<iframe id="video" width="560" height="315" src="https://www.youtube.com/embed/L8Gs_eyIPFA?rel=0" frameborder="0" allowfullscreen></iframe>
+</body>
 </html>
 
