@@ -30,16 +30,26 @@
       </div>
     </nav>
     <script>
+    var pageData;
       $.getJSON("pages.json", function(data) {
+        pageData = data;
         var navbarItems = [];
-        $.each(data, function(pageDetails){
-          console.log(this);
-          navbarItems.push("<li><a href=\"#\">" + this.title + "</a></li>");
+        $.each(data, function(pageIndex){
+          navbarItems.push("<li><a href=\"#" + pageIndex + "\">" + this.title + "</a></li>");
         });
         
         $("<ul/>",{class:"nav navbar-nav",html:navbarItems.join("")}).appendTo("#theNavbar");
-        
+        $("a").click(changePage);
       });
+      
+      function changePage(){
+        var page = this.hash.substr(1);
+        var pageDetails = pageData[page];
+        var videoList = [];
+        $.each(pageDetails.videos, function(videoIndex){
+          videoList.push("<a href=\"skills.html\"><img src=\"http://img.youtube.com/vi/" + this + "/1.jpg\"></a>");
+        });
+      }
     </script>
     <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/1.jpg"></a>
     <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/2.jpg"></a>
