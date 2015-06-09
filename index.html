@@ -18,6 +18,17 @@
     <![endif]-->
   </head>
   <body>
+    <script>
+      $.getJSON("pages.json", function(data) {
+        var navbarItems = [];
+        $.each(data, function(pageDetails){
+          navbarItems.push("<li>" + pageDetails.title + "</li>");
+        });
+        
+        $("<ul/>",{html:navbarItems.join("")}).appendTo("body");
+        
+      });
+    </script>
     <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/1.jpg"></a>
     <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/2.jpg"></a>
     <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/3.jpg"></a>
