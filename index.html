@@ -27,7 +27,7 @@
         var navbarItems = [];
         $.each(data, function(pageDetails){
           console.log(this);
-          navbarItems.push("<li>" + pageDetails.title + "</li>");
+          navbarItems.push("<li>" + this.title + "</li>");
         });
         
         $("<ul/>",{html:navbarItems.join("")}).appendTo("body");
