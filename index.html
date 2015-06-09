@@ -49,6 +49,7 @@
         $.each(pageDetails.videos, function(videoIndex){
           videoList.push("<a href=\"skills.html\"><img src=\"http://img.youtube.com/vi/" + this + "/1.jpg\"></a>");
         });
+        $("<div/>",{html:videoList.join("")}).appendTo("body");
       }
     </script>
     <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/1.jpg"></a>
