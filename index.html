@@ -26,7 +26,7 @@
       $.getJSON("pages.json", function(data) {
         var navbarItems = [];
         $.each(data, function(pageDetails){
-          console.log(pageDetails);
+          console.log(this);
           navbarItems.push("<li>" + pageDetails.title + "</li>");
         });
         
