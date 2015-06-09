@@ -34,7 +34,7 @@
         var navbarItems = [];
         $.each(data, function(pageDetails){
           console.log(this);
-          navbarItems.push("<li>" + this.title + "</li>");
+          navbarItems.push("<li><a href=\"#\">" + this.title + "</a></li>");
         });
         
         $("<ul/>",{class:"nav navbar-nav",html:navbarItems.join("")}).appendTo("#theNavbar");
