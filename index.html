@@ -30,7 +30,7 @@
           navbarItems.push("<li>" + this.title + "</li>");
         });
         
-        $("<ul/>",{html:navbarItems.join("")}).appendTo("body");
+        $("<ul/>",{class:"nav navbar-nav",html:navbarItems.join("")}).appendTo("body");
         
       });
     </script>
