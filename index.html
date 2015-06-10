@@ -46,6 +46,10 @@
       
       function changePage(){
         var page = this.hash.substr(1);
+        
+        $(".nav").find(".active").removeClass("active");
+        $(this).parent().addClass("active");
+        
         var pageDetails = pageData[page];
         var videoList = [];
         $.each(pageDetails.videos, function(videoIndex){
