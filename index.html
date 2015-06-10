@@ -36,7 +36,7 @@
         pageData = data;
         var navbarItems = [];
         $.each(data, function(pageIndex){
-          navbarItems.push("<li><a href=\"#" + pageIndex + "\" id=\"a" + videoIndex + "\">" + this.title + "</a></li>");
+          navbarItems.push("<li><a href=\"#" + pageIndex + "\" id=\"a" + pageIndex + "\">" + this.title + "</a></li>");
         });
         
         $("<ul/>",{class:"nav navbar-nav",html:navbarItems.join("")}).appendTo("#theNavbar");
