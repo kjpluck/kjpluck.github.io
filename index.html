@@ -29,7 +29,7 @@
         </div>
       </div>
     </nav>
-    <div id="videoGallery"/>
+    <div id="videoGallery" class="row"/>
     <script>
     var pageData;
       $.getJSON("pages.json", function(data) {
@@ -53,10 +53,10 @@
         var pageDetails = pageData[page];
         var videoList = [];
         $.each(pageDetails.videos, function(videoIndex){
-          videoList.push("<a href=\"video.html#" + this + "\"><img width=240 height=180 src=\"http://img.youtube.com/vi/" + this + "/0.jpg\"></a>");
+          videoList.push("<a href=\"video.html#" + this + "\"><img class=\"thumbnail img-responsive\" src=\"http://img.youtube.com/vi/" + this + "/0.jpg\"></a>");
         });
         $("#videoGallery").empty();
-        $("<div/>",{html:videoList.join("")}).appendTo("#videoGallery");
+        $("<div/>",{class:"col-lg-2 col-sm-3 col-xs-4",html:videoList.join("")}).appendTo("#videoGallery");
       }
     </script>
   </body>
