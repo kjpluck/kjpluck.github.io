@@ -49,7 +49,7 @@
         var pageDetails = pageData[page];
         var videoList = [];
         $.each(pageDetails.videos, function(videoIndex){
-          videoList.push("<a href=\"video.html#" + this + "\"><img src=\"http://img.youtube.com/vi/" + this + "/0.jpg\"></a>");
+          videoList.push("<a href=\"video.html#" + this + "\"><img src=\"http://img.youtube.com/vi/" + this + "/1.jpg\"></a>");
         });
         $("#videoGallery").empty();
         $("<div/>",{html:videoList.join("")}).appendTo("#videoGallery");
