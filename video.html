@@ -16,11 +16,15 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script>
+      function showVideo(){
+        var youtubeId = window.location.hash.substr(1);
+        $("#youtubeDiv").append("<iframe src=\"https://www.youtube.com/embed/" + youtubeId + "?rel=0\" frameborder=\"0\" allowfullscreen></iframe>");
+      }
+    </script>
   </head>
   <body>
-    <div class="embed-responsive embed-responsive-16by9">
-      <iframe id="video" src="https://www.youtube.com/embed/Tif55-9sZEY?rel=0" frameborder="0" allowfullscreen></iframe>
-    </div>
+    <div class="embed-responsive embed-responsive-16by9" id="youtubeDiv"/>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
