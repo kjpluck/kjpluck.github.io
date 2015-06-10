@@ -36,11 +36,12 @@
         pageData = data;
         var navbarItems = [];
         $.each(data, function(pageIndex){
-          navbarItems.push("<li><a href=\"#" + pageIndex + "\">" + this.title + "</a></li>");
+          navbarItems.push("<li><a href=\"#" + pageIndex + "\" id=\"a" + videoIndex + "\">" + this.title + "</a></li>");
         });
         
         $("<ul/>",{class:"nav navbar-nav",html:navbarItems.join("")}).appendTo("#theNavbar");
         $("a").click(changePage);
+        $("#a0").click();
       });
       
       function changePage(){
@@ -54,11 +55,6 @@
         $("<div/>",{html:videoList.join("")}).appendTo("#videoGallery");
       }
     </script>
-    <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/1.jpg"></a>
-    <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/2.jpg"></a>
-    <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/3.jpg"></a>
-    <a href="skills.html"><img src="http://img.youtube.com/vi/L8Gs_eyIPFA/4.jpg"></a>
-    <a href="freestyle.html"><img src="http://img.youtube.com/vi/Tif55-9sZEY/2.jpg"></a>
   </body>
 </html>
 
