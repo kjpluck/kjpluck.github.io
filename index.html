@@ -83,8 +83,8 @@
             function(titleData){
               $.each(titleData.items,
                   function(item){
-                    $("#caption"+item.id).text = item.snippet.title;
-                    localStorage.setItem(item.id, item.snippet.title);
+                    $("#caption"+this.id).text = this.snippet.title;
+                    localStorage.setItem(this.id, this.snippet.title);
                   }
                 );
             });
