@@ -53,7 +53,17 @@
         var pageDetails = pageData[page];
         var videoList = [];
         $.each(pageDetails.videos, function(videoIndex){
-          videoList.push("<div class=\"col-lg-2 col-sm-3 col-xs-4\"><a href=\"video.html#" + this + "\"><img class=\"thumbnail img-responsive\" src=\"http://img.youtube.com/vi/" + this + "/0.jpg\"></a></div>");
+          videoList.push(
+            "<div class='col-lg-2 col-sm-3 col-xs-4'>"+
+              "<div class = 'thumbnail'>"+
+                "<a href='video.html#" + this + "'>"+
+                  "<img class='thumbnail img-responsive' src='http://img.youtube.com/vi/" + this + "/0.jpg'>"+
+                "</a>"+
+              "</div>"+
+              "<div id='caption" + this + "' class='caption'>"+
+                "<p>test!</p>"+
+              "</div>"+
+            "</div>");
         });
         $("#videoGallery").empty();
         $("<div/>",{class:"row",html:videoList.join("")}).appendTo("#videoGallery");
