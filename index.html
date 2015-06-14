@@ -52,7 +52,16 @@
         
         var pageDetails = pageData[page];
         var videoList = [];
+        var unknownTitles = [];
         $.each(pageDetails.videos, function(videoIndex){
+
+          var title = localStorage.getItem(this);
+
+          if(title === null){
+            unknownTitles.push(this);
+            title = "<img src='images/spinner.gif'>";
+          }
+
           videoList.push(
             "<div class='col-lg-2 col-sm-3 col-xs-4'>"+
               "<div class = 'thumbnail'>"+
@@ -60,11 +69,27 @@
                   "<img class='img-responsive' src='http://img.youtube.com/vi/" + this + "/0.jpg'>"+
                 "</a>"+
                 "<div id='caption" + this + "' class='caption'>"+
-                  "<p>test!</p>"+
+                  title +
                 "</div>"+
               "</div>"+
             "</div>");
         });
+
+        //https://www.googleapis.com/youtube/v3/videos?id=7lCDEYXw3mM&key=AIzaSyB2Bus3oP3tZMNWUbaVUjeVnx-HgLubfJI&fields=items(snippet(title))&part=snippet
+
+        if(unknownTitles.length > 0){
+          var url = "https://www.googleapis.com/youtube/v3/videos?id=" + unknownTitles.join(",") + "&key=AIzaSyB2Bus3oP3tZMNWUbaVUjeVnx-HgLubfJI&fields=items(snippet(title))&part=snippet";
+          $.getJSON(url,
+            function(titleData){
+              $.each(titleData.items,
+                  function(item){
+                    $("#caption"+item.id).text = item.snippet.title;
+                    localStorage.setItem(item.id, item.snippet.title);
+                  }
+                );
+            });
+        }
+
         $("#videoGallery").empty();
         $("<div/>",{class:"row",html:videoList.join("")}).appendTo("#videoGallery");
       }
