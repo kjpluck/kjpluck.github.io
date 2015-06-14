@@ -84,8 +84,7 @@
             function(titleData){
               $.each(titleData.items,
                   function(item){
-                    console.log($("#caption"+this.id).html);
-                    $("#caption"+this.id).html = "<p>" + this.snippet.title + "</p>";
+                    $("#caption"+this.id).html("<p>" + this.snippet.title + "</p>");
                     localStorage.setItem(this.id, this.snippet.title);
                   }
                 );
