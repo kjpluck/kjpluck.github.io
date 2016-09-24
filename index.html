@@ -18,29 +18,46 @@
 		<![endif]-->
 		<script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 		<script type="text/javascript">
-			
+		
+			var today = new Date();
+			var ageCategories;
+
 			$(function() { generateButtons() });
 
 			function numeric(a,b){return a-b;}
 			
-			function addYearButton(years, category){
-				var yearButtonColumn = $("#yearColumn");
-				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + category + ")\">" + years + "</button>")
+			function showMonth(categoryIndex){
+				$("#result").empty();
+				var monthButtonColumn = $("#monthColumn");
+				monthButtonColumn.empty();
+				var theMonth = today.getMonth() + 1;
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + (categoryIndex+1) + ")\">Earlier</button><br/>");
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + categoryIndex + ")\">" + theMonth + "</button><br/>");
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + categoryIndex + ")\">Later</button>")
 			}
 
-			function showCategory(category){
-				$("#result").html(category);
+			function addYearButton(years, categoryIndex){
+				var yearButtonColumn = $("#yearColumn");
+				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showMonth(" + categoryIndex + ")\">" + years + "</button>")
 			}
 
-			function addDefiniteYearButton(years, category){
+			function showCategory(categoryIndex){
+				$("#result").html(ageCategories[categoryIndex]);
+			}
+
+			function clearMonthAndDay(){
+				$("#monthColumn").empty();
+				$("#dayColumn").empty();
+			}
+
+			function addDefiniteYearButton(years, categoryIndex){
 				var yearButtonColumn = $("#yearColumn");
-				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + category + ")\">" + years + "</button>")
+				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearMonthAndDay();showCategory(" + categoryIndex + ");\">" + years + "</button>")
 			}
 
 			function generateButtons(){
 				$("#yearColumn").empty();
-				var ageCategories = $("#ageCategories").val().split(" ").sort(numeric).map( Number );
-				var today = new Date();
+				ageCategories = $("#ageCategories").val().split(" ").sort(numeric).map( Number );
 				var theYear = today.getFullYear();
 
 				var numberOfCategories = ageCategories.length;
@@ -50,11 +67,9 @@
 				var oldestCategory = ageCategories[numberOfCategories - 1];
 				
 				var yearForButton = theYear - oldestCategory;
-				addYearButton(yearForButton, oldestCategory);
+				addYearButton(yearForButton, numberOfCategories - 1);
 				
-				console.log(yearForButton);
-				console.log("--");
-
+								
 				var years = "";
 
 				for (var i = numberOfCategories - 2; i >= 0; i--) {
@@ -62,22 +77,19 @@
 					while(yearForButton <= (theYear - ageCategories[i] - 1)){
 
 						if(i>0 && yearForButton == (theYear - ageCategories[i] - 1)) {
-							addDefiniteYearButton(years, ageCategories[i+1]);
+							addDefiniteYearButton(years, i+1);
 							years="";
-							console.log("--");
 						}
 
 						yearForButton++;
-						years += yearForButton + "<br/>"
-						console.log(yearForButton);
+						years += yearForButton + "<br/>";
 					}
 
-					addYearButton(years, ageCategories[i+1]);
+					addYearButton(years, i);
 					years="";
-
-					console.log("----");
 				}
 			}
+
 		</script>
 	</head>
 	<body>
@@ -104,9 +116,6 @@
 							<td id="yearColumn">
 							</td>
 							<td id="monthColumn">
-								<button type="button" class="btn btn-default btn-block">Earlier</button><br/>
-								<button type="button" class="btn btn-default btn-block">September</button><br/>
-								<button type="button" class="btn btn-default btn-block">Later</button>
 							</td>
 							<td id="dayColumn">
 								<button type="button" class="btn btn-default btn-block">Earlier</button><br/>
