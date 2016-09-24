@@ -23,12 +23,22 @@
 
 			function numeric(a,b){return a-b;}
 			
-			function addYearButton(years){
+			function addYearButton(years, category){
 				var yearButtonColumn = $("#yearColumn");
-				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\">" + years + "</button>")
+				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + category + ")\">" + years + "</button>")
+			}
+
+			function showCategory(category){
+				$("#result").html(category);
+			}
+
+			function addDefiniteYearButton(years, category){
+				var yearButtonColumn = $("#yearColumn");
+				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + category + ")\">" + years + "</button>")
 			}
 
 			function generateButtons(){
+				$("#yearColumn").empty();
 				var ageCategories = $("#ageCategories").val().split(" ").sort(numeric).map( Number );
 				var today = new Date();
 				var theYear = today.getFullYear();
@@ -40,7 +50,7 @@
 				var oldestCategory = ageCategories[numberOfCategories - 1];
 				
 				var yearForButton = theYear - oldestCategory;
-				addYearButton(yearForButton);
+				addYearButton(yearForButton, oldestCategory);
 				
 				console.log(yearForButton);
 				console.log("--");
@@ -52,7 +62,7 @@
 					while(yearForButton <= (theYear - ageCategories[i] - 1)){
 
 						if(i>0 && yearForButton == (theYear - ageCategories[i] - 1)) {
-							addYearButton(years);
+							addDefiniteYearButton(years, ageCategories[i+1]);
 							years="";
 							console.log("--");
 						}
@@ -61,8 +71,9 @@
 						years += yearForButton + "<br/>"
 						console.log(yearForButton);
 					}
-							addYearButton(years);
-							years="";
+
+					addYearButton(years, ageCategories[i+1]);
+					years="";
 
 					console.log("----");
 				}
@@ -73,12 +84,10 @@
 		<div class="page-header">
 			<h1>Age Categoriser</h1>
 		</div>
-		<form>
-			<div class="form-group">
-				<label for="ageCategories">Age categories</label>
-				<input type="text" class="form-control" id="ageCategories" placeholder="Age categories" value="0 9 12 16" onkeypress="generateButtons();">
-			</div>
-		</form>
+		<div class="form-group">
+			<label for="ageCategories">Age categories</label>
+			<input type="text" class="form-control" id="ageCategories" placeholder="Age categories" value="0 9 12 16" onkeypress="generateButtons();">
+		</div>
 
 		<div class="row">
 			<div class="col-md-6">
@@ -109,6 +118,8 @@
 				</table>
 			</div>
 		</div>
+
+		<h1 id="result"></h1>
 
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
