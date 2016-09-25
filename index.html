@@ -41,22 +41,29 @@
 				var monthButtonColumn = $("#monthColumn");
 				monthButtonColumn.empty();
 				var theMonth = today.getMonth() + 1;
-				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + (categoryIndex+1) + ")\">Earlier</button><br/>");
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showCategory(" + (categoryIndex+1) + ")\">Earlier</button><br/>");
 				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showDay(" + categoryIndex + ")\">" + theMonth + "</button><br/>");
-				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + categoryIndex + ")\">Later</button>")
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showCategory(" + categoryIndex + ")\">Later</button>")
 			}
 
 			function addYearButton(years, categoryIndex){
 				var yearButtonColumn = $("#yearColumn");
-				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showMonth(" + categoryIndex + ")\">" + years + "</button>")
+				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showMonth(" + categoryIndex + ")\">" + years + "</button>")
 			}
 
 			function showCategory(categoryIndex){
-				$("#result").html(ageCategories[categoryIndex]);
+				if(categoryIndex >= ageCategories.length)
+					$("#result").html("XX");
+				else
+					$("#result").html(ageCategories[categoryIndex]);
 			}
 
 			function clearMonthAndDay(){
 				$("#monthColumn").empty();
+				clearDay();
+			}
+
+			function clearDay(){
 				$("#dayColumn").empty();
 			}
 
@@ -132,9 +139,6 @@
 							<td id="monthColumn">
 							</td>
 							<td id="dayColumn">
-								<button type="button" class="btn btn-default btn-block">Earlier</button><br/>
-								<button type="button" class="btn btn-default btn-block">23</button><br/>
-								<button type="button" class="btn btn-default btn-block">Later</button>
 							</td>
 						</tr>
 					</tbody>
