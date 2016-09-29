@@ -112,24 +112,25 @@
 
 		</script>
 	</head>
-	<body>
+	<body style="width: 400px;margin: 0 auto;">
 		<div class="page-header">
 			<h1>Age Categoriser</h1>
 		</div>
 		<div class="form-group">
 			<label for="ageCategories">Age categories</label>
+			<!-- Multi range slider: http://www.bacubacu.com/colresizable/#samples -->
 			<input type="text" class="form-control" id="ageCategories" placeholder="Age categories" value="9 12 16" onkeypress="generateButtons();">
 		</div>
 
 		<h1 id="result">??</h1>
 		<div class="row">
-			<div class="col-md-6">
+			<div class="col-md-12">
 				<table class="table table-condensed">
 					<thead>
 						<tr>
-							<th>Year</th>
-							<th>Month</th>
-							<th>Day</th>
+							<th width="33%">Year</th>
+							<th width="33%">Month</th>
+							<th width="33%">Day</th>
 						</tr>
 					</thead>
 					<tbody>
