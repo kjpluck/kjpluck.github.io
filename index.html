@@ -31,9 +31,9 @@
 				var dayButtonColumn = $("#dayColumn");
 				dayButtonColumn.empty();
 				var theDay = today.getDate();
-				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + (categoryIndex+1) + ")\">Earlier</button><br/>");
+				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + (categoryIndex+1) + ")\">&lt;</button><br/>");
 				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + categoryIndex + ")\">" + theDay + "</button><br/>");
-				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + categoryIndex + ")\">Later</button>")
+				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + categoryIndex + ")\">&gt;</button>")
 			}
 			
 			function showMonth(categoryIndex){
@@ -41,9 +41,9 @@
 				var monthButtonColumn = $("#monthColumn");
 				monthButtonColumn.empty();
 				var theMonth = today.getMonth() + 1;
-				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showCategory(" + (categoryIndex+1) + ")\">Earlier</button><br/>");
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showCategory(" + (categoryIndex+1) + ")\">1 - 8</button><br/>");
 				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showDay(" + categoryIndex + ")\">" + theMonth + "</button><br/>");
-				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showCategory(" + categoryIndex + ")\">Later</button>")
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showCategory(" + categoryIndex + ")\">10 - 12</button>")
 			}
 
 			function addYearButton(years, categoryIndex){
@@ -59,12 +59,20 @@
 			}
 
 			function clearMonthAndDay(){
-				$("#monthColumn").empty();
+				var monthButtonColumn = $("#monthColumn");
+				monthButtonColumn.empty();
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" disabled >&nbsp;</button><br/>");
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" disabled >&nbsp;</button><br/>");
+				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" disabled >&nbsp;</button>")
 				clearDay();
 			}
 
 			function clearDay(){
-				$("#dayColumn").empty();
+				var dayButtonColumn = $("#dayColumn");
+				dayButtonColumn.empty();
+				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" disabled >&nbsp;</button><br/>");
+				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" disabled >&nbsp;</button><br/>");
+				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" disabled >&nbsp;</button>")
 			}
 
 			function addDefiniteYearButton(years, categoryIndex){
@@ -117,7 +125,6 @@
 			<h1>Age Categoriser</h1>
 		</div>
 		<div class="form-group">
-			<label for="ageCategories">Age categories</label>
 			<!-- Multi range slider: http://www.bacubacu.com/colresizable/#samples -->
 			<input type="text" class="form-control" id="ageCategories" placeholder="Age categories" value="9 12 16" onkeypress="generateButtons();">
 		</div>
@@ -128,9 +135,9 @@
 				<table class="table table-condensed">
 					<thead>
 						<tr>
-							<th width="33%">Year</th>
-							<th width="33%">Month</th>
-							<th width="33%">Day</th>
+							<th width="33%"/>
+							<th width="33%"/>
+							<th width="33%"/>
 						</tr>
 					</thead>
 					<tbody>
@@ -138,8 +145,14 @@
 							<td id="yearColumn">
 							</td>
 							<td id="monthColumn">
+								<button type="button" class="btn btn-default btn-block" disabled >&nbsp;</button><br/>
+								<button type="button" class="btn btn-default btn-block" disabled >&nbsp;</button><br/>
+								<button type="button" class="btn btn-default btn-block" disabled >&nbsp;</button>
 							</td>
 							<td id="dayColumn">
+								<button type="button" class="btn btn-default btn-block" disabled >&nbsp;</button><br/>
+								<button type="button" class="btn btn-default btn-block" disabled >&nbsp;</button><br/>
+								<button type="button" class="btn btn-default btn-block" disabled >&nbsp;</button>
 							</td>
 						</tr>
 					</tbody>
