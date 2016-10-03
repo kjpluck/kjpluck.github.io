@@ -32,8 +32,8 @@
 				dayButtonColumn.empty();
 				var theDay = today.getDate();
 				dayButtonColumn.append( makeMinButton("showCategory(" + (categoryIndex + 1) + ")", theDay) + "<br/>");
-				dayButtonColumn.append( makeButton("showCategory(" + (categoryIndex + 1) + ", true)", theDay) + "<br/>");
-				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showCategory(" + categoryIndex + ")\">" +  (theDay + 1)	+ " - 31</button>")
+				dayButtonColumn.append(    makeButton("showCategory(" + (categoryIndex + 1) + ", true)", theDay) + "<br/>");
+				dayButtonColumn.append( makeMaxButton("showCategory(" + categoryIndex + ")",  theDay, 31));
 			}
 			
 			function makeMinButton(onClick, value){
@@ -44,6 +44,20 @@
 				if(value == 2)
 					return makeButton(onClick, 1);
 				return makeButton(onClick, "1 - " + (value - 1));
+			}
+
+			function makeMaxButton(onClick, value, max){
+				if(max == 31) max = daysInMonth(today.getMonth()+1 ,today.getFullYear());
+
+				if(value == max) return makeButton("","");
+
+				if(value  == max - 1) return makeButton(onClick, max);
+
+				return makeButton(onClick, (value + 1) + " - " + max);
+			}
+
+			function daysInMonth(month,year) {
+			    return new Date(year, month, 0).getDate();
 			}
 
 			function makeButton(onClick, contents){
@@ -59,8 +73,8 @@
 				monthButtonColumn.empty();
 				var theMonth = today.getMonth() + 1;
 				monthButtonColumn.append(makeMinButton("clearDay(); showCategory(" + (categoryIndex+1) + ")", theMonth) + "<br/>");
-				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"showDay(" + categoryIndex + ")\">" + theMonth + "</button><br/>");
-				monthButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showCategory(" + categoryIndex + ")\">10 - 12</button>")
+				monthButtonColumn.append(makeButton("showDay(" + categoryIndex + ")", theMonth )+"<br/>");
+				monthButtonColumn.append(makeMaxButton("clearDay(); showCategory(" + categoryIndex + ")", theMonth, 12 ));
 			}
 
 			function addYearButton(years, categoryIndex){
@@ -69,12 +83,16 @@
 			}
 
 			function showCategory(categoryIndex, birthDay = false){
+				var html = "";
 				if(categoryIndex >= ageCategories.length)
-					$("#result").html("XX");
-				else if(birthDay)
-					$("#result").html(ageCategories[categoryIndex] + " &#x1F382;")
+					html = ageCategories[categoryIndex - 1] + " +";
 				else
-					$("#result").html(ageCategories[categoryIndex]);
+					html = "<" + ageCategories[categoryIndex];
+
+				if(birthDay)
+					html = "&#x1F382; " + html;
+
+				$("#result").html(html);
 			}
 
 			function clearMonthAndDay(){
@@ -101,7 +119,9 @@
 
 			function generateButtons(){
 				$("#yearColumn").empty();
-				ageCategories = $("#ageCategories").val().split(" ").sort(numeric).map( Number );
+				ageCategories = $("#ageCategories").val().split(" ");
+				ageCategories = sort_unique(ageCategories);
+				ageCategories.map( Number );
 				var theYear = today.getFullYear();
 
 				var numberOfCategories = ageCategories.length;
@@ -137,10 +157,22 @@
 				addDefiniteYearButton((yearForButton+1) + "+",0);
 			}
 
+			function sort_unique(arr) {
+			    if (arr.length === 0) return arr;
+			    arr = arr.sort(function (a, b) { return a*1 - b*1; });
+			    var ret = [arr[0]];
+			    for (var i = 1; i < arr.length; i++) { // start loop at 1 as element 0 can never be a duplicate
+			        if (arr[i-1] !== arr[i]) {
+			            ret.push(arr[i]);
+			        }
+			    }
+			    return ret;
+			}
+
 		</script>
 	</head>
 	<body style="width: 290px;margin: 0 auto;">
-		<div class="page-header">
+		<div class="page-header text-center">
 			<h1>Age Categoriser</h1>
 		</div>
 		<div class="form-group">
