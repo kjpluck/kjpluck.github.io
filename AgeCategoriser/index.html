@@ -18,7 +18,6 @@
 		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 		<![endif]-->
   		<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 		<script src="js/bootstrap.min.js"></script>
 		<script type="text/javascript">
@@ -28,7 +27,6 @@
 
 			$(function() { 
 				$( "#datepicker" ).val(today.getFullYear() + "-" + (today.getMonth()+1) + "-" + today.getDate());
-				$( "#datepicker" ).datepicker({dateFormat: "yy-mm-dd"});
 				generateButtons();
 			});
 
@@ -92,11 +90,6 @@
 				monthButtonColumn.append(makeMaxButton("clearDay(); showCategory(" + categoryIndex + ")", theMonth, 12 ));
 			}
 
-			function addYearButton(years, categoryIndex){
-				var yearButtonColumn = $("#yearColumn");
-				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showMonth(" + categoryIndex + ")\">" + years + "</button>")
-			}
-
 			function showCategory(categoryIndex, birthDay = false){
 				var html = "";
 				if(categoryIndex >= ageCategories.length)
@@ -125,6 +118,11 @@
 				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" disabled >&nbsp;</button><br/>");
 				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" disabled >&nbsp;</button><br/>");
 				dayButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" disabled >&nbsp;</button>")
+			}
+
+			function addYearButton(years, categoryIndex){
+				var yearButtonColumn = $("#yearColumn");
+				yearButtonColumn.append("<button type=\"button\" class=\"btn btn-default btn-block\" onclick=\"clearDay(); showMonth(" + categoryIndex + ")\">" + years + "</button>")
 			}
 
 			function addDefiniteYearButton(years, categoryIndex){
