@@ -1,6 +1,7 @@
 function setup() {
   // Sets the screen to be 640 pixels wide and 360 pixels high
-  createCanvas(720, 400);
+  var canvas = createCanvas(1000, 1000);
+  canvas.parent('spiral-canvas');
 }
 
 function draw() {
