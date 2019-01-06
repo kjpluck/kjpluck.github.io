@@ -6,7 +6,18 @@
 			<script type="text/javascript" src="LineChart.js"></script>
 	</head>
 	<body>
+		<div>
+			<table>
+				<thead>
+					<tr><th></th><th>Area</th><th>Extent</th></tr>
+				</thead>
+				<tbody>
+					<tr><th>Arctic</th>   <td><button onclick="drawChart('area','north')">Get</button></td><td><button onclick="drawChart('extent','north')">Get</button></td></tr>
+					<tr><th>Antarctic</th><td><button onclick="drawChart('area','south')">Get</button></td><td><button onclick="drawChart('extent','south')">Get</button></td></tr>
+					<tr><th>Global</th>   <td><button onclick="drawChart('area','global')">Get</button></td><td><button onclick="drawChart('extent','global')">Get</button></td></tr>
+				</tbody>
+			</table>
+		</div>
 		<div id="chart_div"></div>
-		<button onclick="drawChart()">Swap</button>
 	</body>
 </html>

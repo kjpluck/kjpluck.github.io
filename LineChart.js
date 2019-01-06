@@ -1,7 +1,6 @@
 google.charts.load('current', {packages: ['corechart', 'line']});
 google.charts.setOnLoadCallback(drawChart);
 var dataLoader = new DataLoader();
-var hemisphere = "north";
 var chart;
 var options = {
     animation:{
@@ -12,7 +11,11 @@ var options = {
     width: 900,
     height: 900,
     legend:"none",
-    hAxis:{title: "time"},
+    hAxis:
+    {
+        title: "time",
+        ticks: [{v:1, f:"Jan"}, {v:32, f:"Feb"}, {v:60, f:"Mar"}, {v:91, f:"Apr"}, {v:121, f:"May"}, {v:152, f:"Jun"}, {v:182, f:"Jul"}, {v:213, f:"Aug"}, {v:244, f:"Sep"}, {v:274, f:"Oct"}, {v:305, f:"Nov"}, {v:335, f:"Dec"}, {v:367, f:"Jan"}]
+    },
     vAxis:
     {
         title:"Extent (Millions of square kilometers)",
@@ -23,17 +26,13 @@ var options = {
     }
 };
 
-function drawChart() {
-
-    dataLoader.GetNsidc(hemisphere, 1979, 2018, GotNsidc);
-    if(hemisphere == "north")
-        hemisphere = "south"
-    else
-    if(hemisphere == "south")
-        hemisphere = "global";
-    else
-    if(hemisphere == "global")
+function drawChart(type, hemisphere) {
+    if(!type)
+        type = "extent";
+    if(!hemisphere)
         hemisphere = "north";
+
+    dataLoader.GetNsidc(type, hemisphere, GotNsidc);
 }
 
 function GotNsidc(data)

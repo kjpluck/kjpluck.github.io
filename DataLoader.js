@@ -1,31 +1,25 @@
 function DataLoader()
 {
-    this.north;
-    this.south;
-    this.global;
+    this.north = {};
+    this.south = {};
+    this.global = {};
 }
 
-DataLoader.prototype.GetNsidc = function (hemisphere, startYear, endYear, callBack)
+DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
 {   
 
-    if(this[hemisphere])
+    if(this[hemisphere][type])
     {
-        DataLoader.GotNsidc(this[hemisphere], callBack);
+        DataLoader.GotNsidc(this[hemisphere][type], callBack);
         return;
     }
 
     if(hemisphere == "global")
     {
-        this.GetGlobal(callBack);
+        this.GetGlobal(type, callBack);
         return;
     }
 
-    var years = [];
-    for (var i = startYear; i <= endYear; i++) {
-        years.push(i);
-    }
-
-    var done = years.length;
     var sum = 0;
 
     var seaIceData={};
@@ -35,19 +29,24 @@ DataLoader.prototype.GetNsidc = function (hemisphere, startYear, endYear, callBa
     else
         seaIceData.title = "Arctic Sea Ice Extent";
 
-    seaIceData.startYear = startYear;
-    seaIceData.endYear = endYear;
+    var years = [];
+    for (var i = 1979; i <= 2018; i++) {
+        years.push(i);
+    }
+
+    var done = years.length;
     var that = this;
-    $(years).each(function(index, year) {
+    $(years).each(function(index, year) // Need to use a .each function as "year" needs a closure around it.
+    {
         var number = this;
-        $.getJSON("http://nsidc.org/api/seaiceservice/extent/"+hemisphere+"/filled_averaged_data/" + year + "?index=doy&smoothing_window=5", function(data) {
-        seaIceData["year" + year] = data;
-        done -= 1;
-        if(done == 0) 
-        {
-            this[hemisphere] = seaIceData;
-            DataLoader.GotNsidc(seaIceData, callBack);
-        }
+        $.getJSON("http://nsidc.org/api/seaiceservice/" + type + "/" + hemisphere + "/filled_averaged_data/" + year + "?index=doy&smoothing_window=5", function(data) {
+            seaIceData["year" + year] = data;
+            done -= 1;
+            if(done == 0) 
+            {
+                this[hemisphere][type] = seaIceData;
+                DataLoader.GotNsidc(seaIceData, callBack);
+            }
         }.bind(that));
     });
 }
@@ -59,7 +58,7 @@ DataLoader.GotNsidc = function(seaIceData, callBack)
     nsidcDataTable.addColumn('number', 'Day');
     nsidcDataTable.series = [];
     nsidcDataTable.title = seaIceData.title;
-    for(year = seaIceData.startYear; year <= seaIceData.endYear; year++)
+    for(year = 1979; year <= 2018; year++)
     {
         nsidcDataTable.addColumn('number', year);
         nsidcDataTable.series.push(DataLoader.MakeColor(seaIceData, year));
@@ -69,7 +68,7 @@ DataLoader.GotNsidc = function(seaIceData, callBack)
     {
         var row = [];
         row.push(day+1);
-        for(year = seaIceData.startYear; year <= seaIceData.endYear; year++)
+        for(year = 1979; year <= 2018; year++)
         {
             if(seaIceData["year" + year][day])
             {
@@ -89,11 +88,11 @@ DataLoader.GotNsidc = function(seaIceData, callBack)
 
 DataLoader.MakeColor = function(seaIceData, year)
 {
-    if(year == seaIceData.endYear)
+    if(year == 2018)
         return "#ff0000";
 
-    var range = seaIceData.endYear - seaIceData.startYear;
-    var pos = year - seaIceData.startYear;
+    var range = 2018 - 1979;
+    var pos = year - 1979;
 
     var lerp = 1 - pos / range;
 
@@ -102,23 +101,23 @@ DataLoader.MakeColor = function(seaIceData, year)
     return "#" + hex + hex + hex;
 }
 
-DataLoader.prototype.GetGlobal = function(callBack)
+DataLoader.prototype.GetGlobal = function(type, callBack)
 {
     if(!this.north || !this.south)
         return;
     
-    if(this.global)
+    if(this.global[type])
     {
-        DataLoader.GotNsidc(global, callBack);
+        DataLoader.GotNsidc(global[type], callBack);
         return;
     }
     
-    var global = {title: "Global Sea Ice Extent", startYear:this.north.startYear, endYear:this.north.endYear};
+    var global = {title: "Global Sea Ice Extent"};
     
-    for(year = global.startYear; year <= global.endYear; year++)
+    for(year = 1979; year <= 2018; year++)
     {
-        var northData = this.north["year"+year];
-        var southData = this.south["year"+year];
+        var northData = this.north[type]["year"+year];
+        var southData = this.south[type]["year"+year];
         global["year"+year] = {};
         for(day = 1; day <= 366; day++)
         {
@@ -132,6 +131,6 @@ DataLoader.prototype.GetGlobal = function(callBack)
         }
     }
 
-    this.global = global;
+    this.global[type] = global;
     DataLoader.GotNsidc(global, callBack);
 }
