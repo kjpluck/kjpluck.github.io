@@ -23,8 +23,13 @@
             text-align: center;
         }
 
-        button{width:40px}
-        table{font-size: 200%}
+        button {
+            width: 40px
+        }
+
+        table {
+            font-size: 200%
+        }
     </style>
     <script>
         function copySymbol(button) {
@@ -32,10 +37,31 @@
             copier.value = button.textContent;
             copier.select();
             document.execCommand("copy");
-
+            //clearSelection();
+            copier.blur();
             var message = document.getElementById("message");
             message.textContent = "Copied!";
             setTimeout(function () { message.textContent = "" }, 1000);
+        }
+
+        function clearSelection() {
+            var sel;
+            if ((sel = document.selection) && sel.empty) {
+                sel.empty();
+            } else {
+                if (window.getSelection) {
+                    window.getSelection().removeAllRanges();
+                }
+                var activeEl = document.activeElement;
+                if (activeEl) {
+                    var tagName = activeEl.nodeName.toLowerCase();
+                    if (tagName == "textarea" ||
+                        (tagName == "input" && activeEl.type == "text")) {
+                        // Collapse the selection to the end
+                        activeEl.selectionStart = activeEl.selectionEnd;
+                    }
+                }
+            }
         }
     </script>
 </head>
