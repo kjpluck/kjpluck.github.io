@@ -35,7 +35,18 @@
         function copySymbol(button) {
             var copier = document.getElementById("copier");
             copier.value = button.textContent;
-            copier.select();
+            var range = document.createRange();
+
+            copier.contentEditable = true;
+            copier.readOnly = false;
+            range.selectNodeContents(el);
+
+            var s = window.getSelection();
+            s.removeAllRanges();
+            s.addRange(range);
+
+            copier.setSelectionRange(0, 999999); // A big number, to cover anything that could be inside the element.
+
             document.execCommand("copy");
             var message = document.getElementById("message");
             message.textContent = "Copied!!";
@@ -46,7 +57,7 @@
 </head>
 
 <body>
-    <input type="text" maxlength="1" size="1" id="copier" contenteditable="true"/>
+    <input type="text" maxlength="1" size="1" id="copier"/>
     <span id="message"></span>
 
     <table class="table">
