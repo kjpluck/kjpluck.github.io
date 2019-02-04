@@ -1,0 +1,183 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <title>Symbol copier</title>
+    <style>
+        table {
+            border: 1px solid black
+        }
+
+        td,
+        th {
+            border-left: 1px solid black;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        td,
+        th {
+            text-align: center;
+        }
+
+        button {
+            width: 50px
+        }
+
+        body, table {
+            font-size: 200%
+        }
+    </style>
+    <script>
+        function copySymbol(button) {
+            var copier = document.getElementById("copier");
+            copier.value = button.textContent;
+            copier.select();
+            document.execCommand("copy");
+            var message = document.getElementById("message");
+            message.textContent = "Copied!!";
+            copier.blur();
+            setTimeout(function () { message.textContent = "" }, 1000);
+        }
+    </script>
+</head>
+
+<body>
+    <input type="text" maxlength="1" size="1" id="copier" />
+    <span id="message"></span>
+    <table class="table">
+        <thead>
+            <tr>
+                <th align="center">Subscript</th>
+                <th>Superscript</th>
+                <th>Miscellaneous</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td align="center">
+                    <button onclick="copySymbol(this)">₁</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">¹</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">°</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="copySymbol(this)">₂</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">²</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">±</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="copySymbol(this)">₃</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">³</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">¼</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="copySymbol(this)">₄</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">⁴</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">½</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="copySymbol(this)">₅</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">⁵</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">¾</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="copySymbol(this)">₆</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">⁶</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">¿</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="copySymbol(this)">₇</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">⁷</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">¡</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="copySymbol(this)">₈</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">⁸</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">÷</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="copySymbol(this)">₉</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">⁹</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">×</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button onclick="copySymbol(this)">₀</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">⁰</button>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">±</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                    <button onclick="copySymbol(this)">‽</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
