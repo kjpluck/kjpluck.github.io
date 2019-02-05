@@ -20,7 +20,10 @@
         [
             {title:"Superscript", symbols:"¹²³⁴⁵⁶⁷⁸⁹⁰⁺⁻"},
             {title:"Subscript", symbols:"₁₂₃₄₅₆₇₈₉₀₊₋"},
-            {title:"Miscellanious", symbols:"°±¼½¾¿¡÷×±‽"}
+            {title:"Miscellanious", symbols:"°±¼½¾¿¡÷×±‽"},
+            {title:"Lower case Greek", symbols:"αβγδεζηθικλμνξοπρστυφχψω"},
+            {title:"Upper case Greek", symbols:"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"},
+            {title:"Math", symbols:"∀∁∂∃∄∅∆∇∈∉∊∋∌∍∎∏"}
         ]
         function copyToClipboard(el) {
 
@@ -79,6 +82,7 @@
                 button.setAttribute("onclick", "copySymbol('"+symbols.charAt(i)+"')");
                 button.appendChild(document.createTextNode(symbols.charAt(i)));
                 buttonSpan.appendChild(button);
+                buttonSpan.appendChild(document.createTextNode(" "))
             }
             
             return buttonSpan;
