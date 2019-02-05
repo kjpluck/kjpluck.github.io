@@ -33,6 +33,12 @@
         }
     </style>
     <script>
+        var symbolGroups =
+        [
+            {title:"Superscript", symbols:"¹²³⁴⁵⁶⁷⁸⁹⁰⁺⁻"},
+            {title:"Subscript", symbols:"₁₂₃₄₅₆₇₈₉₀₊₋"},
+            {title:"Miscellanious", symbols:"°±¼½¾¿¡÷×±‽"}
+        ]
         function copyToClipboard(el) {
 
             // resolve the element
@@ -70,153 +76,54 @@
             // execute copy command
             document.execCommand('copy');
         }
-        function copySymbol(button) {
-            var copier = document.getElementById("copier");
-            copier.value = button.textContent;
+        function copySymbol(symbol) {
+            copier.value = symbol;
             copyToClipboard(copier);
+            copier.blur();
 
             var message = document.getElementById("message");
             message.textContent = "Copied!!";
             
             setTimeout(function () { message.textContent = "" }, 1000);
         }
+
+        function createButtons(symbols)
+        {
+            var buttonSpan = document.createElement("span");
+            for (var i = 0; i < symbols.length; i++) 
+            {
+                var button = document.createElement("button");
+                button.setAttribute("onclick", "copySymbol('"+symbols.charAt(i)+"')");
+                button.appendChild(document.createTextNode(symbols.charAt(i)));
+                buttonSpan.appendChild(button);
+            }
+            
+            return buttonSpan;
+        }
+
+        function render()
+        {
+            var symbols = document.getElementById("symbols");
+            var descriptionList = document.createElement("dl");
+            symbolGroups.forEach(group => {
+                var title = document.createElement("dt");
+                title.appendChild(document.createTextNode(group.title));
+                descriptionList.appendChild(title);
+
+                var description = document.createElement("dd");
+                description.appendChild(createButtons(group.symbols));
+                descriptionList.appendChild(description);
+            });
+
+            symbols.appendChild(descriptionList);
+        }
     </script>
 </head>
 
-<body>
+<body onload="render()">
     <input type="text" maxlength="1" size="1" id="copier" />
     <span id="message"></span>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th align="center">Subscript</th>
-                <th>Superscript</th>
-                <th>Miscellaneous</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td align="center">
-                    <button onclick="copySymbol(this)">₁</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">¹</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">°</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="copySymbol(this)">₂</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">²</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">±</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="copySymbol(this)">₃</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">³</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">¼</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="copySymbol(this)">₄</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">⁴</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">½</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="copySymbol(this)">₅</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">⁵</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">¾</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="copySymbol(this)">₆</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">⁶</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">¿</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="copySymbol(this)">₇</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">⁷</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">¡</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="copySymbol(this)">₈</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">⁸</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">÷</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="copySymbol(this)">₉</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">⁹</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">×</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button onclick="copySymbol(this)">₀</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">⁰</button>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">±</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                    <button onclick="copySymbol(this)">‽</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div id="symbols"></div>
 </body>
 
 </html>
