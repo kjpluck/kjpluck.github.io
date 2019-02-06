@@ -31,7 +31,7 @@
             {title:"Subscript", symbols:"₁₂₃₄₅₆₇₈₉₀₊₋"},
             {title:"Common", symbols:"°¼½¾¿¡‽÷×±•≠≈∝≤≥↑↓→←√∫∴∞"},
             {title:"Lower case Greek", symbols:"αβγδεζηθικλμνξοπρστυφχψω"},
-            {title:"Upper case Greek", initiallyHidden:true, symbols:"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"},
+            {title:"Upper case Greek", symbols:"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"},
             {title:"Mathematical Operators", initiallyHidden:true, symbols:"∀∁∂∃∄∅∆∇∈∉∊∋∌∍∎∏∐∑−∓∔∕∖∗∘∙√∛∜∝∞∟∠∡∢∣∤∥∦∧∨∩∪∫∬∭∮∯∰∱∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊺⊻⊼⊽⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿"}
         ]
         function copyToClipboard() {
@@ -110,7 +110,7 @@
                 
                 if(group.initiallyHidden) 
                 {
-                    title.appendChild(document.createTextNode(" ▶"));
+                    title.appendChild(document.createTextNode(" ▷"));
                     title.onclick=function(){toggleHiddenGroup(group, title)};
                     title.style.cursor = "pointer";
                     return;
@@ -133,7 +133,7 @@
                     title.removeChild(title.firstChild);
                 }
                 
-                title.appendChild(document.createTextNode(group.title + " ▶"));
+                title.appendChild(document.createTextNode(group.title + " ▷"));
 
                 var buttonSpan = title.nextSibling;
                 buttonSpan.parentElement.removeChild(buttonSpan);
@@ -146,7 +146,7 @@
                     title.removeChild(title.firstChild);
                 }
                 
-                title.appendChild(document.createTextNode(group.title + " ▼"));
+                title.appendChild(document.createTextNode(group.title + " ▽"));
                 insertAfter(createButtons(group.symbols), title)
                 group.isOpen = true;
             }
