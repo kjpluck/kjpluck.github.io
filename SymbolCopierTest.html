@@ -10,9 +10,18 @@
             width: 50px
         }
 
-        body,
-        dl {
+        input,
+        #message,
+        dl, #clearButton {
             font-size: 200%
+        }
+
+        #clearButton {width: 100px}
+
+        .center {
+        margin: auto;
+        width: 35%;
+        padding: 10px;
         }
     </style>
     <script>
@@ -23,10 +32,11 @@
             {title:"Miscellanious", symbols:"°±¼½¾¿¡÷×±‽"},
             {title:"Lower case Greek", symbols:"αβγδεζηθικλμνξοπρστυφχψω"},
             {title:"Upper case Greek", symbols:"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"},
-            {title:"Math", symbols:"∀∁∂∃∄∅∆∇∈∉∊∋∌∍∎∏"}
+            {title:"Mathematical Operators", symbols:"∀∁∂∃∄∅∆∇∈∉∊∋∌∍∎∏∐∑−∓∔∕∖∗∘∙√∛∜∝∞∟∠∡∢∣∤∥∦∧∨∩∪∫∬∭∮∯∰∱∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊺⊻⊼⊽⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿"}
         ]
-        function copyToClipboard(el) {
+        function copyToClipboard() {
 
+            var el = document.getElementById("copier");
             // resolve the element
             el = (typeof el === 'string') ? document.querySelector(el) : el;
 
@@ -63,8 +73,9 @@
             document.execCommand('copy');
         }
         function copySymbol(symbol) {
-            copier.value = symbol;
-            copyToClipboard(copier);
+            var copier = document.getElementById("copier");
+            copier.value = copier.value + symbol;
+            copyToClipboard();
             copier.blur();
 
             var message = document.getElementById("message");
@@ -104,12 +115,20 @@
 
             symbols.appendChild(descriptionList);
         }
+
+        function clearInput()
+        {
+            document.getElementById("copier").value = "";
+        }
     </script>
 </head>
 
 <body onload="render()">
-    <input type="text" maxlength="1" size="1" id="copier" />
-    <span id="message"></span>
+    <div class="center">
+        <input type="text" id="copier" />
+        <button id="clearButton" onclick="clearInput()">Clear</button>
+        <span id="message"></span>
+    </div>
     <div id="symbols"></div>
 </body>
 
