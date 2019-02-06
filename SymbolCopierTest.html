@@ -29,10 +29,10 @@
         [
             {title:"Superscript", symbols:"¹²³⁴⁵⁶⁷⁸⁹⁰⁺⁻"},
             {title:"Subscript", symbols:"₁₂₃₄₅₆₇₈₉₀₊₋"},
-            {title:"Miscellanious", symbols:"°±¼½¾¿¡÷×±‽"},
+            {title:"Common", symbols:"°¼½¾¿¡‽÷×±•≠≈∝≤≥↑↓→←√∫∴∞"},
             {title:"Lower case Greek", symbols:"αβγδεζηθικλμνξοπρστυφχψω"},
-            {title:"Upper case Greek", symbols:"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"},
-            {title:"Mathematical Operators", symbols:"∀∁∂∃∄∅∆∇∈∉∊∋∌∍∎∏∐∑−∓∔∕∖∗∘∙√∛∜∝∞∟∠∡∢∣∤∥∦∧∨∩∪∫∬∭∮∯∰∱∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊺⊻⊼⊽⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿"}
+            {title:"Upper case Greek", initiallyHidden:true, symbols:"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"},
+            {title:"Mathematical Operators", initiallyHidden:true, symbols:"∀∁∂∃∄∅∆∇∈∉∊∋∌∍∎∏∐∑−∓∔∕∖∗∘∙√∛∜∝∞∟∠∡∢∣∤∥∦∧∨∩∪∫∬∭∮∯∰∱∲∳∴∵∶∷∸∹∺∻∼∽∾∿≀≁≂≃≄≅≆≇≈≉≊≋≌≍≎≏≐≑≒≓≔≕≖≗≘≙≚≛≜≝≞≟≠≡≢≣≤≥≦≧≨≩≪≫≬≭≮≯≰≱≲≳≴≵≶≷≸≹≺≻≼≽≾≿⊀⊁⊂⊃⊄⊅⊆⊇⊈⊉⊊⊋⊌⊍⊎⊏⊐⊑⊒⊓⊔⊕⊖⊗⊘⊙⊚⊛⊜⊝⊞⊟⊠⊡⊢⊣⊤⊥⊦⊧⊨⊩⊪⊫⊬⊭⊮⊯⊰⊱⊲⊳⊴⊵⊶⊷⊸⊹⊺⊻⊼⊽⊾⊿⋀⋁⋂⋃⋄⋅⋆⋇⋈⋉⋊⋋⋌⋍⋎⋏⋐⋑⋒⋓⋔⋕⋖⋗⋘⋙⋚⋛⋜⋝⋞⋟⋠⋡⋢⋣⋤⋥⋦⋧⋨⋩⋪⋫⋬⋭⋮⋯⋰⋱⋲⋳⋴⋵⋶⋷⋸⋹⋺⋻⋼⋽⋾⋿"}
         ]
         function copyToClipboard() {
 
@@ -74,7 +74,7 @@
         }
         function copySymbol(symbol) {
             var copier = document.getElementById("copier");
-            copier.value = copier.value + symbol;
+            copier.value = symbol;
             copyToClipboard();
             copier.blur();
 
@@ -107,6 +107,14 @@
                 var title = document.createElement("dt");
                 title.appendChild(document.createTextNode(group.title));
                 descriptionList.appendChild(title);
+                
+                if(group.initiallyHidden) 
+                {
+                    title.appendChild(document.createTextNode(" ▶"));
+                    title.onclick=function(){toggleHiddenGroup(group, title)};
+                    title.style.cursor = "pointer";
+                    return;
+                }
 
                 var description = document.createElement("dd");
                 description.appendChild(createButtons(group.symbols));
@@ -114,6 +122,38 @@
             });
 
             symbols.appendChild(descriptionList);
+        }
+
+        function toggleHiddenGroup(group, title)
+        {
+            if(group.isOpen)
+            {
+                while (title.firstChild) 
+                {
+                    title.removeChild(title.firstChild);
+                }
+                
+                title.appendChild(document.createTextNode(group.title + " ▶"));
+
+                var buttonSpan = title.nextSibling;
+                buttonSpan.parentElement.removeChild(buttonSpan);
+                group.isOpen = false;
+            }
+            else
+            {
+                while (title.firstChild) 
+                {
+                    title.removeChild(title.firstChild);
+                }
+                
+                title.appendChild(document.createTextNode(group.title + " ▼"));
+                insertAfter(createButtons(group.symbols), title)
+                group.isOpen = true;
+            }
+        }
+
+        function insertAfter(newNode, referenceNode) {
+            referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
         }
 
         function clearInput()
@@ -125,8 +165,7 @@
 
 <body onload="render()">
     <div class="center">
-        <input type="text" id="copier" />
-        <button id="clearButton" onclick="clearInput()">Clear</button>
+        <input type="text" id="copier" maxlength="1" size="1"/>
         <span id="message"></span>
     </div>
     <div id="symbols"></div>
