@@ -16,6 +16,11 @@
             font-size: 300%
         }
 
+        .btn
+        {
+            font-size: 70%
+        }
+
         #clearButton {width: 100px}
 
         .center {
@@ -101,6 +106,7 @@
             for (var i = 0; i < symbols.length; i++) 
             {
                 var button = document.createElement("button");
+                button.classList.add("btn");
                 button.setAttribute("onclick", "copySymbol('"+symbols.charAt(i)+"')");
                 button.appendChild(document.createTextNode(symbols.charAt(i)));
                 buttonSpan.appendChild(button);
