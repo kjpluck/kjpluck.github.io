@@ -11,7 +11,7 @@
 
         input,
         #message,
-        dl, #clearButton, h1, a {
+        dl, #clearButton {
             font-size: 300%
         }
 
