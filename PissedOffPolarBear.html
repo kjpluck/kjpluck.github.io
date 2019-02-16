@@ -30,9 +30,10 @@
                         end = this.selectionEnd;
                         this.value = val.slice(0, start) + mappedChar + val.slice(end);
                         this.value = this.value.replace("TH", "Z");
-                        this.value = this.value.replace("W", "VW");
+                        this.value = this.value.replace(/([^V])W/, "$1VW");
+                        this.value = this.value.replace(/^W/, "VW");
                         // Move the caret
-                        this.selectionStart = this.selectionEnd = start + 1;
+                        this.selectionStart = this.selectionEnd = this.value.length;
                     } 
                     
                     return false;
