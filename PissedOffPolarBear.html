@@ -1,0 +1,43 @@
+<html>
+    <body>
+        <textarea id="foo" rows="4" cols="50"></textarea>
+        <div id="output"></div>
+        <script>
+    //Я, И, and ꓘ
+            function transformTypedChar(charStr) {
+                if(charStr == "R") return "Я";
+                if(charStr == "K") return "ꓘ";
+                if(charStr == "N") return "И";
+                return charStr;
+            }
+            
+            document.getElementById("foo").onkeypress = function(evt) {
+                var val = this.value;
+                evt = evt || window.event;
+            
+                // Ensure we only handle printable keys, excluding enter and space
+                var charCode = typeof evt.which == "number" ? evt.which : evt.keyCode;
+                if (charCode && charCode > 32) {
+                    var keyChar = String.fromCharCode(charCode);
+            
+                    // Transform typed character
+                    var mappedChar = transformTypedChar(keyChar);
+            
+                    var start, end;
+                    if (typeof this.selectionStart == "number" && typeof this.selectionEnd == "number") {
+                        // Non-IE browsers and IE 9
+                        start = this.selectionStart;
+                        end = this.selectionEnd;
+                        this.value = val.slice(0, start) + mappedChar + val.slice(end);
+                        this.value = this.value.replace("TH", "Z");
+                        // Move the caret
+                        this.selectionStart = this.selectionEnd = start + 1;
+                    } 
+                    
+                    return false;
+                }
+            };
+    
+        </script>
+    </body>
+</html>
