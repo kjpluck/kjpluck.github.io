@@ -8,6 +8,8 @@
                 if(charStr == "R") return "Я";
                 if(charStr == "K") return "ꓘ";
                 if(charStr == "N") return "И";
+                if(charStr == "V") return "W";
+                if(charStr == "W") return "V";
                 return charStr;
             }
             
@@ -30,8 +32,8 @@
                         end = this.selectionEnd;
                         this.value = val.slice(0, start) + mappedChar + val.slice(end);
                         this.value = this.value.replace("TH", "Z");
-                        this.value = this.value.replace(/([^V])W/, "$1VW");
-                        this.value = this.value.replace(/^W/, "VW");
+                        this.value = this.value.replace("SH", "ZH");
+
                         // Move the caret
                         this.selectionStart = this.selectionEnd = this.value.length;
                     } 
