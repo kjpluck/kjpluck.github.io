@@ -3,6 +3,7 @@ function DataLoader()
     this.north = {};
     this.south = {};
     this.global = {};
+    this.maxYear = (new Date()).getFullYear();
 }
 
 DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
@@ -10,7 +11,7 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
 
     if(this[hemisphere][type])
     {
-        DataLoader.GotNsidc(this[hemisphere][type], callBack);
+        this.GotNsidc(this[hemisphere][type], callBack);
         return;
     }
 
@@ -25,12 +26,12 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
     var seaIceData={};
 
     if(hemisphere == "south")
-        seaIceData.title = "Antarctic Sea Ice Extent";
+        seaIceData.title = "Antarctic Sea Ice " + type;
     else
-        seaIceData.title = "Arctic Sea Ice Extent";
+        seaIceData.title = "Arctic Sea Ice " + type;
 
     var years = [];
-    for (var i = 1979; i <= 2019; i++) {
+    for (var i = 1979; i <= this.maxYear; i++) {
         years.push(i);
     }
 
@@ -39,36 +40,36 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
     $(years).each(function(index, year) // Need to use a .each function as "year" needs a closure around it.
     {
         var number = this;
-        $.getJSON("http://nsidc.org/api/seaiceservice/" + type + "/" + hemisphere + "/filled_averaged_data/" + year + "?index=doy&smoothing_window=5", function(data) {
+        $.getJSON("http://nsidc.org/api/seaiceservice/" + type.toLowerCase() + "/" + hemisphere + "/filled_averaged_data/" + year + "?index=doy&smoothing_window=5", function(data) {
             seaIceData["year" + year] = data;
             done -= 1;
             if(done == 0) 
             {
                 this[hemisphere][type] = seaIceData;
-                DataLoader.GotNsidc(seaIceData, callBack);
+                this.GotNsidc(seaIceData, callBack);
             }
         }.bind(that));
     });
 }
 
-DataLoader.GotNsidc = function(seaIceData, callBack)
+DataLoader.prototype.GotNsidc = function(seaIceData, callBack)
 {
     var nsidcDataTable = new google.visualization.DataTable();
     
     nsidcDataTable.addColumn('number', 'Day');
     nsidcDataTable.series = [];
     nsidcDataTable.title = seaIceData.title;
-    for(year = 1979; year <= 2019; year++)
+    for(year = 1979; year <= this.maxYear; year++)
     {
         nsidcDataTable.addColumn('number', year);
-        nsidcDataTable.series.push(DataLoader.MakeColor(seaIceData, year));
+        nsidcDataTable.series.push(this.MakeColor(seaIceData, year));
     }
 
     for(day = 1; day<=366; day++)
     {
         var row = [];
         row.push(day+1);
-        for(year = 1979; year <= 2019; year++)
+        for(year = 1979; year <= this.maxYear; year++)
         {
             if(seaIceData["year" + year][day])
             {
@@ -86,12 +87,12 @@ DataLoader.GotNsidc = function(seaIceData, callBack)
     callBack(nsidcDataTable);
 }
 
-DataLoader.MakeColor = function(seaIceData, year)
+DataLoader.prototype.MakeColor = function(seaIceData, year)
 {
-    if(year == 2019)
+    if(year == this.maxYear)
         return "#ff0000";
 
-    var range = 2019 - 1979;
+    var range = this.maxYear - 1979;
     var pos = year - 1979;
 
     var lerp = 1 - pos / range;
@@ -108,13 +109,13 @@ DataLoader.prototype.GetGlobal = function(type, callBack)
     
     if(this.global[type])
     {
-        DataLoader.GotNsidc(global[type], callBack);
+        this.GotNsidc(global[type], callBack);
         return;
     }
     
-    var global = {title: "Global Sea Ice Extent"};
+    var global = {title: "Global Sea Ice " + type};
     
-    for(year = 1979; year <= 2019; year++)
+    for(year = 1979; year <= this.maxYear; year++)
     {
         var northData = this.north[type]["year"+year];
         var southData = this.south[type]["year"+year];
@@ -132,5 +133,5 @@ DataLoader.prototype.GetGlobal = function(type, callBack)
     }
 
     this.global[type] = global;
-    DataLoader.GotNsidc(global, callBack);
+    this.GotNsidc(global, callBack);
 }

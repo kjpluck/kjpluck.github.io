@@ -13,7 +13,7 @@ var options = {
     legend:"none",
     hAxis:
     {
-        title: "time",
+        title: "Time",
         ticks: [{v:1, f:"Jan"}, {v:32, f:"Feb"}, {v:60, f:"Mar"}, {v:91, f:"Apr"}, {v:121, f:"May"}, {v:152, f:"Jun"}, {v:182, f:"Jul"}, {v:213, f:"Aug"}, {v:244, f:"Sep"}, {v:274, f:"Oct"}, {v:305, f:"Nov"}, {v:335, f:"Dec"}, {v:367, f:"Jan"}]
     },
     vAxis:
@@ -28,7 +28,7 @@ var options = {
 
 function drawChart(type, hemisphere) {
     if(!type)
-        type = "extent";
+        type = "Extent";
     if(!hemisphere)
         hemisphere = "north";
 
