@@ -30,7 +30,7 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
         seaIceData.title = "Arctic Sea Ice Extent";
 
     var years = [];
-    for (var i = 1979; i <= 2018; i++) {
+    for (var i = 1979; i <= 2019; i++) {
         years.push(i);
     }
 
@@ -58,7 +58,7 @@ DataLoader.GotNsidc = function(seaIceData, callBack)
     nsidcDataTable.addColumn('number', 'Day');
     nsidcDataTable.series = [];
     nsidcDataTable.title = seaIceData.title;
-    for(year = 1979; year <= 2018; year++)
+    for(year = 1979; year <= 2019; year++)
     {
         nsidcDataTable.addColumn('number', year);
         nsidcDataTable.series.push(DataLoader.MakeColor(seaIceData, year));
@@ -68,7 +68,7 @@ DataLoader.GotNsidc = function(seaIceData, callBack)
     {
         var row = [];
         row.push(day+1);
-        for(year = 1979; year <= 2018; year++)
+        for(year = 1979; year <= 2019; year++)
         {
             if(seaIceData["year" + year][day])
             {
@@ -88,10 +88,10 @@ DataLoader.GotNsidc = function(seaIceData, callBack)
 
 DataLoader.MakeColor = function(seaIceData, year)
 {
-    if(year == 2018)
+    if(year == 2019)
         return "#ff0000";
 
-    var range = 2018 - 1979;
+    var range = 2019 - 1979;
     var pos = year - 1979;
 
     var lerp = 1 - pos / range;
@@ -114,7 +114,7 @@ DataLoader.prototype.GetGlobal = function(type, callBack)
     
     var global = {title: "Global Sea Ice Extent"};
     
-    for(year = 1979; year <= 2018; year++)
+    for(year = 1979; year <= 2019; year++)
     {
         var northData = this.north[type]["year"+year];
         var southData = this.south[type]["year"+year];
