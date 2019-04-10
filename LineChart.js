@@ -1,5 +1,5 @@
 google.charts.load('current', {packages: ['corechart', 'line']});
-google.charts.setOnLoadCallback(drawChart);
+google.charts.setOnLoadCallback(loadAllData);
 var dataLoader = new DataLoader();
 var chart;
 var options = {
@@ -25,6 +25,14 @@ var options = {
         }
     }
 };
+
+function loadAllData()
+{
+    dataLoader.GetNsidc("Extent", "north", GotNsidc);
+    dataLoader.GetNsidc("Extent", "south", function(){});
+    dataLoader.GetNsidc("Area", "north", function(){});
+    dataLoader.GetNsidc("Area", "south", function(){});
+}
 
 function drawChart(type, hemisphere) {
     if(!type)
