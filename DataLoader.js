@@ -139,6 +139,7 @@ DataLoader.prototype.GetGlobal = function(type, callBack)
 DataLoader.prototype.GetPiomas = function()
 {
     $.getJSON("PIOMAS.vol.daily.1979."+this.maxYear+".Current.v2.1.dat", function(data) {
-            alert(data.subString(500))
+            console.log("Loaded");
         });
 }
+
