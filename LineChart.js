@@ -11,6 +11,7 @@ var options = {
     width: 900,
     height: 900,
     legend:"none",
+    explorer:{},
     hAxis:
     {
         title: "Time",
