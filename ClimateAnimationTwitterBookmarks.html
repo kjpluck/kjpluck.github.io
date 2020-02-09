@@ -1,0 +1,148 @@
+<html>
+
+<head>    
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+
+    
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <title>Kev's Climate Animation Bookmarks</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+
+        body{padding: 16px}
+        button {
+            width: 50px
+        }
+
+        input{width: 70px;}
+
+        a{font-size: 150%}
+
+        input,
+        #message,
+        dl, #clearButton, h1, #char{
+            font-size: 200%
+        }
+        dt{font-size: 50%}
+        .btn
+        {
+            font-size: 70%
+        }
+
+        #clearButton {width: 100px}
+        
+        #symbols{margin-bottom: 100px;}
+
+        .header {
+        padding: 10px 16px;
+        background: #ffffff;
+        }
+        .sticky {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        }
+        .sticky + .content {
+        padding-top: 70px;
+        }
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: white;
+            text-align: center;
+        }
+        .kofi {
+            margin: 10px;
+        }
+        .note {
+            position: fixed;
+            z-index: 1000;
+            
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 6px;
+        }
+    </style>
+    <script>
+        function copyToClipboard(elementId) {
+
+            var el = document.getElementById(elementId);
+            // resolve the element
+            el = (typeof el === 'string') ? document.querySelector(el) : el;
+
+            // handle iOS as a special case
+            if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
+
+                // save current contentEditable/readOnly status
+                var editable = el.contentEditable;
+                var readOnly = el.readOnly;
+
+                // convert to editable with readonly to stop iOS keyboard opening
+                el.contentEditable = true;
+                el.readOnly = true;
+
+                // create a selectable range
+                var range = document.createRange();
+                range.selectNodeContents(el);
+
+                // select the range
+                var selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                el.setSelectionRange(0, 999999);
+
+                // restore contentEditable/readOnly to original state
+                el.contentEditable = editable;
+                el.readOnly = readOnly;
+            }
+            else {
+                el.select();
+            }
+
+            // execute copy command
+            document.execCommand('copy');
+        }
+    </script>
+</head>
+
+<body>
+        <div class="top-container">
+            <h1 class="display-5">Kev's Climate Animation Bookmarks</h1>
+            <div><a href="https://twitter.com/kevpluck">@KevPluck</a></div>
+        </div>
+        <h3>Floobar de doobar</h3>
+        <div class="header" id="myHeader">
+            <span id="char">Symbol:</span>
+            <input type="text" id="copier" maxlength="1" size="1"/> <button class="btn btn-light">⇶</button>
+            <span id="message"></span>
+        </div>
+        <div id="symbols" class="content">Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/></div>
+        <div class="footer">
+            <div class="kofi">
+            <script type='text/javascript' src='https://ko-fi.com/widgets/widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Would you like to buy me a coffee?', '#46b798', 'S6S6R1YR');kofiwidget2.draw();</script> 
+        </div>
+          </div>
+        <script>
+        
+            window.onscroll = function() {myFunction()};
+
+            var header = document.getElementById("myHeader");
+            var sticky = header.offsetTop;
+
+            function myFunction() {
+                if (window.pageYOffset > sticky) {
+                    header.classList.add("sticky");
+                } else {
+                    header.classList.remove("sticky");
+                }
+            }
+        </script>
+</body>
+
+</html>
