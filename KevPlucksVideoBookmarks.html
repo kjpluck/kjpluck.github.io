@@ -7,45 +7,44 @@
     
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <title>Kev's Climate Animation Bookmarks</title>
+    <title>KevPluck's Video Bookmarks</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
 
         body{padding: 16px}
-        button {
-            width: 50px
+        
+
+        li{
+            font-size: 150%;
+            padding-bottom: 10px;
         }
 
-        input{width: 70px;}
+        .twitterLink{
+            font-size:100%;
+        }
 
-        a{font-size: 150%}
+        .twitterHandle{
+            font-size: 150%;
+        }
 
-        input,
+        p{padding-top:15px}
+
         #message,
         dl, #clearButton, h1, #char{
             font-size: 200%
         }
         dt{font-size: 50%}
-        .btn
-        {
-            font-size: 70%
-        }
 
         #clearButton {width: 100px}
         
         #symbols{margin-bottom: 100px;}
 
         .header {
-        padding: 10px 16px;
-        background: #ffffff;
+            padding: 10px 16px;
+            background: #ffffff;
         }
-        .sticky {
-        position: fixed;
-        top: 0;
-        width: 100%;
-        }
-        .sticky + .content {
-        padding-top: 70px;
+        .content {
+            padding-top: 30px;
         }
         .footer {
             position: fixed;
@@ -57,16 +56,6 @@
         }
         .kofi {
             margin: 10px;
-        }
-        .note {
-            position: fixed;
-            z-index: 1000;
-            
-            background-color: black;
-            color: #fff;
-            text-align: center;
-            padding: 5px;
-            border-radius: 6px;
         }
     </style>
     <script>
@@ -112,37 +101,33 @@
 </head>
 
 <body>
-        <div class="top-container">
-            <h1 class="display-5">Kev's Climate Animation Bookmarks</h1>
-            <div><a href="https://twitter.com/kevpluck">@KevPluck</a></div>
+        <h1 class="display-5">KevPluck's Video Bookmarks</h1>
+        <a href="https://twitter.com/kevpluck" class="twitterHandle">@KevPluck</a>
+        
+        <p>Here is a list of links to some of my videos which you can freely add to any of your tweets.</p>
+        <p>Selecting "View" displays the original host tweet and selecting "Copy" copies the video link from that tweet so that you can paste it in any of your tweets!</p>
+
+        <div id="symbols" class="content">
+            <ol>
+                <li>
+                    <h4>What does 400ppm look like?</h4>
+                    <input type="text" id="link1" size="33" value="http://pic.twitter.com/nQWLFrnswd"/> <a href="http://pic.twitter.com/nQWLFrnswd" class="twitterLink">View</a> <button class="btn btn-light" onclick="copyToClipboard('link1')">Copy</button>
+                </li>
+                <li>
+                    <h4>Never reply to trolls!</h4>
+                    <input type="text" id="link2" size="33" value="http://pic.twitter.com/eySzEvjS10"/> <a href="http://pic.twitter.com/eySzEvjS10" class="twitterLink">View</a> <button class="btn btn-light" onclick="copyToClipboard('link2')">Copy</button>
+                </li>
+                <li>
+                    <h4>Patrick Moore poked a straw in a turtle's eye</h4>
+                    <input type="text" id="link3" size="33" value="http://pic.twitter.com/8hpKz3UfVB"/> <a href="http://pic.twitter.com/8hpKz3UfVB" class="twitterLink">View</a> <button class="btn btn-light" onclick="copyToClipboard('link3')">Copy</button>
+                </li>
+            </ol>
         </div>
-        <h3>Floobar de doobar</h3>
-        <div class="header" id="myHeader">
-            <span id="char">Symbol:</span>
-            <input type="text" id="copier" maxlength="1" size="1"/> <button class="btn btn-light">⇶</button>
-            <span id="message"></span>
-        </div>
-        <div id="symbols" class="content">Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/>Hello<br/></div>
         <div class="footer">
             <div class="kofi">
-            <script type='text/javascript' src='https://ko-fi.com/widgets/widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Would you like to buy me a coffee?', '#46b798', 'S6S6R1YR');kofiwidget2.draw();</script> 
+                <script type='text/javascript' src='https://ko-fi.com/widgets/widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Would you like to buy me a coffee?', '#46b798', 'S6S6R1YR');kofiwidget2.draw();</script> 
+            </div>
         </div>
-          </div>
-        <script>
-        
-            window.onscroll = function() {myFunction()};
-
-            var header = document.getElementById("myHeader");
-            var sticky = header.offsetTop;
-
-            function myFunction() {
-                if (window.pageYOffset > sticky) {
-                    header.classList.add("sticky");
-                } else {
-                    header.classList.remove("sticky");
-                }
-            }
-        </script>
 </body>
 
 </html>
