@@ -4,7 +4,7 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
 
-    
+    <script src="Bookmarks.js"></script>
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <title>KevPluck's Video Bookmarks</title>
@@ -28,6 +28,9 @@
         }
 
         p{padding-top:15px}
+        input{padding:5px}
+        a{padding:5px}
+        button{padding:5px}
 
         #message,
         dl, #clearButton, h1, #char{
@@ -59,10 +62,45 @@
         }
     </style>
     <script>
+
+        function render()
+        {
+            var ol = document.getElementById("bookmarkList");
+            bookmarks.forEach((bookmark, index) => {
+                let h4 = document.createElement("h4");
+                h4.appendChild(document.createTextNode(bookmark.description));
+
+                let input = document.createElement("input");
+                input.setAttribute("type", "text");
+                input.setAttribute("id", "link" + index);
+                input.setAttribute("size", "33");
+                input.setAttribute("value", bookmark.url);
+
+                let a = document.createElement("a");
+                a.setAttribute("href", bookmark.url);
+                a.classList.add("twitterLink");
+                a.appendChild(document.createTextNode("View"));
+
+                let button = document.createElement("button");
+                button.classList.add("btn");
+                button.classList.add("btn-light");
+                button.onclick = function(){copyToClipboard("link"+index)};
+                button.appendChild(document.createTextNode("Copy"));
+
+                let li = document.createElement("li");
+                li.appendChild(h4);
+                li.appendChild(input);
+                li.appendChild(a);
+                li.appendChild(button);
+
+                ol.appendChild(li);
+            });
+        }
+
         function copyToClipboard(elementId) {
 
             var el = document.getElementById(elementId);
-            // resolve the element
+            // resolve the bookmark
             el = (typeof el === 'string') ? document.querySelector(el) : el;
 
             // handle iOS as a special case
@@ -101,7 +139,7 @@
     </script>
 </head>
 
-<body>
+<body onload="render()">
         <h1 class="display-5">KevPluck's Video Bookmarks</h1>
         <a href="https://twitter.com/kevpluck" class="twitterHandle">@KevPluck</a>
         
@@ -109,24 +147,7 @@
         <p>Selecting "View" displays the original host tweet and selecting "Copy" copies the video link from that tweet so that you can paste it in any of your tweets!</p>
 
         <div id="symbols" class="content">
-            <ol>
-                <li>
-                    <h4>What does 400ppm look like?</h4>
-                    <input type="text" id="link1" size="33" value="http://pic.twitter.com/nQWLFrnswd"/> <a href="http://pic.twitter.com/nQWLFrnswd" class="twitterLink">View</a> <button class="btn btn-light" onclick="copyToClipboard('link1')">Copy</button>
-                </li>
-                <li>
-                    <h4>Missing Arctic sea ice data</h4>
-                    <input type="text" id="link2" size="33" value="http://pic.twitter.com/LkC5N7aURO"/> <a href="http://pic.twitter.com/LkC5N7aURO" class="twitterLink">View</a> <button class="btn btn-light" onclick="copyToClipboard('link2')">Copy</button>
-                </li>
-                <li>
-                    <h4>Never reply to trolls!</h4>
-                    <input type="text" id="link3" size="33" value="http://pic.twitter.com/eySzEvjS10"/> <a href="http://pic.twitter.com/eySzEvjS10" class="twitterLink">View</a> <button class="btn btn-light" onclick="copyToClipboard('link3')">Copy</button>
-                </li>
-                <li>
-                    <h4>Patrick Moore poked a straw in a turtle's eye</h4>
-                    <input type="text" id="link4" size="33" value="http://pic.twitter.com/8hpKz3UfVB"/> <a href="http://pic.twitter.com/8hpKz3UfVB" class="twitterLink">View</a> <button class="btn btn-light" onclick="copyToClipboard('link4')">Copy</button>
-                </li>
-            </ol>
+            <ol id="bookmarkList"></ol>
         </div>
         <div class="footer">
             <div class="kofi">
