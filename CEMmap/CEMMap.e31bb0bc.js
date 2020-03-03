@@ -78278,12 +78278,49 @@ var _Overlay = _interopRequireDefault(require("ol/Overlay"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var vector = new _layer.Vector({
-  source: new _Vector.default({
-    url: 'http://localhost:8000/ManchesterWards.kml',
-    format: new _format.KML()
-  })
-});
+var data = {};
+(0, _xhr.default)("https://docs.google.com/spreadsheets/d/e/2PACX-1vTwjcg95mRMOY1uYadcmwiG3WQzf-s4G7zOECVYu19bUG76J56VdVcQGKkBTZTByOUE8vDzPwIlQsw-/pub?gid=0&single=true&output=tsv", parseData);
+var maxCount = 0;
+
+function parseData(error, res, body) {
+  var lines = body.split("\n");
+  lines.forEach(function (line) {
+    var values = line.split("\t");
+    var theCount = parseInt(values[1]);
+    data[values[0]] = {
+      count: theCount,
+      counselors: [values[3], values[4], values[5]]
+    };
+    if (theCount > maxCount) maxCount = theCount;
+  });
+  vector = new _layer.Vector({
+    source: new _Vector.default({
+      url: 'ManchesterWards.kml',
+      format: new _format.KML({
+        extractStyles: false
+      })
+    }),
+    style: WardColour
+  });
+  makeMap();
+}
+
+var vector = {};
+
+function WardColour(wardFeature) {
+  var count = data[wardFeature.get("name")].count;
+  var colour = count / maxCount * 255;
+  return new _style.Style({
+    fill: new _style.Fill({
+      color: 'rgba(0,' + colour + ',0,0.4)'
+    }),
+    stroke: new _style.Stroke({
+      color: '#FFFF00',
+      width: 1.25
+    })
+  });
+}
+
 var container = document.getElementById('popup');
 var content = document.getElementById('popup-content');
 var closer = document.getElementById('popup-closer');
@@ -78294,30 +78331,13 @@ var overlay = new _Overlay.default({
     duration: 250
   }
 });
-var map = new _Map.default({
-  layers: [new _layer.Tile({
-    source: new _OSM.default()
-  }), vector],
-  target: 'map',
-  view: new _View.default({
-    center: [-248801, 7064389],
-    zoom: 11.5
-  }),
-  overlays: [overlay]
-});
-var councillors = {};
-(0, _xhr.default)("http://localhost:8000/Councillors.json", function (error, res, body) {
-  councillors = JSON.parse(body);
-});
+var map = {};
 var pointerLoc;
-map.on('pointermove', function (evt) {
-  pointerLoc = evt.coordinate;
-});
 var selectClick = new _Select.default({
   condition: _condition.click,
   style: new _style.Style({
     fill: new _style.Fill({
-      color: 'rgba(0,255,0,0.4)'
+      color: 'rgba(0,0,255,0.4)'
     }),
     stroke: new _style.Stroke({
       color: '#FFFF00',
@@ -78325,16 +78345,17 @@ var selectClick = new _Select.default({
     })
   })
 });
-map.addInteraction(selectClick);
 selectClick.on("select", function (e) {
   var feature = e.selected[0];
   if (!feature) return;
   var wardName = feature.get('name');
-  var wardCouncillors = councillors[wardName];
+  var wardCounselors = data[wardName].counselors;
+  var count = data[wardName].count;
   content.innerHTML = '<p>' + wardName + '</p>';
+  content.innerHTML += '<p>Count: ' + count + '</p>';
   content.innerHTML += "<ul>";
-  wardCouncillors.forEach(function (councillor) {
-    content.innerHTML += "<li>" + councillor + "</li>";
+  wardCounselors.forEach(function (counselor) {
+    content.innerHTML += "<li>" + counselor + "</li>";
   });
   content.innerHTML += "</ul>";
   overlay.setPosition(pointerLoc);
@@ -78345,6 +78366,24 @@ closer.onclick = function () {
   closer.blur();
   return false;
 };
+
+function makeMap() {
+  map = new _Map.default({
+    layers: [new _layer.Tile({
+      source: new _OSM.default()
+    }), vector],
+    target: 'map',
+    view: new _View.default({
+      center: [-248801, 7064389],
+      zoom: 11.5
+    }),
+    overlays: [overlay]
+  });
+  map.on('pointermove', function (evt) {
+    pointerLoc = evt.coordinate;
+  });
+  map.addInteraction(selectClick);
+}
 },{"ol/ol.css":"node_modules/ol/ol.css","ol/Map":"node_modules/ol/Map.js","ol/View":"node_modules/ol/View.js","ol/format":"node_modules/ol/format.js","ol/layer":"node_modules/ol/layer.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/source/Vector":"node_modules/ol/source/Vector.js","xhr":"node_modules/xhr/index.js","ol/events/condition":"node_modules/ol/events/condition.js","ol/interaction/Select":"node_modules/ol/interaction/Select.js","ol/style":"node_modules/ol/style.js","ol/Overlay":"node_modules/ol/Overlay.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -78373,7 +78412,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54524" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58504" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
