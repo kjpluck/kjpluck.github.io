@@ -1,0 +1,136 @@
+<html>
+
+<head>    
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <title>Shakespearean Insult Bot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+
+        body{padding: 16px}
+        
+
+        li{
+            font-size: 150%;
+            padding-bottom: 10px;
+        }
+
+        .twitterLink{
+            font-size:80%;
+        }
+
+        .twitterHandle{
+            font-size: 150%;
+        }
+
+        p{padding-top:15px}
+        input{padding:5px}
+        a{padding:5px}
+        button{padding:5px}
+
+        #message,
+        dl, #clearButton, h1, #char{
+            font-size: 200%
+        }
+        dt{font-size: 50%}
+
+        #clearButton {width: 100px}
+        
+        #symbols{margin-bottom: 100px;}
+
+        .header {
+            padding: 10px 16px;
+            background: #ffffff;
+        }
+        .content {
+            padding-top: 30px;
+        }
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: white;
+            text-align: center;
+        }
+        .kofi {
+            margin: 10px;
+        }
+    </style>
+    <script>
+        var column1 = ["artless", "bawdy", "beslubbering", "bootless", "churlish", "cockered", "clouted", "craven", "currish", "dankish", "dissembling", "droning", "errant", "fawning", "fobbing", "froward", "frothy", "gleeking", "goatish", "gorbellied", "impertinent", "infectious", "jarring", "loggerheaded", "lumpish", "mammering", "mangled", "mewling", "paunchy", "pribbling", "puking", "puny", "qualling", "rank", "reeky", "roguish", "ruttish", "saucy", "spleeny", "spongy", "surly", "tottering", "unmuzzled", "vain", "venomed", "villainous", "warped", "wayward", "weedy", "yeasty"];
+        var column2 = ["base-court", "bat-fowling", "beef-witted", "beetle-headed", "boil-brained", "clapper-clawed", "clay-brained", "common-kissing", "crook-pated", "dismal-dreaming", "dizzy-eyed", "doghearted", "dread-bolted", "earth-vexing", "elf-skinned", "fat-kidneyed", "fen-sucked", "flap-mouthed", "fly-bitten", "folly-fallen", "fool-born", "full-gorged", "guts-griping", "half-faced", "hasty-witted", "hedge-born", "hell-hated", "idle-headed", "ill-breeding", "ill-nurtured", "knotty-pated", "milk-livered", "motley-minded", "onion-eyed", "plume-plucked", "pottle-deep", "pox-marked", "reeling-ripe", "rough-hewn", "rude-growing", "rump-fed", "shard-borne", "sheep-biting", "spur-galled", "swag-bellied", "tardy-gaited", "tickle-brained", "toad-spotted", "unchin-snouted", "weather-bitten"];
+        var column3 = ["apple-john", "baggage", "barnacle", "bladder", "boar-pig", "bugbear", "bum-bailey", "canker-blossom", "clack-dish", "clotpole", "coxcomb", "codpiece", "death-token", "dewberry", "flap-dragon", "flax-wench", "flirt-gill", "foot-licker", "fustilarian", "giglet", "gudgeon", "haggard", "harpy", "hedge-pig", "horn-beast", "hugger-mugger", "joithead", "lewdster", "lout", "maggot-pie", "malt-worm", "mammet", "measle", "minnow", "miscreant", "moldwarp", "mumble-news", "nut-hook", "pigeon-egg", "pignut", "puttock", "pumpion", "ratsbane", "scut", "skainsmate", "strumpet", "varlot", "vassal", "whey-face", "wagtail"];
+
+        var insultTextInput = null;
+
+        function render()
+        {
+            insultTextInput = document.getElementById("insultTextInput");
+            var column1Index = Math.floor(Math.random() * 50);
+            var column2Index = Math.floor(Math.random() * 50);
+            var column3Index = Math.floor(Math.random() * 50);
+            
+            var insult = "Thou " + column1[column1Index] + " " + column2[column2Index] +" "+ column3[column3Index];
+            insultTextInput.value = insult;
+        }
+
+        function copyToClipboard() {
+
+            // handle iOS as a special case
+            if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
+
+                // save current contentEditable/readOnly status
+                var editable = insultTextInput.contentEditable;
+                var readOnly = insultTextInput.readOnly;
+
+                // convert to editable with readonly to stop iOS keyboard opening
+                insultTextInput.contentEditable = true;
+                insultTextInput.readOnly = true;
+
+                // create a selectable range
+                var range = document.createRange();
+                range.selectNodeContents(insultTextInput);
+
+                // select the range
+                var selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                insultTextInput.setSelectionRange(0, 999999);
+
+                // restore contentEditable/readOnly to original state
+                insultTextInput.contentEditable = editable;
+                insultTextInput.readOnly = readOnly;
+            }
+            else {
+                insultTextInput.select();
+            }
+
+            // execute copy command
+            document.execCommand('copy');
+            insultTextInput.blur();
+        }
+    </script>
+</head>
+
+<body onload="render()">
+        <h1 class="display-5">Shakespearean Insult Bot</h1>
+        <a href="https://twitter.com/kevpluck" class="twitterHandle">@KevPluck</a>
+        
+        <p>Insult with class</p>
+
+        <div id="insulter" class="content">
+            <input type="text" id="insultTextInput" size="50">
+            <button class="btn btn-light" onclick="render()">Refresh</button>
+            <button class="btn btn-light" onclick="copyToClipboard()">Copy</button>
+        </div>
+        <div class="footer">
+            <div class="kofi">
+                <script type='text/javascript' src='https://ko-fi.com/widgets/widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Would you like to buy me a coffee?', '#46b798', 'S6S6R1YR');kofiwidget2.draw();</script> 
+            </div>
+        </div>
+</body>
+
+</html>
