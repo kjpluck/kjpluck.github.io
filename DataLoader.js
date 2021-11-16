@@ -26,9 +26,9 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
     var seaIceData={};
 
     if(hemisphere == "south")
-        seaIceData.title = "Antarctic Sea Ice " + type;
+        seaIceData.title = "Antarctic Sea Ice " + type + " - NSIDC";
     else
-        seaIceData.title = "Arctic Sea Ice " + type;
+        seaIceData.title = "Arctic Sea Ice " + type + " - NSIDC";
 
     var years = [];
     for (var i = 1979; i <= this.maxYear; i++) {
@@ -40,7 +40,7 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
     $(years).each(function(index, year) // Need to use a .each function as "year" needs a closure around it.
     {
         var number = this;
-        $.getJSON("http://nsidc.org/api/seaiceservice/" + type.toLowerCase() + "/" + hemisphere + "/filled_averaged_data/" + year + "?index=doy&smoothing_window=5", function(data) {
+        $.getJSON("https://nsidc.org/api/seaiceservice/" + type.toLowerCase() + "/" + hemisphere + "/filled_averaged_data/" + year + "?index=doy&smoothing_window=5", function(data) {
             seaIceData["year" + year] = data;
             done -= 1;
             if(done == 0) 
@@ -113,7 +113,7 @@ DataLoader.prototype.GetGlobal = function(type, callBack)
         return;
     }
     
-    var global = {title: "Global Sea Ice " + type};
+    var global = {title: "Global Sea Ice " + type + " - NSIDC"};
     
     for(year = 1979; year <= this.maxYear; year++)
     {

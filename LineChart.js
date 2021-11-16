@@ -2,12 +2,15 @@ google.charts.load('current', {packages: ['corechart', 'line']});
 google.charts.setOnLoadCallback(loadAllData);
 var dataLoader = new DataLoader();
 var chart;
-var options = {
-    animation:{
+var theHemisphere;
+var options = 
+{
+    animation:
+    {
         duration: 1000,
         easing: 'out',
         startup: true
-        },
+    },
     width: 900,
     height: 900,
     legend:"none",
@@ -22,18 +25,34 @@ var options = {
         title:"Extent (Millions of square kilometers)",
         viewWindow:
         {
-            min: 0, max: 30
+            min: 10, max: 25
         }
     }
 };
 
 function loadAllData()
 {
-    dataLoader.GetNsidc("Extent", "north", GotNsidc);
-    dataLoader.GetNsidc("Extent", "south", function(){});
-    dataLoader.GetNsidc("Area", "north", function(){});
-    dataLoader.GetNsidc("Area", "south", function(){});
+    dataLoader.GetNsidc("Extent", "north", function(){enableButton("ExtentArcticButton")});
+    dataLoader.GetNsidc("Extent", "south", function(){enableButton("ExtentAntarcticButton")});
+    dataLoader.GetNsidc("Area", "north", function(){enableButton("AreaArcticButton")});
+    dataLoader.GetNsidc("Area", "south", function(){enableButton("AreaAntarcticButton")});
 }
+
+var enabledButtonCount = 0;
+function enableButton(id)
+{
+    var button = document.getElementById(id);
+    button.disabled = false;
+    button.textContent = "View";
+
+    enabledButtonCount++;
+    if(enabledButtonCount == 4)
+    {
+        enableButton("AreaGlobalButton");
+        enableButton("ExtentGlobalButton");
+    }
+}
+
 
 function drawChart(type, hemisphere) {
     if(!type)
@@ -41,11 +60,41 @@ function drawChart(type, hemisphere) {
     if(!hemisphere)
         hemisphere = "north";
 
+    theHemisphere = hemisphere;
+    theType = type;
+
     dataLoader.GetNsidc(type, hemisphere, GotNsidc);
 }
 
 function GotNsidc(data)
 {
+    if(theHemisphere == "global")
+    {
+        if(theType == "Extent")
+        {
+            options.vAxis.viewWindow.min = 10;
+            options.vAxis.viewWindow.max = 30;
+        }
+        else
+        {
+            options.vAxis.viewWindow.min = 10;
+            options.vAxis.viewWindow.max = 25;
+        }
+    }
+    else
+    {
+        if(theType == "Extent")
+        {
+            options.vAxis.viewWindow.min = 0;
+            options.vAxis.viewWindow.max = 24;
+        }
+        else
+        {
+            options.vAxis.viewWindow.min = 0;
+            options.vAxis.viewWindow.max = 18;
+        }
+    }
+
     options.colors = data.series;
     options.title = data.title;
     if(!chart)
