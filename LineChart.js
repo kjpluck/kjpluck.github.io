@@ -95,7 +95,7 @@ function GotNsidc(data)
         }
     }
 
-    if(theType == "Extent")
+    if(theType == "Area")
         options.vAxis.title = "Area (Millions of square kilometers)";
 
     options.colors = data.series;
