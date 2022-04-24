@@ -40,7 +40,7 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
     $(years).each(function(index, year) // Need to use a .each function as "year" needs a closure around it.
     {
         var number = this;
-        $.getJSON("https://nsidc.org/api/seaiceservice/" + type.toLowerCase() + "/" + hemisphere + "/filled_averaged_data/" + year + "?index=doy&smoothing_window=5", function(data) {
+        $.getJSON("https://nsidc.org/api/seaiceservice/" + type.toLowerCase() + "/" + hemisphere + "/filled_averaged_data/" + year + "?index=doy&smoothing_window=2", function(data) {
             seaIceData["year" + year] = data;
             done -= 1;
             if(done == 0) 
@@ -52,17 +52,23 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
     });
 }
 
+DataLoader.prototype.dateFromDay = function(year, day){
+    var date = new Date(year, 0); // initialize a date in `year-01-01`
+    return (new Date(date.setDate(day))).toLocaleDateString(undefined, {year: "numeric", month: 'long', day: 'numeric' }); // add the number of days
+  }
+
 DataLoader.prototype.GotNsidc = function(seaIceData, callBack)
 {
     var nsidcDataTable = new google.visualization.DataTable();
     
-    nsidcDataTable.addColumn('number', 'Day');
+    nsidcDataTable.addColumn('number', 'Date');
     nsidcDataTable.series = [];
     nsidcDataTable.title = seaIceData.title;
     for(year = 1979; year <= this.maxYear; year++)
     {
         nsidcDataTable.addColumn('number', year);
-        nsidcDataTable.series.push(this.MakeColor(seaIceData, year));
+        nsidcDataTable.addColumn({type:'string', role:'tooltip'});
+        nsidcDataTable.series.push(this.MakeColor(year));
     }
 
     for(day = 1; day<=366; day++)
@@ -77,9 +83,14 @@ DataLoader.prototype.GotNsidc = function(seaIceData, callBack)
                 if(value == -1)
                     value = null
                 row.push(value);
+                row.push(this.dateFromDay(year, day+1) + "\n" + value + " Mkm\u00B2");
             }
             else
+            {
                 row.push(null);
+                row.push("No data");
+            }
+                
         }
         nsidcDataTable.addRow(row);
     }
@@ -87,7 +98,7 @@ DataLoader.prototype.GotNsidc = function(seaIceData, callBack)
     callBack(nsidcDataTable);
 }
 
-DataLoader.prototype.MakeColor = function(seaIceData, year)
+DataLoader.prototype.MakeColor = function(year)
 {
     if(year == this.maxYear)
         return "#ff0000";

@@ -13,11 +13,11 @@ var options =
     },
     width: 900,
     height: 900,
-    legend:"none",
-    explorer:{},
+    legend:{pageIndex:1},
+    explorer:{ actions: ['dragToZoom', 'rightClickToReset'] },
     hAxis:
     {
-        title: "Time",
+        title: "Date",
         ticks: [{v:1, f:"Jan"}, {v:32, f:"Feb"}, {v:60, f:"Mar"}, {v:91, f:"Apr"}, {v:121, f:"May"}, {v:152, f:"Jun"}, {v:182, f:"Jul"}, {v:213, f:"Aug"}, {v:244, f:"Sep"}, {v:274, f:"Oct"}, {v:305, f:"Nov"}, {v:335, f:"Dec"}, {v:367, f:"Jan"}]
     },
     vAxis:
