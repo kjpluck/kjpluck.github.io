@@ -26,7 +26,8 @@ var options =
         viewWindow:
         {
             min: 10, max: 25
-        }
+        },
+        ticks:[]
     }
 };
 
@@ -48,8 +49,8 @@ function enableButton(id)
     enabledButtonCount++;
     if(enabledButtonCount == 4)
     {
-        enableButton("AreaGlobalButton");
-        enableButton("ExtentGlobalButton");
+        dataLoader.GetNsidc("Extent", "global", function(){enableButton("ExtentGlobalButton")});
+        dataLoader.GetNsidc("Area", "global", function(){enableButton("AreaGlobalButton")});
     }
 }
 
@@ -63,11 +64,8 @@ function drawChart(type, hemisphere) {
     theHemisphere = hemisphere;
     theType = type;
 
-    dataLoader.GetNsidc(type, hemisphere, GotNsidc);
-}
+    var data = dataLoader.LoadedData[type+hemisphere];
 
-function GotNsidc(data)
-{
     if(theHemisphere == "global")
     {
         if(theType == "Extent")
@@ -98,10 +96,10 @@ function GotNsidc(data)
     if(theType == "Area")
         options.vAxis.title = "Area (Millions of square kilometers)";
 
-    options.colors = data.series;
+    options.series = data.series;
     options.title = data.title;
     if(!chart)
     chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 
-    chart.draw(data, google.charts.Line.convertOptions(options));
+    chart.draw(data, options);
 }

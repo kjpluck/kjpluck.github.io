@@ -6,6 +6,8 @@ function DataLoader()
     this.maxYear = (new Date()).getFullYear();
 }
 
+DataLoader.prototype.LoadedData = {}
+
 DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
 {   
 
@@ -46,7 +48,7 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
             if(done == 0) 
             {
                 this[hemisphere][type] = seaIceData;
-                this.GotNsidc(seaIceData, callBack);
+                this.GotNsidc(seaIceData, callBack, type, hemisphere);
             }
         }.bind(that));
     });
@@ -57,19 +59,22 @@ DataLoader.prototype.dateFromDay = function(year, day){
     return (new Date(date.setDate(day))).toLocaleDateString(undefined, {year: "numeric", month: 'long', day: 'numeric' }); // add the number of days
   }
 
-DataLoader.prototype.GotNsidc = function(seaIceData, callBack)
+DataLoader.prototype.GotNsidc = function(seaIceData, callBack, type, hemisphere)
 {
     var nsidcDataTable = new google.visualization.DataTable();
     
     nsidcDataTable.addColumn('number', 'Date');
     nsidcDataTable.series = [];
+    nsidcDataTable.colors = [];
     nsidcDataTable.title = seaIceData.title;
     for(year = 1979; year <= this.maxYear; year++)
     {
-        nsidcDataTable.addColumn('number', year);
+        nsidcDataTable.addColumn('number', year + (DataLoader.IsRecordLowYear(hemisphere, year, type) ? " Minimum" : ""));
         nsidcDataTable.addColumn({type:'string', role:'tooltip'});
-        nsidcDataTable.series.push(this.MakeColor(year));
+        nsidcDataTable.series.push(this.MakeColor(year, hemisphere, type));
     }
+
+    var recordLowRow; // Need to add record low data last to bring the line to front
 
     for(day = 1; day<=366; day++)
     {
@@ -83,34 +88,60 @@ DataLoader.prototype.GotNsidc = function(seaIceData, callBack)
                 if(value == -1)
                     value = null
                 row.push(value);
-                row.push(this.dateFromDay(year, day+1) + "\n" + value + " Mkm\u00B2");
+
+                if(value == null)
+                    row.push(this.dateFromDay(year, day+1));
+                else
+                    row.push(this.dateFromDay(year, day+1) + "\n" + value.toFixed(3) + " Mkm\u00B2");
             }
             else
             {
                 row.push(null);
                 row.push("No data");
             }
-                
         }
         nsidcDataTable.addRow(row);
     }
 
+    nsidcDataTable.addRow(recordLowRow);
+
+    this.LoadedData[type+hemisphere] = nsidcDataTable;
     callBack(nsidcDataTable);
 }
 
-DataLoader.prototype.MakeColor = function(year)
+DataLoader.IsRecordLowYear = function(hemisphere, year, type)
 {
+    if(hemisphere == "north" && year == 2012)
+        return true;
+
+    if(hemisphere == "south" && year == 2022)
+        return true;
+
+    if(hemisphere == "global" && year == 2017 && type == "Area")
+        return true;
+
+    if(hemisphere == "global" && year == 2018 && type == "Extent")
+        return true;
+
+    return false;
+}
+
+DataLoader.prototype.MakeColor = function(year, hemisphere, type)
+{
+    if(DataLoader.IsRecordLowYear(hemisphere, year, type))
+        return {color: "#ff0000", lineWidth: 3};
+
     if(year == this.maxYear)
-        return "#ff0000";
+        return {color: "#0000ff", lineWidth: 3};
 
     var range = this.maxYear - 1979;
     var pos = year - 1979;
 
     var lerp = 1 - pos / range;
 
-    var rgb = 127 + Math.floor(lerp * 100);
+    var rgb = 150 + Math.floor(lerp * 100);
     var hex = rgb.toString(16);
-    return "#" + hex + hex + hex;
+    return {color:"#" + hex + hex + hex};
 }
 
 DataLoader.prototype.GetGlobal = function(type, callBack)
@@ -144,7 +175,7 @@ DataLoader.prototype.GetGlobal = function(type, callBack)
     }
 
     this.global[type] = global;
-    this.GotNsidc(global, callBack);
+    this.GotNsidc(global, callBack, type, "global");
 }
 
 DataLoader.prototype.GetPiomas = function()
