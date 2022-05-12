@@ -9,13 +9,49 @@
 	<body>
 		<div>
 			<table>
-				<thead>
-					<tr><th></th><th>Area</th><th>Extent</th><th>Volume</th></tr>
-				</thead>
 				<tbody>
-					<tr><th>Arctic</th>   <td><button id="AreaArcticButton"    disabled onclick="drawChart('Area','north')">Loading</button> </td><td><button id="ExtentArcticButton"    disabled onclick="drawChart('Extent','north')">Loading</button></td></tr>
-					<tr><th>Antarctic</th><td><button id="AreaAntarcticButton" disabled onclick="drawChart('Area','south')">Loading</button> </td><td><button id="ExtentAntarcticButton" disabled onclick="drawChart('Extent','south')">Loading</button></td></tr>
-					<tr><th>Global</th>   <td><button id="AreaGlobalButton"    disabled onclick="drawChart('Area','global')">Loading</button></td><td><button id="ExtentGlobalButton"    disabled onclick="drawChart('Extent','global')">Loading</button></td></tr>
+					<tr>
+						<th>Arctic area</th>   
+						<td><button id="AreaAnnualArcticButton"       disabled onclick="drawChart('Area','north', 'annual')">...</button> </td>
+						<td><button id="AreaMinimumArcticButton"      disabled onclick="drawChart('Area','north', 'minimum')">...</button> </td>
+						<td><button id="AreaAverageArcticButton"      disabled onclick="drawChart('Area','north', 'average')">...</button> </td>
+						<td><button id="AreaMaximumArcticButton"      disabled onclick="drawChart('Area','north', 'maximum')">...</button> </td>
+					</tr>
+					<tr>
+						<th>Arctic extent</th> 
+						<td><button id="ExtentAnnualArcticButton"     disabled onclick="drawChart('Extent','north', 'annual')">...</button></td>
+						<td><button id="ExtentMinimumArcticButton"    disabled onclick="drawChart('Extent','north', 'minimum')">...</button> </td>
+						<td><button id="ExtentAverageArcticButton"    disabled onclick="drawChart('Extent','north', 'average')">...</button> </td>
+						<td><button id="ExtentMaximumArcticButton"    disabled onclick="drawChart('Extent','north', 'maximum')">...</button> </td>
+					</tr>
+					<tr>
+						<th>Antarctic area</th>
+						<td><button id="AreaAnnualAntarcticButton"    disabled onclick="drawChart('Area','south', 'annual')">...</button> </td>
+						<td><button id="AreaMinimumAntarcticButton"   disabled onclick="drawChart('Area','south', 'minimum')">...</button> </td>
+						<td><button id="AreaAverageAntarcticButton"   disabled onclick="drawChart('Area','south', 'average')">...</button> </td>
+						<td><button id="AreaMaximumAntarcticButton"   disabled onclick="drawChart('Area','south', 'maximum')">...</button> </td>
+					</tr>
+					<tr>
+						<th>Antarctic extent</th>
+						<td><button id="ExtentAnnualAntarcticButton"  disabled onclick="drawChart('Extent','south', 'annual')">...</button></td>
+						<td><button id="ExtentMinimumAntarcticButton" disabled onclick="drawChart('Extent','south', 'minimum')">...</button> </td>
+						<td><button id="ExtentAverageAntarcticButton" disabled onclick="drawChart('Extent','south', 'average')">...</button> </td>
+						<td><button id="ExtentMaximumAntarcticButton" disabled onclick="drawChart('Extent','south', 'maximum')">...</button> </td>
+					</tr>
+					<tr>
+						<th>Global area</th>   
+						<td><button id="AreaAnnualGlobalButton"    disabled onclick="drawChart('Area','global', 'annual')">...</button></td>
+						<td><button id="AreaMinimumGlobalButton"    disabled onclick="drawChart('Area','global', 'minimum')">...</button></td>
+						<td><button id="AreaAverageGlobalButton"    disabled onclick="drawChart('Area','global', 'average')">...</button></td>
+						<td><button id="AreaMaximumGlobalButton"    disabled onclick="drawChart('Area','global', 'maximum')">...</button></td>
+					</tr>
+					<tr>
+						<th>Global extent</th>
+						<td><button id="ExtentAnnualGlobalButton"    disabled onclick="drawChart('Extent','global', 'annual')">...</button></td>
+						<td><button id="ExtentMinimumGlobalButton"    disabled onclick="drawChart('Extent','global', 'minimum')">...</button></td>
+						<td><button id="ExtentAverageGlobalButton"    disabled onclick="drawChart('Extent','global', 'average')">...</button></td>
+						<td><button id="ExtentMaximumGlobalButton"    disabled onclick="drawChart('Extent','global', 'maximum')">...</button></td>
+					</tr>
 				</tbody>
 			</table>
 		</div>

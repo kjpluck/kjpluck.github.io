@@ -42,7 +42,7 @@ DataLoader.prototype.GetNsidc = function (type, hemisphere, callBack)
     $(years).each(function(index, year) // Need to use a .each function as "year" needs a closure around it.
     {
         var number = this;
-        $.getJSON("https://nsidc.org/api/seaiceservice/" + type.toLowerCase() + "/" + hemisphere + "/filled_averaged_data/" + year + "?index=doy&smoothing_window=2", function(data) {
+        $.getJSON("https://nsidc.org/api/seaiceservice/" + type.toLowerCase() + "/" + hemisphere + "/filled_averaged_data/" + year + "?index=doy&smoothing_window=3", function(data) {
             seaIceData["year" + year] = data;
             done -= 1;
             if(done == 0) 
@@ -67,14 +67,23 @@ DataLoader.prototype.GotNsidc = function(seaIceData, callBack, type, hemisphere)
     nsidcDataTable.series = [];
     nsidcDataTable.colors = [];
     nsidcDataTable.title = seaIceData.title;
+    var avgAccumulator = {};
+    var avgCount = {};
+    var minimums = {};
+    var maximums = {};
     for(year = 1979; year <= this.maxYear; year++)
     {
         nsidcDataTable.addColumn('number', year + (DataLoader.IsRecordLowYear(hemisphere, year, type) ? " Minimum" : ""));
         nsidcDataTable.addColumn({type:'string', role:'tooltip'});
         nsidcDataTable.series.push(this.MakeColor(year, hemisphere, type));
+        avgAccumulator[year] = 0;
+        avgCount[year] = 0;
+        minimums[year] = 100000;
+        maximums[year] = 0;
     }
 
     var recordLowRow; // Need to add record low data last to bring the line to front
+
 
     for(day = 1; day<=366; day++)
     {
@@ -88,6 +97,19 @@ DataLoader.prototype.GotNsidc = function(seaIceData, callBack, type, hemisphere)
                 if(value == -1)
                     value = null
                 row.push(value);
+                if(value)
+                {
+                    avgAccumulator[year] = avgAccumulator[year]+value;
+                    avgCount[year] = avgCount[year] + 1;
+                    if(value < minimums[year])
+                    {
+                        minimums[year] = value;
+                    }
+                    if(value > maximums[year])
+                    {
+                        maximums[year] = value;
+                    }
+                }
 
                 if(value == null)
                     row.push(this.dateFromDay(year, day+1));
@@ -105,8 +127,69 @@ DataLoader.prototype.GotNsidc = function(seaIceData, callBack, type, hemisphere)
 
     nsidcDataTable.addRow(recordLowRow);
 
-    this.LoadedData[type+hemisphere] = nsidcDataTable;
-    callBack(nsidcDataTable);
+    this.LoadedData[type+hemisphere+"annual"] = nsidcDataTable;
+
+    
+    var nsidcAverageDataTable = new google.visualization.DataTable();
+    nsidcAverageDataTable.title = "Average " + seaIceData.title;
+    nsidcAverageDataTable.series = [{color:"#ff0000"}];
+    nsidcAverageDataTable.addColumn('number', 'Year');
+    nsidcAverageDataTable.addColumn('number', 'Average');
+
+    for(year = 1979; year <= this.maxYear-1; year++)
+    {
+        var row = [];
+        row.push(year);
+        if(avgCount[year] == 0)
+            row.push(0);
+        else
+            row.push(avgAccumulator[year] / avgCount[year]);
+        
+        nsidcAverageDataTable.addRow(row);
+    }
+    this.LoadedData[type+hemisphere+"average"] = nsidcAverageDataTable;
+
+
+    var nsidcMinimumDataTable = new google.visualization.DataTable();
+    nsidcMinimumDataTable.title = "Minimum " + seaIceData.title;
+    nsidcMinimumDataTable.series = [{color:"#ff0000"}];
+    nsidcMinimumDataTable.addColumn('number', 'Year');
+    nsidcMinimumDataTable.addColumn('number', 'Minimum');
+
+    for(year = 1979; year <= this.maxYear-1; year++)
+    {
+        var row = [];
+        row.push(year);
+        if(avgCount[year] == 0)
+            row.push(0);
+        else
+            row.push(minimums[year]);
+        
+        nsidcMinimumDataTable.addRow(row);
+    }
+    this.LoadedData[type+hemisphere+"minimum"] = nsidcMinimumDataTable;
+
+
+    var nsidcMaximumDataTable = new google.visualization.DataTable();
+    nsidcMaximumDataTable.title = "Maximum " + seaIceData.title;
+    nsidcMaximumDataTable.series = [{color:"#ff0000"}];
+    nsidcMaximumDataTable.addColumn('number', 'Year');
+    nsidcMaximumDataTable.addColumn('number', 'Maximum');
+
+    for(year = 1979; year <= this.maxYear-1; year++)
+    {
+        var row = [];
+        row.push(year);
+        if(avgCount[year] == 0)
+            row.push(0);
+        else
+            row.push(maximums[year]);
+        
+        nsidcMaximumDataTable.addRow(row);
+    }
+    this.LoadedData[type+hemisphere+"maximum"] = nsidcMaximumDataTable;
+
+    callBack();
 }
 
 DataLoader.IsRecordLowYear = function(hemisphere, year, type)
