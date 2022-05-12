@@ -178,10 +178,4 @@ DataLoader.prototype.GetGlobal = function(type, callBack)
     this.GotNsidc(global, callBack, type, "global");
 }
 
-DataLoader.prototype.GetPiomas = function()
-{
-    $.getJSON("PIOMAS.vol.daily.1979."+this.maxYear+".Current.v2.1.dat", function(data) {
-            console.log("Loaded");
-        });
-}
 
