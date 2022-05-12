@@ -27,7 +27,7 @@ var options =
         {
             min: 10, max: 25
         },
-        ticks:[]
+        gridlines:{count:0}
     }
 };
 
@@ -79,12 +79,25 @@ function drawChart(type, hemisphere) {
             options.vAxis.viewWindow.max = 25;
         }
     }
-    else
+    else if(theHemisphere == "north")
     {
         if(theType == "Extent")
         {
             options.vAxis.viewWindow.min = 0;
-            options.vAxis.viewWindow.max = 24;
+            options.vAxis.viewWindow.max = 18;
+        }
+        else
+        {
+            options.vAxis.viewWindow.min = 0;
+            options.vAxis.viewWindow.max = 16;
+        }
+    }
+    else if(theHemisphere == "south")
+    {
+        if(theType == "Extent")
+        {
+            options.vAxis.viewWindow.min = 0;
+            options.vAxis.viewWindow.max = 22;
         }
         else
         {
