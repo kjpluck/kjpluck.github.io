@@ -11,46 +11,52 @@
 			<table>
 				<tbody>
 					<tr>
-						<th>Arctic area</th>   
-						<td><button id="AreaAnnualArcticButton"       disabled onclick="drawChart('Area','north', 'annual')">...</button> </td>
-						<td><button id="AreaMinimumArcticButton"      disabled onclick="drawChart('Area','north', 'minimum')">...</button> </td>
-						<td><button id="AreaAverageArcticButton"      disabled onclick="drawChart('Area','north', 'average')">...</button> </td>
-						<td><button id="AreaMaximumArcticButton"      disabled onclick="drawChart('Area','north', 'maximum')">...</button> </td>
+						<th>Arctic area</th>
+						<td><button style="display:none" id="AreaAnnualNorthButton"  onclick="drawChart('Area','North', 'annual')">Annual</button> </td>
+						<td><button style="display:none" id="AreaMinimumNorthButton" onclick="drawChart('Area','North', 'minimum')">Min</button> </td>
+						<td><button style="display:none" id="AreaAverageNorthButton" onclick="drawChart('Area','North', 'average')">Avg</button> </td>
+						<td><button style="display:none" id="AreaMaximumNorthButton" onclick="drawChart('Area','North', 'maximum')">Max</button> </td>
+						<td id="NorthAreaProgressTd"><progress id="NorthAreaProgress"></progress></td>
 					</tr>
 					<tr>
 						<th>Arctic extent</th> 
-						<td><button id="ExtentAnnualArcticButton"     disabled onclick="drawChart('Extent','north', 'annual')">...</button></td>
-						<td><button id="ExtentMinimumArcticButton"    disabled onclick="drawChart('Extent','north', 'minimum')">...</button> </td>
-						<td><button id="ExtentAverageArcticButton"    disabled onclick="drawChart('Extent','north', 'average')">...</button> </td>
-						<td><button id="ExtentMaximumArcticButton"    disabled onclick="drawChart('Extent','north', 'maximum')">...</button> </td>
+						<td><button style="display:none" id="ExtentAnnualNorthButton"  onclick="drawChart('Extent','North', 'annual')">Annual</button></td>
+						<td><button style="display:none" id="ExtentMinimumNorthButton" onclick="drawChart('Extent','North', 'minimum')">Min</button> </td>
+						<td><button style="display:none" id="ExtentAverageNorthButton" onclick="drawChart('Extent','North', 'average')">Avg</button> </td>
+						<td><button style="display:none" id="ExtentMaximumNorthButton" onclick="drawChart('Extent','North', 'maximum')">Max</button> </td>
+						<td id="NorthExtentProgressTd"><progress id="NorthExtentProgress"></progress></td>
 					</tr>
 					<tr>
 						<th>Antarctic area</th>
-						<td><button id="AreaAnnualAntarcticButton"    disabled onclick="drawChart('Area','south', 'annual')">...</button> </td>
-						<td><button id="AreaMinimumAntarcticButton"   disabled onclick="drawChart('Area','south', 'minimum')">...</button> </td>
-						<td><button id="AreaAverageAntarcticButton"   disabled onclick="drawChart('Area','south', 'average')">...</button> </td>
-						<td><button id="AreaMaximumAntarcticButton"   disabled onclick="drawChart('Area','south', 'maximum')">...</button> </td>
+						<td><button style="display:none" id="AreaAnnualSouthButton"  onclick="drawChart('Area','South', 'annual')">Annual</button> </td>
+						<td><button style="display:none" id="AreaMinimumSouthButton" onclick="drawChart('Area','South', 'minimum')">Min</button> </td>
+						<td><button style="display:none" id="AreaAverageSouthButton" onclick="drawChart('Area','South', 'average')">Avg</button> </td>
+						<td><button style="display:none" id="AreaMaximumSouthButton" onclick="drawChart('Area','South', 'maximum')">Max</button> </td>
+						<td id="SouthAreaProgressTd"><progress id="SouthAreaProgress"></progress></td>
 					</tr>
 					<tr>
 						<th>Antarctic extent</th>
-						<td><button id="ExtentAnnualAntarcticButton"  disabled onclick="drawChart('Extent','south', 'annual')">...</button></td>
-						<td><button id="ExtentMinimumAntarcticButton" disabled onclick="drawChart('Extent','south', 'minimum')">...</button> </td>
-						<td><button id="ExtentAverageAntarcticButton" disabled onclick="drawChart('Extent','south', 'average')">...</button> </td>
-						<td><button id="ExtentMaximumAntarcticButton" disabled onclick="drawChart('Extent','south', 'maximum')">...</button> </td>
+						<td><button style="display:none" id="ExtentAnnualSouthButton"  onclick="drawChart('Extent','South', 'annual')">Annual</button></td>
+						<td><button style="display:none" id="ExtentMinimumSouthButton" onclick="drawChart('Extent','South', 'minimum')">Min</button> </td>
+						<td><button style="display:none" id="ExtentAverageSouthButton" onclick="drawChart('Extent','South', 'average')">Avg</button> </td>
+						<td><button style="display:none" id="ExtentMaximumSouthButton" onclick="drawChart('Extent','South', 'maximum')">Max</button> </td>
+						<td id="SouthExtentProgressTd"><progress id="SouthExtentProgress"></progress></td>
 					</tr>
 					<tr>
 						<th>Global area</th>   
-						<td><button id="AreaAnnualGlobalButton"    disabled onclick="drawChart('Area','global', 'annual')">...</button></td>
-						<td><button id="AreaMinimumGlobalButton"    disabled onclick="drawChart('Area','global', 'minimum')">...</button></td>
-						<td><button id="AreaAverageGlobalButton"    disabled onclick="drawChart('Area','global', 'average')">...</button></td>
-						<td><button id="AreaMaximumGlobalButton"    disabled onclick="drawChart('Area','global', 'maximum')">...</button></td>
+						<td><button style="display:none" id="AreaAnnualGlobalButton"  onclick="drawChart('Area','Global', 'annual')">Annual</button></td>
+						<td><button style="display:none" id="AreaMinimumGlobalButton" onclick="drawChart('Area','Global', 'minimum')">Min</button></td>
+						<td><button style="display:none" id="AreaAverageGlobalButton" onclick="drawChart('Area','Global', 'average')">Avg</button></td>
+						<td><button style="display:none" id="AreaMaximumGlobalButton" onclick="drawChart('Area','Global', 'maximum')">Max</button></td>
+						<td id="globalAreaProgressTd"><progress id="globalAreaProgress"></progress></td>
 					</tr>
 					<tr>
 						<th>Global extent</th>
-						<td><button id="ExtentAnnualGlobalButton"    disabled onclick="drawChart('Extent','global', 'annual')">...</button></td>
-						<td><button id="ExtentMinimumGlobalButton"    disabled onclick="drawChart('Extent','global', 'minimum')">...</button></td>
-						<td><button id="ExtentAverageGlobalButton"    disabled onclick="drawChart('Extent','global', 'average')">...</button></td>
-						<td><button id="ExtentMaximumGlobalButton"    disabled onclick="drawChart('Extent','global', 'maximum')">...</button></td>
+						<td><button style="display:none" id="ExtentAnnualGlobalButton"  onclick="drawChart('Extent','Global', 'annual')">Annual</button></td>
+						<td><button style="display:none" id="ExtentMinimumGlobalButton" onclick="drawChart('Extent','Global', 'minimum')">Min</button></td>
+						<td><button style="display:none" id="ExtentAverageGlobalButton" onclick="drawChart('Extent','Global', 'average')">Avg</button></td>
+						<td><button style="display:none" id="ExtentMaximumGlobalButton" onclick="drawChart('Extent','Global', 'maximum')">Max</button></td>
+						<td id="globalExtentProgressTd"><progress id="globalExtentProgress"></progress></td>
 					</tr>
 				</tbody>
 			</table>

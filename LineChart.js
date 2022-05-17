@@ -1,6 +1,7 @@
 google.charts.load('current', {packages: ['corechart', 'line']});
 google.charts.setOnLoadCallback(loadAllData);
-var dataLoader = new DataLoader();
+var loadedData = {North:{Extent:{},Area:{}},South:{Extent:{},Area:{}}};
+var dataTables = {North:{Extent:{},Area:{}},South:{Extent:{},Area:{}},Global:{Extent:{},Area:{}}};
 var chart;
 var theHemisphere;
 var options = 
@@ -32,57 +33,116 @@ var options =
 
 function loadAllData()
 {
-    dataLoader.GetNsidc("Extent", "north", function()
-    {
-        enableButton("ExtentAnnualArcticButton", "Annual"); 
-        enableButton("ExtentMinimumArcticButton", "Min"); 
-        enableButton("ExtentAverageArcticButton", "Avg"); 
-        enableButton("ExtentMaximumArcticButton", "Max");
-    });
-    dataLoader.GetNsidc("Extent", "south", function()
-    {
-        enableButton("ExtentAnnualAntarcticButton", "Annual"); 
-        enableButton("ExtentMinimumAntarcticButton", "Min"); 
-        enableButton("ExtentAverageAntarcticButton", "Avg"); 
-        enableButton("ExtentMaximumAntarcticButton", "Max");
-    });
-    dataLoader.GetNsidc("Area", "north", function()
-    {
-        enableButton("AreaAnnualArcticButton", "Annual"); 
-        enableButton("AreaMinimumArcticButton", "Min"); 
-        enableButton("AreaAverageArcticButton", "Avg"); 
-        enableButton("AreaMaximumArcticButton", "Max");
-    });
-    dataLoader.GetNsidc("Area", "south", function()
-    {
-        enableButton("AreaAnnualAntarcticButton", "Annual"); 
-        enableButton("AreaMinimumAntarcticButton", "Min"); 
-        enableButton("AreaAverageAntarcticButton", "Avg"); 
-        enableButton("AreaMaximumAntarcticButton", "Max");
+    var dataLoaderWorkers = [];
+
+    ["Area", "Extent"].forEach(function(areaType){
+        ["North", "South"].forEach(function(hemisphere){
+
+            var dataLoaderWorker = new Worker("DataLoader.js");
+            dataLoaderWorkers.push(dataLoaderWorker);
+
+            dataLoaderWorker.onmessage = function(e){
+                if(e.data.complete)
+                {
+                    loadedData[hemisphere][areaType] = e.data.loadedData;
+                    createGoogleDataTable(e.data.dataTable, areaType, hemisphere);
+                    
+                    var progressBar = document.getElementById(hemisphere+areaType+"ProgressTd");
+                    progressBar.style.display = "none";
+
+                    enableButton(areaType+"Annual"+hemisphere+"Button"); 
+                    enableButton(areaType+"Minimum"+hemisphere+"Button"); 
+                    enableButton(areaType+"Average"+hemisphere+"Button"); 
+                    enableButton(areaType+"Maximum"+hemisphere+"Button");
+                    return;
+                }
+        
+                var progressBar = document.getElementById(hemisphere+areaType+"Progress");
+                if(progressBar)
+                {
+                    progressBar.max = e.data.progressMax;
+                    progressBar.value = e.data.progressValue;
+                }
+            }
+            dataLoaderWorker.postMessage({type:areaType, hemisphere:hemisphere});
+
+        });
     });
 }
 
-var enabledButtonCount = 0;
-function enableButton(id, text)
+function createGoogleDataTable(dataTable, areaType, hemisphere)
 {
-    if(!text) text = "View";
+    ["annual", "minimum", "average", "maximum"].forEach(function(graphType){
+        var googleDataTable = new google.visualization.DataTable();
 
+        googleDataTable.title = dataTable[graphType].title;
+        
+        dataTable[graphType].columns.forEach(function(column){
+            googleDataTable.addColumn(column);
+        });
+
+        googleDataTable.series = dataTable[graphType].series;
+
+        dataTable[graphType].rows.forEach(function(row){
+            googleDataTable.addRow(row);
+        });
+
+        dataTables[hemisphere][areaType][graphType] = googleDataTable;
+    })
+}
+
+var enabledButtonCount = 0;
+function enableButton(id)
+{
     var button = document.getElementById(id);
-    button.disabled = false;
-    button.textContent = text;
+    button.style.display = "block";
 
     enabledButtonCount++;
     if(enabledButtonCount == 16)
     {
-        dataLoader.GetNsidc("Extent", "global", function(){enableButton("ExtentAnnualGlobalButton", "Annual")});
-        dataLoader.GetNsidc("Extent", "global", function(){enableButton("ExtentMinimumGlobalButton", "Min")});
-        dataLoader.GetNsidc("Extent", "global", function(){enableButton("ExtentAverageGlobalButton", "Avg")});
-        dataLoader.GetNsidc("Extent", "global", function(){enableButton("ExtentMaximumGlobalButton", "Max")});
 
-        dataLoader.GetNsidc("Area", "global", function(){enableButton("AreaAnnualGlobalButton", "Annual")});
-        dataLoader.GetNsidc("Area", "global", function(){enableButton("AreaMinimumGlobalButton", "Min")});
-        dataLoader.GetNsidc("Area", "global", function(){enableButton("AreaAverageGlobalButton", "Avg")});
-        dataLoader.GetNsidc("Area", "global", function(){enableButton("AreaMaximumGlobalButton", "Max")});
+        var globalWorker1 = new Worker("DataLoader.js");
+        globalWorker1.onmessage = function(e){
+            if(e.data.complete)
+            {
+                createGoogleDataTable(e.data.dataTable, "Area", "Global");
+                enableButton("AreaAnnualGlobalButton"); 
+                enableButton("AreaMinimumGlobalButton"); 
+                enableButton("AreaAverageGlobalButton"); 
+                enableButton("AreaMaximumGlobalButton");
+                return;
+            }
+    
+            var progressBar = document.getElementById(e.data.hemisphere+e.data.type+"Progress");
+            if(progressBar)
+            {
+                progressBar.max = e.data.progressMax;
+                progressBar.value = e.data.progressValue;
+            }
+        }
+        globalWorker1.postMessage({type:"Area", hemisphere:"Global", northData: loadedData.North.Area, southData: loadedData.South.Area});
+
+        
+        var globalWorker2 = new Worker("DataLoader.js");
+        globalWorker2.onmessage = function(e){
+            if(e.data.complete)
+            {
+                createGoogleDataTable(e.data.dataTable, "Extent", "Global");
+                enableButton("ExtentAnnualGlobalButton"); 
+                enableButton("ExtentMinimumGlobalButton"); 
+                enableButton("ExtentAverageGlobalButton"); 
+                enableButton("ExtentMaximumGlobalButton");
+                return;
+            }
+    
+            var progressBar = document.getElementById(e.data.hemisphere+e.data.type+"Progress");
+            if(progressBar)
+            {
+                progressBar.max = e.data.progressMax;
+                progressBar.value = e.data.progressValue;
+            }
+        }
+        globalWorker2.postMessage({type:"Extent", hemisphere:"Global", northData: loadedData.North.Extent, southData: loadedData.South.Extent});
     }
 }
 
@@ -91,12 +151,12 @@ function drawChart(areaType, hemisphere, graphType) {
     if(!areaType)
         areaType = "Extent";
     if(!hemisphere)
-        hemisphere = "north";
+        hemisphere = "North";
 
     theHemisphere = hemisphere;
     theType = areaType;
 
-    var data = dataLoader.LoadedData[areaType+hemisphere+graphType];
+    var data = dataTables[hemisphere][areaType][graphType]
     if(graphType == "annual")
     {
         options.hAxis.ticks = [{v:1, f:"Jan"}, {v:32, f:"Feb"}, {v:60, f:"Mar"}, {v:91, f:"Apr"}, {v:121, f:"May"}, {v:152, f:"Jun"}, {v:182, f:"Jul"}, {v:213, f:"Aug"}, {v:244, f:"Sep"}, {v:274, f:"Oct"}, {v:305, f:"Nov"}, {v:335, f:"Dec"}, {v:367, f:"Jan"}]
@@ -107,15 +167,15 @@ function drawChart(areaType, hemisphere, graphType) {
     }
 
     var ranges = {
-        global:{
+        Global:{
             Extent:{annual:{min:10, max:30}, average:{min:20, max:26}, minimum:{min:16, max:20}, maximum:{min:22, max:30}},
             Area:  {annual:{min:10, max:25}, average:{min:16, max:22}, minimum:{min:13, max:17}, maximum:{min:15, max:23}}
         },
-        north: {
+        North: {
             Extent:{annual:{min:0,  max:18}, average:{min:9, max:13}, minimum:{min:0, max:8}, maximum:{min:14, max:17}},
             Area:  {annual:{min:0,  max:16}, average:{min:7, max:11}, minimum:{min:0, max:8}, maximum:{min:12, max:15}}
         },
-        south: {
+        South: {
             Extent:{annual:{min:0,  max:22}, average:{min:9, max:13}, minimum:{min:0, max:8}, maximum:{min:18, max:21}},
             Area:  {annual:{min:0,  max:18}, average:{min:7, max:11}, minimum:{min:0, max:8}, maximum:{min:14, max:17}}
         }
