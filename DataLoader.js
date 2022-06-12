@@ -8,10 +8,10 @@ onmessage = function(e){
         return;
     }
 
-    GetNsidc(e.data.type, e.data.hemisphere);
+    GetNsidc(e.data.type, e.data.hemisphere, e.data.locallyStoredJson);
 }
 
-function GetNsidc(type, hemisphere)
+function GetNsidc(type, hemisphere, locallyStoredJson)
 {   
 
     if(hemisphere == "Global")
@@ -34,9 +34,9 @@ function GetNsidc(type, hemisphere)
 
     var done = years.length;
 
-    var reqListener = function(e,year)
+    var appendData = function(dataJson, year)
     {
-        seaIceData["year" + year] = JSON.parse(e.target.responseText);
+        seaIceData["year" + year] = JSON.parse(dataJson);
 
         postMessage({progressMax:years.length, progressValue:years.length - done, type:type, hemisphere:hemisphere});
 
@@ -47,7 +47,20 @@ function GetNsidc(type, hemisphere)
         }
     }
 
+    var reqListener = function(e,year)
+    {
+        postMessage({year:year, json:e.target.responseText});
+        appendData(e.target.responseText, year);
+    }
+
     years.forEach(function(year){
+
+        if(locallyStoredJson && locallyStoredJson[year])
+        {
+            appendData(locallyStoredJson[year], year);
+            return;
+        }
+
         var smoothingWindow = 2;
         if(year < 1988)
         {

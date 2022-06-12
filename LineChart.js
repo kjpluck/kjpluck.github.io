@@ -34,9 +34,21 @@ var options =
 function loadAllData()
 {
     var dataLoaderWorkers = [];
+    var maxYear = (new Date()).getFullYear();
 
     ["Area", "Extent"].forEach(function(areaType){
         ["North", "South"].forEach(function(hemisphere){
+            
+            var locallyStoredJson = {};
+            
+            for(var year = 1979; year < maxYear; year++)
+            {
+                var localStorageKey = hemisphere + areaType + year;
+                if(localStorage.hasOwnProperty(localStorageKey))
+                {
+                    locallyStoredJson[year] = localStorage.getItem(localStorageKey);
+                }
+            }
 
             var dataLoaderWorker = new Worker("DataLoader.js");
             dataLoaderWorkers.push(dataLoaderWorker);
@@ -57,14 +69,21 @@ function loadAllData()
                     return;
                 }
         
-                var progressBar = document.getElementById(hemisphere+areaType+"Progress");
-                if(progressBar)
+                if(e.data.progressMax)
                 {
+                    var progressBar = document.getElementById(hemisphere+areaType+"Progress");
                     progressBar.max = e.data.progressMax;
                     progressBar.value = e.data.progressValue;
                 }
+
+                if(e.data.json)
+                {
+                    var localStorageKey = hemisphere + areaType + e.data.year;
+                    localStorage.setItem(localStorageKey, e.data.json);
+                }
             }
-            dataLoaderWorker.postMessage({type:areaType, hemisphere:hemisphere});
+
+            dataLoaderWorker.postMessage({type:areaType, hemisphere:hemisphere, locallyStoredJson:locallyStoredJson});
 
         });
     });
