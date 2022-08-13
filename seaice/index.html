@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/dist/output.css" rel="stylesheet">
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="module" src="seaIceGraphs.js"></script>
+</head>
+<body>
+  
+  <div class="container mx-auto text-center lg:text-2xl">
+    <h1 class="text-3xl font-bold m-5">
+      Sea Ice
+    </h1>
+    <form id="seaIceForm">
+      <div class="flex w-full flex-wrap">
+
+        <div class="flex grow w-1/3">
+          <input id="Global" type="radio" name="hemisphere" value="Global" class="hidden peer" checked>
+          <label for="Global" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">Global</label>
+        </div>
+
+        <div class="flex grow w-1/3">
+          <input id="Arctic" type="radio" name="hemisphere" value="North" class="hidden peer">
+          <label for="Arctic" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">Arctic</label>
+        </div>
+
+        <div class="flex grow w-1/3">
+          <input id="Antarctic" type="radio" name="hemisphere" value="South" class="hidden peer">
+          <label for="Antarctic" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">Antarctic</label>
+        </div>
+
+      </div>
+
+      <div class="flex w-full flex-wrap">
+
+        <div class="flex grow w-1/2">
+          <input id="Extent" type="radio" name="areaType" value="Extent" class="hidden peer" checked>
+          <label for="Extent" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">Extent</label>
+        </div>
+
+        <div class="flex grow w-1/2">
+          <input id="Area" type="radio" name="areaType" value="Area" class="hidden peer">
+          <label for="Area" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">Area</label>
+        </div>
+
+      </div>
+
+      <div class="flex w-full flex-wrap">
+
+        <div class="flex grow w-1/5">
+          <input id="Annual" type="radio" name="graphType" value="annual" class="hidden peer" checked>
+          <label for="Annual" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">Annual</label>
+        </div>
+
+        <div class="flex grow w-1/5">
+          <input id="Minimum" type="radio" name="graphType" value="minimum" class="hidden peer">
+          <label for="Minimum" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">Minimum</label>
+        </div>
+
+        <div class="flex grow w-1/5">
+          <input id="Average" type="radio" name="graphType" value="average" class="hidden peer">
+          <label for="Average" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">Average</label>
+        </div>
+
+        <div class="flex grow w-1/5">
+          <input id="Maximum" type="radio" name="graphType" value="maximum" class="hidden peer">
+          <label for="Maximum" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">Maximum</label>
+        </div>
+
+        <div class="flex grow w-1/5">
+          <input id="Month" type="radio" name="graphType" value="month" class="hidden peer">
+          <label for="Month" class="grow rounded-full mx-2 mb-2 bg-gray-200 peer-checked:bg-gray-500 peer-checked:text-white">
+            <select id="monthSelector" name="month" class="bg-inherit text-inherit text-center">
+              <option value="1">Jan</option>
+              <option value="2">Feb</option>
+              <option value="3">Mar</option>
+              <option value="4">Apr</option>
+              <option value="5">May</option>
+              <option value="6">Jun</option>
+              <option value="7">Jul</option>
+              <option value="8">Aug</option>
+              <option value="9">Sep</option>
+              <option value="10">Oct</option>
+              <option value="11">Nov</option>
+              <option value="12">Dec</option>
+            </select>
+          </label>
+        </div>
+
+      </div>
+    </form>
+    <div class="relative">
+      <div id="chart_div" class="flex grow aspect-square bg-gray-50"></div>
+      <button id="CopyButton" type="button" class="hidden absolute top-0 right-0"><img width="30" height="30" src="copy.svg"></button>
+    </div>
+  </div>
+
+  <div id="pleaseWait" class="fixed z-90 flex justify-center items-center bg-gray-900 top-0 w-screen h-screen opacity-90">
+    <div class="flex flex-col text-white text-center text-xl space-y-3">
+      <p>One moment... Just getting numbers and stuff</p>
+    </div>
+  </div>
+
+  <div id="snackbar"></div>
+
+</body>
+</html>
