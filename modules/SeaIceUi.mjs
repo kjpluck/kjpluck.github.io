@@ -26,12 +26,6 @@ function addClickToAllInputs(doclick)
   let theCopyButton = document.getElementById("CopyButton");
   theCopyButton.onclick = copyGraphToClipboard;
 
-  
-  let nextMonthButton = document.getElementById("nextMonthButton");
-  nextMonthButton.onclick = nextMonth;
-
-  let prevMonthButton = document.getElementById("prevMonthButton");
-  prevMonthButton.onclick = prevMonth;
 }
 
 function nextMonth() {
