@@ -148,7 +148,7 @@ function loadFreshData()
     ["Area", "Extent"].forEach(function(areaType){
         ["North", "South"].forEach(function(hemisphere){
                         
-            var dataLoaderWorker = new Worker("dataLoader.js");
+            var dataLoaderWorker = new Worker("DataLoader.js");
             dataLoaderWorkers.push(dataLoaderWorker);
 
             dataLoaderWorker.onmessage = function(e){
@@ -196,7 +196,7 @@ function createGoogleDataTable(dataTable, areaType, hemisphere)
 function generateGlobalData()
 {
   const p1 = new Promise(resolve=>{
-    var globalWorker = new Worker("dataLoader.js");
+    var globalWorker = new Worker("DataLoader.js");
     globalWorker.onmessage = function(e){
         if(e.data.complete)
         {
