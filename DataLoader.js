@@ -8,10 +8,10 @@ onmessage = function(e){
         return;
     }
 
-    GetNsidc(e.data.type, e.data.hemisphere, e.data.locallyStoredJson);
+    GetNsidc(e.data.type, e.data.hemisphere, e.data.cachedData);
 }
 
-function GetNsidc(type, hemisphere, locallyStoredJson)
+function GetNsidc(type, hemisphere, cachedData)
 {   
 
     if(hemisphere == "Global")
@@ -34,11 +34,9 @@ function GetNsidc(type, hemisphere, locallyStoredJson)
 
     var done = years.length;
 
-    var appendData = function(dataJson, year)
+    var appendData = function(data, year)
     {
-        seaIceData["year" + year] = JSON.parse(dataJson);
-
-        postMessage({progressMax:years.length, progressValue:years.length - done, type:type, hemisphere:hemisphere});
+        seaIceData["year" + year] = data;
 
         done -= 1;
         if(done == 0) 
@@ -50,14 +48,14 @@ function GetNsidc(type, hemisphere, locallyStoredJson)
     var reqListener = function(e,year)
     {
         postMessage({year:year, json:e.target.responseText});
-        appendData(e.target.responseText, year);
+        appendData(JSON.parse(e.target.responseText), year);
     }
 
     years.forEach(function(year){
 
-        if(locallyStoredJson && locallyStoredJson[year])
+        if(cachedData && cachedData["year" + year])
         {
-            appendData(locallyStoredJson[year], year);
+            appendData(cachedData["year" + year], year);
             return;
         }
 
@@ -115,10 +113,12 @@ function GotNsidc(seaIceData, type, hemisphere)
     dataTable.annual.columns.push({type:"number", label:"Date"});
 
     dataTable.annual.title = seaIceData.title;
+
     var avgAccumulator = {};
     var avgCount = {};
     var minimums = {};
     var maximums = {};
+
     for(year = 1979; year <= this.maxYear; year++)
     {
         dataTable.annual.columns.push({type:"number", label: year + (IsRecordLowYear(hemisphere, year, type) ? " Minimum" : "")});
@@ -181,7 +181,7 @@ function GotNsidc(seaIceData, type, hemisphere)
 
 
     dataTable.average.title = "Average " + seaIceData.title;
-    dataTable.average.series = [{color:"#ff0000"}];
+    dataTable.average.series = [{color:"#0000ff"}];
     dataTable.average.columns.push({type:"date", label:"Year"});
     dataTable.average.columns.push({type:"number", label:"Average"});
     dataTable.average.columns.push({type:"string", role:"tooltip"});
@@ -203,7 +203,7 @@ function GotNsidc(seaIceData, type, hemisphere)
     }
 
     dataTable.minimum.title = "Minimum " + seaIceData.title;
-    dataTable.minimum.series.series = [{color:"#ff0000"}];
+    dataTable.minimum.series.series = [{color:"#0000ff"}];
     dataTable.minimum.columns.push({type:"date", label:"Year"});
     dataTable.minimum.columns.push({type:"number", label:"Minimum"});
     dataTable.minimum.columns.push({type:"string", role:"tooltip"});
@@ -245,7 +245,7 @@ function GotNsidc(seaIceData, type, hemisphere)
 
 
     dataTable.maximum.title = "Maximum " + seaIceData.title;
-    dataTable.maximum.series = [{color:"#ff0000"}];
+    dataTable.maximum.series = [{color:"#0000ff"}];
     dataTable.maximum.columns.push({type:"date", label:"Year"});
     dataTable.maximum.columns.push({type:"number", label:"Maximum"});
     dataTable.maximum.columns.push({type:"string", role:"tooltip"});
