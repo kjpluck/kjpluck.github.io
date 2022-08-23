@@ -3,29 +3,36 @@ import SeaIceUi from "./modules/SeaIceUi.mjs";
 import Data from "./modules/data.mjs";
 import {dataTables, monthNames} from "./modules/data.mjs"
 
-google.charts.load('current', {packages: ['corechart', 'line']});
-google.charts.setOnLoadCallback(initialise);
-
 var chart;
 var options = 
 {
-    legend: 'none',
-    explorer:{ actions: ['dragToZoom', 'rightClickToReset'] },
-    hAxis:
-    {
-        title: "Date"
-    },
-    vAxis:
-    {
-        title:"Extent (Millions of square kilometers)",
-        viewWindow:
-        {
-            min: 10, max: 25
-        },
-        gridlines:{count:0}
+  plugins:{
+    legend: {
+      display: false,
+      position: "right"
     }
+  },
+  scales:
+  {
+    x:{display: true, title: {text:"Month"}, type: 'linear'},
+    y:{display: true, title: {text:"Extent"}}
+  },
+  elements:
+  {
+    line:
+    {
+      borderWidth: 0
+    }
+  }
 };
 
+const xTicks = {d1:"Jan", d32:"Feb", d60:"Mar", d91:"Apr", d121:"May", d152:"Jun", d182:"Jul", d213:"Aug", d244:"Sep", d274:"Oct", d305:"Nov", d335:"Dec", d367:"Jan"};
+
+function drawXTicks(val, index)
+{
+  const tickKey = "d" + index;
+  return tickKey in xTicks ? xTicks[tickKey] : null;
+}
 
 async function initialise()
 {
@@ -65,75 +72,80 @@ function hidePleaseWait()
 
 let lastGraphType = "annual";
 
+
+const ranges = {
+  Global:{
+      Extent:{annual:{min:10, max:30}, average:{min:20, max:26}, minimum:{min:16, max:20}, maximum:{min:22, max:30}},
+      Area:  {annual:{min:10, max:25}, average:{min:16, max:22}, minimum:{min:13, max:17}, maximum:{min:15, max:23}}
+  },
+  North: {
+      Extent:{annual:{min:0,  max:18}, average:{min:8, max:16}, minimum:{min:2, max:10}, maximum:{min:12, max:20}},
+      Area:  {annual:{min:0,  max:16}, average:{min:6, max:14}, minimum:{min:0, max:8 }, maximum:{min:10, max:18}}
+  },
+  South: {
+      Extent:{annual:{min:0,  max:22}, average:{min:10, max:14}, minimum:{min:1, max:5}, maximum:{min:17, max:21}},
+      Area:  {annual:{min:0,  max:18}, average:{min:7,  max:11}, minimum:{min:1, max:5}, maximum:{min:13, max:17}}
+  }
+};
+
 function drawChart(areaType, hemisphere, graphType) {
 
   var dataTable = dataTables[hemisphere][areaType][graphType];
 
   if(graphType == "annual")
   {
-      options.hAxis.ticks = [{v:1, f:"Jan"}, {v:32, f:"Feb"}, {v:60, f:"Mar"}, {v:91, f:"Apr"}, {v:121, f:"May"}, {v:152, f:"Jun"}, {v:182, f:"Jul"}, {v:213, f:"Aug"}, {v:244, f:"Sep"}, {v:274, f:"Oct"}, {v:305, f:"Nov"}, {v:335, f:"Dec"}, {v:367, f:"Jan"}]
+    //options.scales.x.ticks = {callback: drawXTicks};
   }
   else
   {
-      options.hAxis.ticks = null;
+    //options.scales.x.ticks = null;
   }
-
-  var ranges = {
-      Global:{
-          Extent:{annual:{min:10, max:30}, average:{min:20, max:26}, minimum:{min:16, max:20}, maximum:{min:22, max:30}},
-          Area:  {annual:{min:10, max:25}, average:{min:16, max:22}, minimum:{min:13, max:17}, maximum:{min:15, max:23}}
-      },
-      North: {
-          Extent:{annual:{min:0,  max:18}, average:{min:8, max:16}, minimum:{min:2, max:10}, maximum:{min:12, max:20}},
-          Area:  {annual:{min:0,  max:16}, average:{min:6, max:14}, minimum:{min:0, max:8 }, maximum:{min:10, max:18}}
-      },
-      South: {
-          Extent:{annual:{min:0,  max:22}, average:{min:10, max:14}, minimum:{min:1, max:5}, maximum:{min:17, max:21}},
-          Area:  {annual:{min:0,  max:18}, average:{min:7,  max:11}, minimum:{min:1, max:5}, maximum:{min:13, max:17}}
-      }
-  };
 
   if(dataTable.range)
   {
-    options.vAxis.viewWindow.min = dataTable.range.min;
-    options.vAxis.viewWindow.max = dataTable.range.max;
+    options.scales.y.min = dataTable.range.min;
+    options.scales.y.max = dataTable.range.max;
   }
   else
   {
-    options.vAxis.viewWindow.min = ranges[hemisphere][areaType][graphType].min;
-    options.vAxis.viewWindow.max = ranges[hemisphere][areaType][graphType].max;
+    options.scales.y.min = ranges[hemisphere][areaType][graphType].min;
+    options.scales.y.max = ranges[hemisphere][areaType][graphType].max;
   }
 
-  options.vAxis.title = areaType + " (Millions of square kilometers)";
-
-  options.series = dataTable.series;
-  options.title = dataTable.title;
+  options.scales.y.title.text = areaType + " (Millions of square kilometers)";
 
   if(graphType == "annual" || lastGraphType == "annual")
-    options.animation = null;
+    options.animation = false;
   else
   {
     options.animation = 
     {
       duration: 1000,
-      easing: 'out',
-      startup: false
-    } 
+      easing: 'easeOutQuart'
+    }
   }
 
-  if(graphType == "annual")
+  options.plugins.legend.display = (graphType == "annual");
+  
+  const config =
   {
-    options.legend = {pageIndex:1};
-  }
-  else
-    options.legend = {position: 'none'};
+    type: "line",
+    data: dataTable,
+    options: options
+  };
 
   if(!chart)
   {
-    chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+    chart = new Chart(document.getElementById('chart_canvas'), config);
   }
-
-  chart.draw(dataTable, options);
+  else
+  {
+    chart.options = config.options;
+    chart.data = config.data;
+    chart.update();
+  }
 
   lastGraphType = graphType;
 }
+
+await initialise();

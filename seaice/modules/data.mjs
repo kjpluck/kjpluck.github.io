@@ -155,7 +155,7 @@ function loadFreshData()
                 if(e.data.complete)
                 {
                     loadedData[hemisphere][areaType] = e.data.loadedData;
-                    createGoogleDataTable(e.data.dataTable, areaType, hemisphere);
+                    splitDataTable(e.data.dataTable, areaType, hemisphere);
                     
                     loadedCount++;
                     if(loadedCount == 4)
@@ -172,24 +172,10 @@ function loadFreshData()
   });
 }
 
-function createGoogleDataTable(dataTable, areaType, hemisphere)
+function splitDataTable(dataTable, areaType, hemisphere)
 {
     ["annual", "minimum", "average", "maximum"].forEach(function(graphType){
-        var googleDataTable = new google.visualization.DataTable();
-
-        googleDataTable.title = dataTable[graphType].title;
-        
-        dataTable[graphType].columns.forEach(function(column){
-            googleDataTable.addColumn(column);
-        });
-
-        googleDataTable.series = dataTable[graphType].series;
-
-        dataTable[graphType].rows.forEach(function(row){
-            googleDataTable.addRow(row);
-        });
-
-        dataTables[hemisphere][areaType][graphType] = googleDataTable;
+        dataTables[hemisphere][areaType][graphType] = dataTable[graphType];
     })
 }
 
@@ -200,7 +186,7 @@ function generateGlobalData()
     globalWorker.onmessage = function(e){
         if(e.data.complete)
         {
-            createGoogleDataTable(e.data.dataTable, "Area", "Global");
+            splitDataTable(e.data.dataTable, "Area", "Global");
             resolve();
             return;
         }
@@ -213,7 +199,7 @@ function generateGlobalData()
     globalWorker.onmessage = function(e){
         if(e.data.complete)
         {
-            createGoogleDataTable(e.data.dataTable, "Extent", "Global");
+            splitDataTable(e.data.dataTable, "Extent", "Global");
             resolve();
             return;
         }

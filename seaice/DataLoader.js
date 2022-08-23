@@ -83,208 +83,107 @@ function GotNsidc(seaIceData, type, hemisphere)
     var dataTable = {
         annual:{
             title:"",
-            columns:[],
-            series:[],
-            rows:[]
+            datasets:[]
         },
         
         minimum:{
             title:"",
-            columns:[],
-            series:[],
-            rows:[]
+            datasets:[
+                {
+                    title: "Minimum " + seaIceData.title,
+                    data:[]
+                }
+            ]
         },
         
         average:{
             title:"",
-            columns:[],
-            series:[],
-            rows:[]
+            datasets:[
+                {
+                    title: "Average " + seaIceData.title,
+                    data:[]
+                }
+            ]
         },
         
         maximum:{
             title:"",
-            columns:[],
-            series:[],
-            rows:[]
+            datasets:[
+                {
+                    title: "Maximum " + seaIceData.title,
+                    data:[]
+                }
+            ]
         }
     };
 
-    dataTable.annual.columns.push({type:"number", label:"Date"});
-
-    dataTable.annual.title = seaIceData.title;
-
-    var avgAccumulator = {};
-    var avgCount = {};
-    var minimums = {};
-    var maximums = {};
-
-    for(year = 1979; year <= this.maxYear; year++)
+    function processData(year)
     {
-        dataTable.annual.columns.push({type:"number", label: year + (IsRecordLowYear(hemisphere, year, type) ? " Minimum" : "")});
-        dataTable.annual.columns.push({type:'string', role:'tooltip'});
-        dataTable.annual.series.push(this.MakeColor(year, hemisphere, type));
-        avgAccumulator[year] = 0;
-        avgCount[year] = 0;
-        minimums[year] = 100000;
-        maximums[year] = 0;
-    }
+        var toReturn = [];
 
-
-
-    for(day = 1; day<=366; day++)
-    {
-        var row = [];
-        row.push(day+1);
-        for(year = 1979; year <= this.maxYear; year++)
+        var dataCorrection = 1.0;
+        if(year < 1988 && hemisphere == "North" && type == "Area")
         {
-            var dataCorrection = 1.0;
-            if(year < 1988 && hemisphere == "North" && type == "Area")
-            {
-                dataCorrection = 1.1;
-            }
+            dataCorrection = 1.1;
+        }
 
+        let avgAccumulator = 0;
+        let avgCount = 0;
+        let minimum = 100000;
+        let maximum = 0;
+
+        for(day = 1; day<=366; day++)
+        {
             if(seaIceData["year" + year][day])
             {
                 var value = seaIceData["year" + year][day];
                 if(value == -1)
                     value = null
-                row.push(value);
+                
                 if(value)
                 {
                     value *= dataCorrection;
-                    avgAccumulator[year] = avgAccumulator[year]+value;
-                    avgCount[year] = avgCount[year] + 1;
-                    if(value < minimums[year])
+                    avgAccumulator += value;
+                    avgCount++;
+                    if(value < minimum)
                     {
-                        minimums[year] = value;
+                        minimum = value;
                     }
-                    if(value > maximums[year])
+                    if(value > maximum)
                     {
-                        maximums[year] = value;
+                        maximum = value;
                     }
                 }
 
-                if(value == null)
-                    row.push(this.dateFromDay(year, day+1));
-                else
-                    row.push(this.dateFromDay(year, day+1) + "\n" + value.toFixed(3) + " Mkm\u00B2");
+                toReturn.push({x:day, y:value});
             }
             else
             {
-                row.push(null);
-                row.push("No data");
+                toReturn.push({x:day, y:null});
             }
         }
-        dataTable.annual.rows.push(row);
+
+        dataTable.average.datasets[0].data.push(avgAccumulator / avgCount);
+        dataTable.maximum.datasets[0].data.push(maximum);
+        dataTable.minimum.datasets[0].data.push(minimum);
+
+        return toReturn;
     }
 
+    dataTable.annual.title = seaIceData.title;
 
-    dataTable.average.title = "Average " + seaIceData.title;
-    dataTable.average.series = [{color:"#0000ff"}];
-    dataTable.average.columns.push({type:"date", label:"Year"});
-    dataTable.average.columns.push({type:"number", label:"Average"});
-    dataTable.average.columns.push({type:"string", role:"tooltip"});
-
-    for(year = 1979; year <= this.maxYear-1; year++)
+    for(let year = 1979; year <= this.maxYear; year++)
     {
-        var row = [];
-        row.push(new Date(year,1,1));
+        const yearColour = this.MakeColor(year, hemisphere, type);
         
-        var value = 0;
-
-        if(avgCount[year] != 0)
-            value = avgAccumulator[year] / avgCount[year];
-        
-        row.push(value);
-        
-        row.push(year + "\n" + value.toFixed(3) + " Mkm\u00B2");
-        dataTable.average.rows.push(row);
+        dataTable.annual.datasets.push(
+        {
+            label: year + (IsRecordLowYear(hemisphere, year, type) ? " Minimum" : ""),
+            data: processData(year),
+            backgroundColor: yearColour
+        });
     }
-
-    dataTable.minimum.title = "Minimum " + seaIceData.title;
-    dataTable.minimum.series.series = [{color:"#0000ff"}];
-    dataTable.minimum.columns.push({type:"date", label:"Year"});
-    dataTable.minimum.columns.push({type:"number", label:"Minimum"});
-    dataTable.minimum.columns.push({type:"string", role:"tooltip"});
-
-    for(year = 1979; year <= this.maxYear-1; year++)
-    {
-        var row = [];
-        row.push(new Date(year,1,1));
-
-        var value = 0;
-
-        if(avgCount[year] != 0)
-            value = minimums[year];
-        
-        row.push(value);
-        
-        row.push(year + "\n" + value.toFixed(3) + " Mkm\u00B2");
-
-        dataTable.minimum.rows.push(row);
-    }
-
-    if((hemisphere == "South" && currentDayOfYear() > 70) || (hemisphere == "North" && currentDayOfYear() > 274))
-    {
-        var row = [];
-        row.push(new Date(this.maxYear,1,1));
-
-        var value = 0;
-
-        if(avgCount[this.maxYear] != 0)
-            value = minimums[this.maxYear];
-        
-        row.push(value);
-        
-        row.push(this.maxYear + "\n" + value.toFixed(3) + " Mkm\u00B2");
-
-        dataTable.minimum.rows.push(row);
-    }
-
-
-
-    dataTable.maximum.title = "Maximum " + seaIceData.title;
-    dataTable.maximum.series = [{color:"#0000ff"}];
-    dataTable.maximum.columns.push({type:"date", label:"Year"});
-    dataTable.maximum.columns.push({type:"number", label:"Maximum"});
-    dataTable.maximum.columns.push({type:"string", role:"tooltip"});
-
-    for(year = 1979; year <= this.maxYear-1; year++)
-    {
-        var row = [];
-        row.push(new Date(year,1,1));
-
-        var value = 0;
-
-        if(avgCount[year] != 0)
-            value = maximums[year];
-        
-        row.push(value);
-        
-        row.push(year + "\n" + value.toFixed(3) + " Mkm\u00B2");
-
-        dataTable.maximum.rows.push(row);
-    }
-
     
-    if((hemisphere == "South" && currentDayOfYear() > 294) || (hemisphere == "North" && currentDayOfYear() > 105))
-    {
-        var row = [];
-        row.push(new Date(this.maxYear,1,1));
-
-        var value = 0;
-
-        if(avgCount[this.maxYear] != 0)
-            value = maximums[this.maxYear];
-        
-        row.push(value);
-        
-        row.push(this.maxYear + "\n" + value.toFixed(3) + " Mkm\u00B2");
-
-        dataTable.maximum.rows.push(row);
-    }
-
     postMessage({complete:true, dataTable:dataTable, loadedData: seaIceData});
 }
 
@@ -314,10 +213,10 @@ function IsRecordLowYear(hemisphere, year, type)
 function MakeColor(year, hemisphere, type)
 {
     if(IsRecordLowYear(hemisphere, year, type))
-        return {color: "#ff0000", lineWidth: 3};
+        return "#ff0000";
 
     if(year == this.maxYear)
-        return {color: "#0000ff", lineWidth: 3};
+        return "#0000ff";
 
     var range = this.maxYear - 1979;
     var pos = year - 1979;
@@ -326,7 +225,7 @@ function MakeColor(year, hemisphere, type)
 
     var rgb = 150 + Math.floor(lerp * 100);
     var hex = rgb.toString(16);
-    return {color:"#" + hex + hex + hex};
+    return "#" + hex + hex + hex;
 }
 
 function GetGlobal(type, northData, southData)
