@@ -1,45 +1,27 @@
-
+import * as d3 from "https://cdn.skypack.dev/d3@7";
 import SeaIceUi from "./modules/SeaIceUi.mjs";
 import Data from "./modules/data.mjs";
+import KevChart from "./modules/KevChart.mjs";
 import {dataTables, monthNames} from "./modules/data.mjs"
 
 var chart;
 var options = 
 {
-  plugins:{
-    legend: {
-      display: false,
-      position: "right"
-    }
-  },
-  scales:
+  axes:
   {
-    x:{display: true, title: {text:"Month"}, type: 'linear'},
-    y:{display: true, title: {text:"Extent"}}
-  },
-  elements:
-  {
-    line:
-    {
-      borderWidth: 0
-    }
+    x:{title: "Month"},
+    y:{title: "Extent"}
   }
 };
 
-const xTicks = {d1:"Jan", d32:"Feb", d60:"Mar", d91:"Apr", d121:"May", d152:"Jun", d182:"Jul", d213:"Aug", d244:"Sep", d274:"Oct", d305:"Nov", d335:"Dec", d367:"Jan"};
-
-function drawXTicks(val, index)
-{
-  const tickKey = "d" + index;
-  return tickKey in xTicks ? xTicks[tickKey] : null;
-}
+const xTicks = {1:"Jan", 32:"Feb", 60:"Mar", 91:"Apr", 121:"May", 152:"Jun", 182:"Jul", 213:"Aug", 244:"Sep", 274:"Oct", 305:"Nov", 335:"Dec", 367:"Jan"};
 
 async function initialise()
 {
   SeaIceUi.initialise(onUiClick);
 
   await Data.loadAllData();
-
+  
   hidePleaseWait();
 
   drawChart("Extent", "Global", "annual")
@@ -75,8 +57,8 @@ let lastGraphType = "annual";
 
 const ranges = {
   Global:{
-      Extent:{annual:{min:10, max:30}, average:{min:20, max:26}, minimum:{min:16, max:20}, maximum:{min:22, max:30}},
-      Area:  {annual:{min:10, max:25}, average:{min:16, max:22}, minimum:{min:13, max:17}, maximum:{min:15, max:23}}
+      Extent:{annual:{min:14, max:30}, average:{min:20, max:26}, minimum:{min:16, max:20}, maximum:{min:22, max:30}},
+      Area:  {annual:{min:12, max:24}, average:{min:16, max:22}, minimum:{min:13, max:17}, maximum:{min:15, max:23}}
   },
   North: {
       Extent:{annual:{min:0,  max:18}, average:{min:8, max:16}, minimum:{min:2, max:10}, maximum:{min:12, max:20}},
@@ -103,16 +85,16 @@ function drawChart(areaType, hemisphere, graphType) {
 
   if(dataTable.range)
   {
-    options.scales.y.min = dataTable.range.min;
-    options.scales.y.max = dataTable.range.max;
+    options.axes.y.min = dataTable.range.min;
+    options.axes.y.max = dataTable.range.max;
   }
   else
   {
-    options.scales.y.min = ranges[hemisphere][areaType][graphType].min;
-    options.scales.y.max = ranges[hemisphere][areaType][graphType].max;
+    options.axes.y.min = ranges[hemisphere][areaType][graphType].min;
+    options.axes.y.max = ranges[hemisphere][areaType][graphType].max;
   }
 
-  options.scales.y.title.text = areaType + " (Millions of square kilometers)";
+  options.axes.y.title = areaType + " (Millions of square kilometers)";
 
   if(graphType == "annual" || lastGraphType == "annual")
     options.animation = false;
@@ -125,23 +107,19 @@ function drawChart(areaType, hemisphere, graphType) {
     }
   }
 
-  options.plugins.legend.display = (graphType == "annual");
-  
   const config =
   {
-    type: "line",
     data: dataTable,
     options: options
   };
 
   if(!chart)
   {
-    chart = new Chart(document.getElementById('chart_canvas'), config);
+    chart = new KevChart(document.getElementById('chart_div'), config);
   }
   else
   {
-    chart.options = config.options;
-    chart.data = config.data;
+    chart.config = config;
     chart.update();
   }
 

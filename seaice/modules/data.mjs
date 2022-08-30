@@ -1,3 +1,5 @@
+import Tools from "./tools.mjs";
+
 var cachedData = {};
 var loadedData = {North:{Extent:{},Area:{}},South:{Extent:{},Area:{}}};
 var dataTables = {North:{Extent:{},Area:{}},South:{Extent:{},Area:{}},Global:{Extent:{},Area:{}}};
@@ -8,6 +10,17 @@ function Data(){
 Data.loadAllData = async function()
 {
   cachedData = await loadCachedData();
+
+  let hemispheres = ["North", "South"];
+  let areaTypes = ["Extent", "Area"];
+
+  hemispheres.forEach
+  (
+    hemisphere => areaTypes.forEach
+    (
+      areaType => Tools.removeFeb29(cachedData[hemisphere][areaType])
+    )
+  );
 
   await loadFreshData();
 
@@ -148,7 +161,7 @@ function loadFreshData()
     ["Area", "Extent"].forEach(function(areaType){
         ["North", "South"].forEach(function(hemisphere){
                         
-            var dataLoaderWorker = new Worker("DataLoader.js");
+            var dataLoaderWorker = new Worker("DataLoader.js", {type: "module"});
             dataLoaderWorkers.push(dataLoaderWorker);
 
             dataLoaderWorker.onmessage = function(e){
@@ -182,7 +195,7 @@ function splitDataTable(dataTable, areaType, hemisphere)
 function generateGlobalData()
 {
   const p1 = new Promise(resolve=>{
-    var globalWorker = new Worker("DataLoader.js");
+    var globalWorker = new Worker("DataLoader.js", {type: "module"});
     globalWorker.onmessage = function(e){
         if(e.data.complete)
         {
@@ -195,7 +208,7 @@ function generateGlobalData()
   });
   
   const p2 = new Promise(resolve=>{
-    var globalWorker = new Worker("DataLoader.js");
+    var globalWorker = new Worker("DataLoader.js", {type: "module"});
     globalWorker.onmessage = function(e){
         if(e.data.complete)
         {

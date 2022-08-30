@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="/dist/output.css" rel="stylesheet">
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
   <script type="module" src="seaIceGraphs.js"></script>
 </head>
 <body>
@@ -93,9 +92,9 @@
     </form>
     <div class="relative">
       <div class="flex grow aspect-square bg-gray-50">
-        <canvas id="chart_canvas"></canvas>
+        <div id="chart_div" class="flex grow"></div>
       </div>
-      <button id="CopyButton" type="button" class="hidden absolute top-0 right-0"><img width="30" height="30" src="copy.svg"></button>
+      <button id="CopyButton" type="button" class="absolute top-0 right-0"><img width="30" height="30" src="copy.svg"></button>
     </div>
   </div>
 

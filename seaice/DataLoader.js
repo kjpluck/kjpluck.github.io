@@ -1,3 +1,5 @@
+import Tools from "./modules/tools.mjs";
+
 var maxYear = (new Date()).getFullYear();
 
 onmessage = function(e){
@@ -28,7 +30,7 @@ function GetNsidc(type, hemisphere, cachedData)
         seaIceData.title = "Arctic Sea Ice " + type + " - NSIDC";
 
     var years = [];
-    for (var i = 1979; i <= this.maxYear; i++) {
+    for (var i = 1979; i <= maxYear; i++) {
         years.push(i);
     }
 
@@ -36,7 +38,7 @@ function GetNsidc(type, hemisphere, cachedData)
 
     var appendData = function(data, year)
     {
-        seaIceData["year" + year] = data;
+        seaIceData[year] = data;
 
         done -= 1;
         if(done == 0) 
@@ -53,9 +55,9 @@ function GetNsidc(type, hemisphere, cachedData)
 
     years.forEach(function(year){
 
-        if(cachedData && cachedData["year" + year])
+        if(cachedData && cachedData[year])
         {
-            appendData(cachedData["year" + year], year);
+            appendData(cachedData[year], year);
             return;
         }
 
@@ -80,6 +82,8 @@ function dateFromDay(year, day){
 
 function GotNsidc(seaIceData, type, hemisphere)
 {    
+    Tools.removeFeb29(seaIceData);
+
     var dataTable = {
         annual:{
             title:"",
@@ -132,11 +136,11 @@ function GotNsidc(seaIceData, type, hemisphere)
         let minimum = 100000;
         let maximum = 0;
 
-        for(day = 1; day<=366; day++)
+        for(let day = 1; day<=366; day++)
         {
-            if(seaIceData["year" + year][day])
+            if(seaIceData[year][day])
             {
-                var value = seaIceData["year" + year][day];
+                var value = seaIceData[year][day];
                 if(value == -1)
                     value = null
                 
@@ -172,13 +176,13 @@ function GotNsidc(seaIceData, type, hemisphere)
 
     dataTable.annual.title = seaIceData.title;
 
-    for(let year = 1979; year <= this.maxYear; year++)
+    for(let year = 1979; year <= maxYear; year++)
     {
-        const yearColour = this.MakeColor(year, hemisphere, type);
+        const yearColour = MakeColor(year, hemisphere, type);
         
         dataTable.annual.datasets.push(
         {
-            label: year + (IsRecordLowYear(hemisphere, year, type) ? " Minimum" : ""),
+            year: year + (IsRecordLowYear(hemisphere, year, type) ? " Minimum" : ""),
             data: processData(year),
             backgroundColor: yearColour
         });
@@ -215,10 +219,10 @@ function MakeColor(year, hemisphere, type)
     if(IsRecordLowYear(hemisphere, year, type))
         return "#ff0000";
 
-    if(year == this.maxYear)
+    if(year == maxYear)
         return "#0000ff";
 
-    var range = this.maxYear - 1979;
+    var range = maxYear - 1979;
     var pos = year - 1979;
 
     var lerp = 1 - pos / range;
@@ -233,7 +237,7 @@ function GetGlobal(type, northData, southData)
     
     var global = {title: "Global Sea Ice " + type + " - NSIDC"};
     
-    for(year = 1979; year <= maxYear; year++)
+    for(let year = 1979; year <= maxYear; year++)
     {
         var dataCorrection = 1.0;
         if(year < 1988 && type == "Area")
@@ -241,18 +245,18 @@ function GetGlobal(type, northData, southData)
             dataCorrection = 1.1;
         }
 
-        var northYearData = northData["year"+year];
-        var southYearData = southData["year"+year];
-        global["year"+year] = {};
-        for(day = 1; day <= 366; day++)
+        var northYearData = northData[year];
+        var southYearData = southData[year];
+        global[year] = {};
+        for(let day = 1; day <= 366; day++)
         {
             if(northYearData[day] == -1 || southYearData[day] == -1)
             {
-                global["year" + year][day] = null;
+                global[year][day] = null;
                 continue;
             }
 
-            global["year"+year][day] = northYearData[day] * dataCorrection + southYearData[day];
+            global[year][day] = northYearData[day] * dataCorrection + southYearData[day];
         }
     }
 

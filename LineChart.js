@@ -50,7 +50,7 @@ function loadAllData()
                 }
             }
 
-            var dataLoaderWorker = new Worker("DataLoader.js");
+            var dataLoaderWorker = new Worker("DataLoader.js", {type: "module"});
             dataLoaderWorkers.push(dataLoaderWorker);
 
             dataLoaderWorker.onmessage = function(e){
@@ -120,7 +120,7 @@ function enableButton(id)
     if(enabledButtonCount == 16)
     {
 
-        var globalWorker1 = new Worker("DataLoader.js");
+        var globalWorker1 = new Worker("DataLoader.js", {type: "module"});
         globalWorker1.onmessage = function(e){
             if(e.data.complete)
             {
@@ -142,7 +142,7 @@ function enableButton(id)
         globalWorker1.postMessage({type:"Area", hemisphere:"Global", northData: loadedData.North.Area, southData: loadedData.South.Area});
 
         
-        var globalWorker2 = new Worker("DataLoader.js");
+        var globalWorker2 = new Worker("DataLoader.js", {type: "module"});
         globalWorker2.onmessage = function(e){
             if(e.data.complete)
             {

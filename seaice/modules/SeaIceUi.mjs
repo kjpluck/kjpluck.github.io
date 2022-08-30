@@ -59,26 +59,9 @@ SeaIceUi.getState = function()
   return state;
 }
 
-function copyStylesInline(destinationNode, sourceNode) {
-  var containerElements = ["svg","g"];
-  for (var cd = 0; cd < destinationNode.childNodes.length; cd++) {
-      var child = destinationNode.childNodes[cd];
-      if (containerElements.indexOf(child.tagName) != -1) {
-           copyStylesInline(child, sourceNode.childNodes[cd]);
-           continue;
-      }
-      var style = sourceNode.childNodes[cd].currentStyle || window.getComputedStyle(sourceNode.childNodes[cd]);
-      if (style == "" || style == null) continue;
-      for (var st = 0; st < style.length; st++){
-           child.style.setProperty(style[st], style.getPropertyValue(style[st]));
-      }
-  }
-}
-
 function getSvgString(svgElement)
 {
   let svgElementClone = svgElement.cloneNode(true);
-  copyStylesInline(svgElementClone, svgElement);
 
   var svgString = (new XMLSerializer()).serializeToString(svgElementClone);
 
@@ -97,12 +80,13 @@ function copyGraphToClipboard()
 
   var canvas = document.createElement("canvas");
 
-  var bbox = svgElement.getBBox();
-  canvas.width = bbox.width;
-  canvas.height = bbox.height;
+  canvas.width = svgElement.attributes.width.value;
+  canvas.height = svgElement.attributes.height.value;
 
   var ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, bbox.width, bbox.height);
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 
   var img = new Image();
 
