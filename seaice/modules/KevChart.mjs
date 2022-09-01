@@ -18,6 +18,7 @@ class KevChart
   #plottingArea;
   #brushArea;
   #zoomBrush;
+  #tooltip;
 
   config;
 
@@ -57,6 +58,10 @@ class KevChart
       .attr("height", this.#height)
       .append("g")
         .attr("transform", `translate(${margin.right},${margin.top})`);
+    
+    this.#tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
   }
 
   #addAxes()
@@ -124,21 +129,97 @@ class KevChart
   {
     this.#appendClipPath("clip", 0, 0, this.#contentWidth, this.#contentHeight);
     
-    let translate = [this.#xScalor(0), this.#yScalor(0)];
-    let scale = [this.#xScalor(1) - this.#xScalor(0), this.#yScalor(1) - this.#yScalor(0)];
-
     let plottingClipArea = this.#d3Svg
       .append('g')
         .attr("clip-path", "url(#clip)");
 
+    plottingClipArea
+      .on("mousemove", this.#showToolTip.bind(this));
+
     this.#plottingArea = plottingClipArea
       .append("g")
         .attr("id", "plottingArea")
+        .attr("stroke-width", 2)
         .attr("transform", this.#createTransform());
     
+
     this.#brushArea = plottingClipArea
       .append("g")
       .attr("id", "brushArea");
+
+  }
+
+  #showingTooltip = false;
+  #tooltipYear = null;
+  #tooltipDay = null;
+  #tooltipYearIndex = null;
+  #showToolTip(event)
+  {
+    const pos = d3.pointer(event);
+    const day = Math.round(this.#xScalor.invert(pos[0])) - 1;
+    const area = this.#yScalor.invert(pos[1]);
+
+    let closestYear;
+    let closestYearIndex;
+    let closestDistance = 1000;
+
+    this.config.data.datasets.forEach((dataset, index) => {
+      const thisArea = dataset.data[day].y;
+      const distance = Math.abs(area - thisArea);
+      if(distance < closestDistance)
+      {
+        closestDistance = distance;
+        closestYear = dataset.year;
+        closestYearIndex = index;
+      }
+    });
+
+    if(closestDistance > 0.5)
+    {
+      if(this.#showingTooltip)
+      {
+        this.#tooltip.transition()
+          .duration(200)
+          .style("opacity", 0);
+      }
+        
+      this.#showingTooltip = false;
+      this.#tooltipYear = null;
+      this.#tooltipDay = null;
+      this.#tooltipYearIndex = null;
+
+      this.#highlightYear();
+      
+      return;
+    }
+    
+    if(!this.#showingTooltip)
+    {
+      this.#tooltip.transition()
+        .duration(200)
+        .style("opacity", .9);
+      
+      this.#showingTooltip = true;
+    }
+
+    if(closestYear != this.#tooltipYear || day != this.#tooltipDay)
+    {
+      this.#tooltip.html(`${closestYear}<br/>${day}, ${area.toFixed(2)}`)
+        .style("left", (event.pageX) + "px")
+        .style("top", (event.pageY - 28) + "px");
+      
+      this.#tooltipYear = closestYear;
+      this.#tooltipYearIndex = closestYearIndex;
+      this.#tooltipDay = day;
+
+      this.#highlightYear();
+    }
+  }
+
+  #highlightYear()
+  {
+    this.#plottingArea.selectAll("path")
+      .transition().attr("opacity", (_, i) => (this.#tooltipYearIndex == null || i == this.#tooltipYearIndex) ? 1 : 0.2);
   }
 
   #addZoomControl()
@@ -197,9 +278,11 @@ class KevChart
 
     paths.enter()
       .append("path")
-        .datum(dataset => dataset.data)
+        .attr("id", d => "path" + d.year)
+        .attr("original-colour", d => d.colour)
+        .attr("stroke", d => d.colour)
+        .datum(d => d.data)
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
         .attr("vector-effect", "non-scaling-stroke")
         .merge(paths)
         .attr("d", this.#lineGenerator.bind(this)

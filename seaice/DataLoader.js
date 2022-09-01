@@ -182,9 +182,9 @@ function GotNsidc(seaIceData, type, hemisphere)
         
         dataTable.annual.datasets.push(
         {
-            year: year + (IsRecordLowYear(hemisphere, year, type) ? " Minimum" : ""),
+            year: year,
             data: processData(year),
-            backgroundColor: yearColour
+            colour: yearColour
         });
     }
     
