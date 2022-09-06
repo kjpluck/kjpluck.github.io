@@ -177,14 +177,12 @@ function GotNsidc(seaIceData, type, hemisphere)
     dataTable.annual.title = seaIceData.title;
 
     for(let year = 1979; year <= maxYear; year++)
-    {
-        const yearColour = MakeColor(year, hemisphere, type);
-        
+    {        
         dataTable.annual.datasets.push(
         {
             year: year,
-            data: processData(year),
-            colour: yearColour
+            type: IsRecordLowYear(hemisphere, year, type) ? "record low year" : year == maxYear ? "current year" : "normal year",
+            data: processData(year)
         });
     }
     
@@ -214,24 +212,6 @@ function IsRecordLowYear(hemisphere, year, type)
     return false;
 }
 
-function MakeColor(year, hemisphere, type)
-{
-    if(IsRecordLowYear(hemisphere, year, type))
-        return "#ff0000";
-
-    if(year == maxYear)
-        return "#0000ff";
-
-    var range = maxYear - 1979;
-    var pos = year - 1979;
-
-    var lerp = 1 - pos / range;
-
-    var rgb = 150 + Math.floor(lerp * 100);
-    var hex = rgb.toString(16);
-    return "#" + hex + hex + hex;
-}
-
 function GetGlobal(type, northData, southData)
 {
     
@@ -248,7 +228,7 @@ function GetGlobal(type, northData, southData)
         var northYearData = northData[year];
         var southYearData = southData[year];
         global[year] = {};
-        for(let day = 1; day <= 366; day++)
+        for(let day = 0; day < 366; day++)
         {
             if(northYearData[day] == -1 || southYearData[day] == -1)
             {
