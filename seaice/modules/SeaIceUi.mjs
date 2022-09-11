@@ -3,6 +3,7 @@ function SeaIceUi(){}
 
 SeaIceUi.initialise = function(doclick){
   addClickToAllInputs(doclick);
+  addKeyEvent();
 }
 
 let monthSelector;
@@ -26,6 +27,19 @@ function addClickToAllInputs(doclick)
   let theCopyButton = document.getElementById("CopyButton");
   theCopyButton.onclick = copyGraphToClipboard;
 
+}
+
+function addKeyEvent()
+{
+  document.addEventListener("keydown", handleKeyDown);
+}
+
+function handleKeyDown(e)
+{
+  if(e.repeat) return;
+
+  if(e.key == "c" && e.ctrlKey)
+    copyGraphToClipboard();
 }
 
 function nextMonth() {
@@ -84,7 +98,7 @@ function copyGraphToClipboard()
   canvas.height = svgElement.attributes.height.value;
 
   var ctx = canvas.getContext("2d");
-  ctx.fillStyle = "white";
+  ctx.fillStyle = "rgb(17,24,39)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 
