@@ -91,30 +91,30 @@ function GotNsidc(seaIceData, type, hemisphere)
         },
         
         minimum:{
-            title:"",
+            title: "Minimum " + seaIceData.title,
             datasets:[
                 {
-                    title: "Minimum " + seaIceData.title,
+                    id: "minimum"+type+hemisphere,
                     data:[]
                 }
             ]
         },
         
         average:{
-            title:"",
+            title: "Average " + seaIceData.title,
             datasets:[
                 {
-                    title: "Average " + seaIceData.title,
+                    id: "average"+type+hemisphere,
                     data:[]
                 }
             ]
         },
         
         maximum:{
-            title:"",
+            title: "Maximum " + seaIceData.title,
             datasets:[
                 {
-                    title: "Maximum " + seaIceData.title,
+                    id: "maximum"+type+hemisphere,
                     data:[]
                 }
             ]
@@ -167,9 +167,9 @@ function GotNsidc(seaIceData, type, hemisphere)
             }
         }
 
-        dataTable.average.datasets[0].data.push(avgAccumulator / avgCount);
-        dataTable.maximum.datasets[0].data.push(maximum);
-        dataTable.minimum.datasets[0].data.push(minimum);
+        dataTable.average.datasets[0].data.push({x:year, y:avgAccumulator / avgCount});
+        dataTable.maximum.datasets[0].data.push({x:year, y:maximum});
+        dataTable.minimum.datasets[0].data.push({x:year, y:minimum});
 
         return toReturn;
     }
@@ -180,7 +180,7 @@ function GotNsidc(seaIceData, type, hemisphere)
     {        
         dataTable.annual.datasets.push(
         {
-            year: year,
+            id: year,
             type: IsRecordLowYear(hemisphere, year, type) ? "record low year" : year == maxYear ? "current year" : "normal year",
             data: processData(year)
         });

@@ -7,6 +7,7 @@ import {dataTables, monthNames} from "./modules/data.mjs"
 var chart;
 var options = 
 {
+  graphType: "annual",
   axes:
   {
     x:{title: "Month"},
@@ -52,9 +53,6 @@ function hidePleaseWait()
   pw.parentElement.removeChild(pw);
 }
 
-let lastGraphType = "annual";
-
-
 const ranges = {
   Global:{
       Extent:{annual:{min:14, max:30}, average:{min:20, max:26}, minimum:{min:16, max:20}, maximum:{min:22, max:30}},
@@ -74,13 +72,20 @@ function drawChart(areaType, hemisphere, graphType) {
 
   var dataTable = dataTables[hemisphere][areaType][graphType];
 
+  options.graphType = graphType;
+  
   if(graphType == "annual")
   {
-    //options.scales.x.ticks = {callback: drawXTicks};
+    options.axes.x.title = "Month";
+    options.axes.x.min = 1;
+    options.axes.x.max = 366;
   }
   else
   {
-    //options.scales.x.ticks = null;
+    options.axes.x.title = "Year"
+    options.axes.x.min = 1979;
+    var maxYear = (new Date()).getFullYear()-1;
+    options.axes.x.max = maxYear;
   }
 
   if(dataTable.range)
@@ -95,17 +100,6 @@ function drawChart(areaType, hemisphere, graphType) {
   }
 
   options.axes.y.title = areaType + " (Millions of square kilometers)";
-
-  if(graphType == "annual" || lastGraphType == "annual")
-    options.animation = false;
-  else
-  {
-    options.animation = 
-    {
-      duration: 1000,
-      easing: 'easeOutQuart'
-    }
-  }
 
   const config =
   {
@@ -122,8 +116,6 @@ function drawChart(areaType, hemisphere, graphType) {
     chart.config = config;
     chart.update();
   }
-
-  lastGraphType = graphType;
 }
 
 await initialise();

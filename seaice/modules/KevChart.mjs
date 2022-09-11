@@ -26,8 +26,10 @@ class KevChart
   #contentHeight;
 
   #d3Svg;
+  #chartTitle;
   #xScalor; #yScalor;
   #xAxisElement; #yAxisElement;
+  #xAxisLabel; #yAxisLabel;
   #xAxisGenerator;
   #plottingArea;
   #brushArea;
@@ -72,11 +74,19 @@ class KevChart
       .attr("height", this.#height)
       .append("g")
         .attr("transform", `translate(${margin.right},${margin.top})`);
+    
+    this.#chartTitle = this.#d3Svg.append("text")
+    .attr("font-family", "sans-serif")
+    .attr("text-anchor", "middle")
+    .attr("transform", `translate(${this.#contentWidth / 2},-50)`)
+    .attr("fill", "white")
+    .text(this.config.data.title);
   }
 
   #addAxes()
   {    
-    this.#xScalor = d3.scaleLinear().range([0, this.#contentWidth]).domain([1, 366]);
+    const xConfig = this.config.options.axes.x;
+    this.#xScalor = d3.scaleLinear().range([0, this.#contentWidth]).domain([xConfig.min, xConfig.max]);
     const yConfig = this.config.options.axes.y;
     this.#yScalor = d3.scaleLinear().range([0, this.#contentHeight]).domain([yConfig.max, yConfig.min]);
     
@@ -91,16 +101,36 @@ class KevChart
       .attr("clip-path", "url(#xAxisClipPath)")
       .append("g")
       .attr("transform", `translate(0, ${this.#contentHeight})`)
-      .call(this.#xAxisGenerator)
-      .call(g => g.selectAll(".tick line")
-        .attr("stroke-opacity", 0.1));
+      .call(this.#xAxisGenerator).call(this.#xTickStyle);
+    
+    this.#xAxisLabel = this.#d3Svg.append("text")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "smaller")
+      .attr("text-anchor", "middle")
+      .attr("transform", `translate(${this.#contentWidth / 2}, ${this.#contentHeight + 50})`)
+      .attr("fill", "white")
+      .text(xConfig.title);
 
     this.#appendClipPath("yAxisClipPath", -margin.left, 0, this.#width, this.#contentHeight, 10);
     this.#yAxisElement = this.#d3Svg.append("g")
       .attr("clip-path", "url(#yAxisClipPath)")
       .append("g")
-      .call(d3.axisLeft(this.#yScalor));
+      .call(d3.axisLeft(this.#yScalor)).style("color", "white");
     
+    this.#yAxisLabel = this.#d3Svg.append("text")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "smaller")
+      .attr("text-anchor", "middle")
+      .attr("transform", `rotate(-90) translate(${-this.#contentHeight / 2},-50)`)
+      .attr("fill", "white")
+      .text(yConfig.title);
+  }
+
+  #xTickStyle(selection)
+  {
+    selection.style("color", "white")
+      .call(g => g.selectAll(".tick line")
+      .attr("stroke-opacity", 0.1))
   }
 
   #appendClipPath(id, x, y, width, height, padding=0) 
@@ -116,16 +146,33 @@ class KevChart
 
   #resetScale()
   {
-    this.#xScalor.domain([1, 366]);
+    const xConfig = this.config.options.axes.x;
+    this.#xScalor.domain([xConfig.min, xConfig.max]);
     const yConfig = this.config.options.axes.y;
     this.#yScalor.domain([yConfig.max, yConfig.min]);
   }
 
-  #updateAxis()
+  async #updateAxis()
   {
-    this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator);
-    this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor));
-    this.#plottingArea.transition().duration(1000).attr("transform", this.#createTransform());
+    if(this.config.options.graphType == "annual")
+    {
+      this.#xAxisGenerator.tickValues(monthStartDay);
+      this.#xAxisGenerator.tickFormat((_, i) => monthNames[i]);
+    }
+    else
+    {
+      this.#xAxisGenerator.tickValues(null);
+      this.#xAxisGenerator.tickFormat(d => d);
+    }
+
+    let tran1 = this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator).call(this.#xTickStyle).end();
+    let tran2 = this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor)).style("color", "white").end();
+    let tran3 = this.#plottingArea.transition().duration(1000).attr("transform", this.#createTransform()).end();
+
+    await Promise.all([tran1, tran2, tran3]);
+    this.#xAxisLabel.text(this.config.options.axes.x.title);
+    this.#yAxisLabel.text(this.config.options.axes.y.title);
+    this.#chartTitle.text(this.config.data.title);
   }
 
   #createTransform()
@@ -184,7 +231,7 @@ class KevChart
       if(distance < closestDistance)
       {
         closestDistance = distance;
-        closestYear = dataset.year;
+        closestYear = dataset.id;
         closestYearIndex = index;
         closestArea = thisArea;
       }
@@ -194,11 +241,7 @@ class KevChart
 
     if(closestDistance > scaledThreshold)
     {
-      this.#tooltipYear = null;
-      this.#tooltipYearIndex = null;
-      this.#tooltipDay = null;
-
-      this.#tooltip.hide();
+      this.#hideTooltip();
       this.#highlightYear();
       return;
     }
@@ -218,6 +261,14 @@ class KevChart
     }
   }
 
+  #hideTooltip()
+  {
+    this.#tooltipYear = null;
+    this.#tooltipYearIndex = null;
+    this.#tooltipDay = null;
+    this.#tooltip.hide();
+  }
+
   #setPathOpacity(yearIndex)
   {
     const yearType = this.config.data.datasets[yearIndex].type;
@@ -229,10 +280,24 @@ class KevChart
     return this.#tooltipYearIndex == yearIndex ? 1.0 : 0.2;
   }
 
+  async #fadePlot()
+  {
+    await this.#plottingArea.selectAll("path")
+      .transition().attr("opacity", 0).end();
+  }
+
   #highlightYear()
   {
-    this.#plottingArea.selectAll("path")
-      .transition().attr("opacity", (_, i) => this.#setPathOpacity(i));
+    if(this.config.options.graphType == "annual")
+    {
+      this.#plottingArea.selectAll("path")
+        .transition().attr("opacity", (_, i) => this.#setPathOpacity(i));
+    }
+    else
+    {
+      this.#plottingArea.selectAll("path")
+        .transition().attr("opacity", 1);
+    }
   }
 
   #addZoomControl()
@@ -269,7 +334,7 @@ class KevChart
       this.#resetScale();
     }
 
-    this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator);
+    this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator).call(this.#xTickStyle);
     this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor));
     this.#plottingArea.transition().duration(1000).attr("transform", this.#createTransform());
   }
@@ -285,30 +350,33 @@ class KevChart
 
     let paths = this.#plottingArea
       .selectAll("path")
-      .data(datasets, d => d.year);
+      .data(datasets, d => d.id);
 
     paths.exit().remove();
 
     paths.enter()
       .append("path")
-        .attr("id", d => "path" + d.year)
-        .attr("original-colour", d => MakeColour(d))
-        .attr("stroke", d => MakeColour(d))
-        .attr("opacity", 1)
+        .attr("id", d => "path" + d.id)
+        .attr("original-colour", d => MakeColour(d, this.config.options.graphType))
+        .attr("stroke", d => MakeColour(d, this.config.options.graphType))
+        .attr("opacity", 0)
         .datum(d => d.data)
         .attr("fill", "none")
         .attr("vector-effect", "non-scaling-stroke")
         .merge(paths)
         .attr("d", this.#lineGenerator.bind(this)
       );
-      
+    
+    this.#highlightYear();
   }
 
 
-  update()
+  async update()
   {
+    this.#hideTooltip();
     this.#resetScale();
-    this.#updateAxis();
+    await this.#fadePlot();
+    await this.#updateAxis();
     this.#plotData();
   }
 
@@ -365,9 +433,6 @@ class Tooltip
     }
       
     this.showing = false;
-    this.tooltipYear = null;
-    this.tooltipDay = null;
-    this.tooltipYearIndex = null;
   }
 
   set(year, date, area, x, y)
@@ -397,16 +462,19 @@ class Tooltip
 
 const palette = ["#003f5c", "#444e86", "#955196", "#dd5182", "#ff6e54", "#ffa600"];
 
-function MakeColour(yearData)
+function MakeColour(yearData, graphType)
 {
+  if(graphType !== "annual")
+    return "#ff00ff";
+
   if(yearData.type == "record low year")
-    return "#ff0000";
+    return "#ffffff";
 
   if(yearData.type == "current year")
-    return "#0000ff";
+    return "#ff00ff";
   
   var range = 2022 - 1979;
-  var pos = yearData.year - 1970;
+  var pos = yearData.id - 1970;
 
   const decade = Math.floor(pos/10);
   const yearOfDecade = pos % 10;
