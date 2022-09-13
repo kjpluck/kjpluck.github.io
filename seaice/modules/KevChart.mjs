@@ -1,6 +1,6 @@
 import * as d3 from "https://cdn.skypack.dev/d3@7";
 
-const margin = {top: 187, right: 187, bottom: 187, left: 60};
+const margin = {top: 100, right: 100, bottom: 100, left:100};
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan"];
 const monthStartDay = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366];
 
@@ -72,6 +72,7 @@ class KevChart
       .append("svg")
       .attr("width", this.#width)
       .attr("height", this.#height)
+      .attr("font-size", "1.5rem")
       .append("g")
         .attr("transform", `translate(${margin.right},${margin.top})`);
     
@@ -211,12 +212,12 @@ class KevChart
 
   
   #tooltipYear = null;
-  #tooltipDay = null;
+  #tooltipXCoord = null;
   #tooltipYearIndex = null;
   #showToolTip(event)
   {
     const pos = d3.pointer(event);
-    const day = Math.round(this.#xScalor.invert(pos[0])) - 1;
+    const xCoord = Math.round(this.#xScalor.invert(pos[0]));
     const area = this.#yScalor.invert(pos[1]);
 
     let closestYear;
@@ -226,7 +227,11 @@ class KevChart
     
 
     this.config.data.datasets.forEach((dataset, index) => {
-      const thisArea = dataset.data[day].y;
+
+      const datum = dataset.data.find(datum => datum.x == xCoord);
+      if(!datum) return;
+
+      const thisArea = datum.y;
       const distance = Math.abs(area - thisArea);
       if(distance < closestDistance)
       {
@@ -248,14 +253,26 @@ class KevChart
     
     this.#tooltip.show();
 
-    if(closestYear != this.#tooltipYear || day != this.#tooltipDay)
+    if(closestYear != this.#tooltipYear || xCoord != this.#tooltipXCoord)
     {
-      const displayDate = makeDate(day);
-      this.#tooltip.set(closestYear, displayDate, closestArea.toFixed(2), this.#xScalor(day + 1), this.#yScalor(closestArea));
+      let title = "";
+      let subTitle = "";
+      if(this.config.options.graphType == "annual")
+      {
+        title = closestYear;
+        subTitle = makeDate(xCoord);
+      }
+      else
+      {
+        title = this.config.options.areaType + " " + this.config.options.graphType;
+        subTitle = xCoord;
+      }
+
+      this.#tooltip.set(title, subTitle, closestArea.toFixed(2), this.#xScalor(xCoord), this.#yScalor(closestArea));
       
       this.#tooltipYear = closestYear;
       this.#tooltipYearIndex = closestYearIndex;
-      this.#tooltipDay = day;
+      this.#tooltipXCoord = xCoord;
 
       this.#highlightYear();
     }
@@ -265,7 +282,7 @@ class KevChart
   {
     this.#tooltipYear = null;
     this.#tooltipYearIndex = null;
-    this.#tooltipDay = null;
+    this.#tooltipXCoord = null;
     this.#tooltip.hide();
   }
 
@@ -354,18 +371,19 @@ class KevChart
 
     paths.exit().remove();
 
+    const graphType = this.config.options.graphType;
     paths.enter()
       .append("path")
         .attr("id", d => "path" + d.id)
-        .attr("original-colour", d => MakeColour(d, this.config.options.graphType))
-        .attr("stroke", d => MakeColour(d, this.config.options.graphType))
+        .attr("original-colour", d => MakeColour(d, graphType))
+        .attr("stroke", d => MakeColour(d, graphType))
+        .attr("stroke-width", graphType == "annual" ? 2 : 4)
         .attr("opacity", 0)
         .datum(d => d.data)
         .attr("fill", "none")
         .attr("vector-effect", "non-scaling-stroke")
         .merge(paths)
-        .attr("d", this.#lineGenerator.bind(this)
-      );
+        .attr("d", this.#lineGenerator.bind(this));
     
     this.#highlightYear();
   }
@@ -388,7 +406,7 @@ class Tooltip
 {
   svgGroup;
   bg;
-  year; date; area;
+  title; subTitle; area;
   mark;
   showing = false;
   maxX; maxY;
@@ -398,12 +416,13 @@ class Tooltip
   constructor(svgGroup, width, height, maxX, maxY)
   {
     this.svgGroup = svgGroup;
+    this.svgGroup.attr("font-family", "sans-serif");
     this.bg = svgGroup.append("rect").attr("fill", "white").attr("width", width).attr("height", height);
     this.height = height;
     this.width = width;
     this.centre = width / 2;
-    this.year = svgGroup.append("text").attr("x", 10).attr("y", 20).attr("font-size", 15).attr("font-weight", "bold");
-    this.date = svgGroup.append("text").attr("x", 10).attr("y", 40).attr("font-size", 15);
+    this.title = svgGroup.append("text").attr("x", 10).attr("y", 20).attr("font-size", 15).attr("font-weight", "bold");
+    this.subTitle = svgGroup.append("text").attr("x", 10).attr("y", 40).attr("font-size", 15);
     this.area = svgGroup.append("text").attr("x", 10).attr("y", 60).attr("font-size", 15);
     this.mark = svgGroup.append("circle").attr("cx", this.centre).attr("cy", height + 20).attr("fill", "grey").attr("r", 5);
     this.maxX = maxX;
@@ -435,7 +454,7 @@ class Tooltip
     this.showing = false;
   }
 
-  set(year, date, area, x, y)
+  set(title, subTitle, area, x, y)
   {
     if(y > this.maxY)
     {
@@ -452,10 +471,12 @@ class Tooltip
 
     this.mark.attr("cx", x < centreWithPadding ? this.centre - (centreWithPadding - x) : x > this.maxX - centreWithPadding ? this.centre + (x - (this.maxX - centreWithPadding)) : this.centre);
     this.mark.attr("cy", y > this.height + 20 ? this.height + 20 : -20);
-    this.year.text(year);
-    this.date.text(date);
+
+    this.title.text(title);
+    this.subTitle.text(subTitle);
     this.area.text(area + " million km²");
     this.svgGroup.attr("transform", `translate(${thePos})`);
+    
   }
 }
 
@@ -465,7 +486,7 @@ const palette = ["#003f5c", "#444e86", "#955196", "#dd5182", "#ff6e54", "#ffa600
 function MakeColour(yearData, graphType)
 {
   if(graphType !== "annual")
-    return "#ff00ff";
+    return "#0076ae";
 
   if(yearData.type == "record low year")
     return "#ffffff";

@@ -1,6 +1,7 @@
 import Tools from "./modules/tools.mjs";
 
-var maxYear = (new Date()).getFullYear();
+const maxYear = (new Date()).getUTCFullYear();
+
 
 onmessage = function(e){
     if(!e.data.hemisphere) return;
@@ -167,9 +168,9 @@ function GotNsidc(seaIceData, type, hemisphere)
             }
         }
 
-        dataTable.average.datasets[0].data.push({x:year, y:avgAccumulator / avgCount});
-        dataTable.maximum.datasets[0].data.push({x:year, y:maximum});
-        dataTable.minimum.datasets[0].data.push({x:year, y:minimum});
+        if(year < maxYear) dataTable.average.datasets[0].data.push({x:year, y:avgAccumulator / avgCount});
+        if(pastThisYearsExpectedMaximumDay(year, avgCount, hemisphere)) dataTable.maximum.datasets[0].data.push({x:year, y:maximum});
+        if(pastThisYearsExpectedMinimumDay(year, avgCount, hemisphere)) dataTable.minimum.datasets[0].data.push({x:year, y:minimum});
 
         return toReturn;
     }
@@ -189,11 +190,25 @@ function GotNsidc(seaIceData, type, hemisphere)
     postMessage({complete:true, dataTable:dataTable, loadedData: seaIceData});
 }
 
-function currentDayOfYear()
+
+const minimumDOY = {North:270, South:70, Global: 60};
+const maximumDOY = {North:90, South:290, Global: 320};
+
+const DOY = dayOfYear(new Date());
+
+function dayOfYear(date){
+    return (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(date.getFullYear(), 0, 0)) / 24 / 60 / 60 / 1000;
+}
+
+function pastThisYearsExpectedMinimumDay(year, day, hemisphere)
 {
-    var now = new Date(); var y=now.getFullYear(); var m=now.getMonth();
-    return m*31-(m>1?(1054267675>>m*3-6&7)-(y&3||!(y%25)&&y&15?0:1):0)+now.getDate(); 
-};
+    return year < maxYear || (year == maxYear && day >= minimumDOY[hemisphere]);
+}
+
+function pastThisYearsExpectedMaximumDay(year, day, hemisphere)
+{
+    return year < maxYear || (year == maxYear && day >= maximumDOY[hemisphere]);
+}
 
 function IsRecordLowYear(hemisphere, year, type)
 {

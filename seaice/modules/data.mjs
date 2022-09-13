@@ -3,6 +3,7 @@ import Tools from "./tools.mjs";
 var cachedData = {};
 var loadedData = {North:{Extent:{},Area:{}},South:{Extent:{},Area:{}}};
 var dataTables = {North:{Extent:{},Area:{}},South:{Extent:{},Area:{}},Global:{Extent:{},Area:{}}};
+const maxYear = (new Date()).getFullYear();
 
 function Data(){
 }
@@ -52,34 +53,26 @@ Data.calcMonthAverages = function(theMonth, areaType, hemisphere)
   }
   
   
-  var googleDataTable = new google.visualization.DataTable();
-  googleDataTable.title = monthName + " Average " + hemisphereTitles[hemisphere] + " Sea Ice " + areaType + " - NSIDC";
-  
-  googleDataTable.addColumn({type: "date", label: "Year"});
-  googleDataTable.addColumn({type: "number", label: "Average"});
-  googleDataTable.addColumn({type: "string", role: "tooltip"});
-
-  googleDataTable.series = [{color:"#0000ff"}];
-
+  const title = monthName + " Average " + hemisphereTitles[hemisphere] + " Sea Ice " + areaType + " - NSIDC";
+  let data = [{x: 1978, y:null}]; // Add empty year at start to pad the chart
   let min = 10000;
   let max = 0;
-  for(const yearKey in monthlyAverages)
+  for(const year in monthlyAverages)
   {
-    if (!Object.hasOwn(monthlyAverages, yearKey)) continue;
+    if (!Object.hasOwn(monthlyAverages, year)) continue;
 
-    let year = yearKey.substring(4);
-    let value = monthlyAverages[yearKey];
-    let tooltip = monthName + " " + year + "\n" + value.toFixed(3) + " Mkm\u00B2";
+    const value = monthlyAverages[year];
 
-    googleDataTable.addRow([new Date(year, 1, 1), value, tooltip]);
+    data.push({x:year, y:value});
 
     if(value > max) max = value;
     if(value < min) min = value;
   }
 
-  googleDataTable.range = {min: Math.round(min - 1), max: Math.round(max + 1)};
+  const range = {min: Math.round(min - 1), max: Math.round(max + 1)};
+  const id = `average${monthName}${areaType}${hemisphere}`;
   
-  dataTables[hemisphere][areaType][monthName] = googleDataTable;
+  dataTables[hemisphere][areaType][monthName] = {title: title, range: range, datasets: [{id: id, data: data}]};
 
 }
 
@@ -97,32 +90,34 @@ function getMonthlyAverages(theMonth, dataCorrectionRequired, data1, data2)
 
   let monthlyAverages = {};
 
-  for(const yearKey in data1)
+  const today = new Date();
+  const thisYear = today.getFullYear();
+  const thisMonth = today.getMonth()+1;
+
+  for(const year in data1)
   {
-    if (!Object.hasOwn(data1, yearKey)) continue;
-    if(yearKey == "title") continue;
+    if (!Object.hasOwn(data1, year)) continue;
+    if(year == "title") continue;
 
     let avgAccumulator = 0.0;
     let count = 0;
     let average = 0;
-    let year = yearKey.substring(4);
-    let today = new Date();
 
-    if(year == today.getFullYear() && theMonth == today.getMonth()+1) continue;
+    if(year == thisYear && theMonth == thisMonth) continue;
 
     let dataCorrection = 1.0;
     if(dataCorrectionRequired && year < 1988) dataCorrection = 1.1;
 
     for(let day = startOfMonthInYear; day <= endOfMonthInYear; day++)
     {
-      if (!Object.hasOwn(data1[yearKey], day)) continue;
-      if (data2 && !Object.hasOwn(data2[yearKey], day)) continue;
+      if (!Object.hasOwn(data1[year], day)) continue;
+      if (data2 && !Object.hasOwn(data2[year], day)) continue;
 
-      let value1 = data1[yearKey][day];
+      let value1 = data1[year][day];
       if(value1 == -1) continue;
 
       let value2 = 0;
-      if(data2) value2 = data2[yearKey][day];
+      if(data2) value2 = data2[year][day];
       if(value2 == -1) continue;
 
       avgAccumulator += (value1 * dataCorrection) + value2;
@@ -133,7 +128,7 @@ function getMonthlyAverages(theMonth, dataCorrectionRequired, data1, data2)
     if(count > 0)
     {
       average = avgAccumulator / count;
-      monthlyAverages[yearKey] = average;
+      monthlyAverages[year] = average;
     }
   }
 
