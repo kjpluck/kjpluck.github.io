@@ -43,8 +43,8 @@ class KevChart
     this.#element = element;
     this.config = config;
 
-    this.#width = this.#element.offsetWidth;
-    this.#height = this.#element.offsetHeight;
+    this.#width = 1000;
+    this.#height = 700;
 
     this.#contentWidth = this.#width - margin.right - margin.left;
     this.#contentHeight = this.#height - margin.top - margin.bottom;

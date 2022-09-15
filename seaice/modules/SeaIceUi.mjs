@@ -6,26 +6,48 @@ SeaIceUi.initialise = function(doclick){
   addKeyEvent();
 }
 
-let monthSelector;
 
 function addClickToAllInputs(doclick)
 {
-  var theInputs = Array.from(document.getElementsByTagName("input"))
+  let theInputs = document.querySelectorAll("input[type=radio][name='hemisphere'], input[type=radio][name='areaType']");
 
-  for(let theInput of theInputs){
+  theInputs.forEach(theInput => {
       theInput.onclick = doclick;
-  }
+  });
 
-  monthSelector = document.getElementById("monthSelector");
+  theInputs = document.querySelectorAll("input[type=radio][name='graphType']");
 
-  monthSelector.onchange = function()
+  theInputs.forEach(theInput => {
+    theInput.onclick = function()
+    {
+      clearMonthSelector();
+      doclick();
+    }
+  });
+
+
+  const monthSelector = document.querySelectorAll("input[type=radio][name='monthSelect']");
+  monthSelector.forEach(input => {
+    input.onchange = function()
     {
       document.getElementById("Month").checked = true;
       doclick();
     }
+  });
+  
 
   let theCopyButton = document.getElementById("CopyButton");
   theCopyButton.onclick = copyGraphToClipboard;
+
+}
+
+
+function clearMonthSelector()
+{
+  const monthSelector = document.querySelectorAll("input[type=radio][name='monthSelect']");
+  monthSelector.forEach(input => {
+    input.checked = false;
+  })
 
 }
 
@@ -40,19 +62,6 @@ function handleKeyDown(e)
 
   if(e.key == "c" && e.ctrlKey)
     copyGraphToClipboard();
-}
-
-function nextMonth() {
-  var i = monthSelector.selectedIndex;
-  monthSelector.options[++i%monthSelector.options.length].selected = true;
-  monthSelector.onchange();
-}
-
-function prevMonth() {
-  var i = monthSelector.selectedIndex-1;
-  if(i < 0) i = monthSelector.options.length-1;
-  monthSelector.options[i].selected = true;
-  monthSelector.onchange();
 }
 
 function makeObjectFromFormData(formData){
