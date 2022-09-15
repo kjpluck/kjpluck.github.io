@@ -224,6 +224,7 @@ class KevChart
     let closestYearIndex;
     let closestDistance = 1000;
     let closestArea;
+    let rank = 1;
     
 
     this.config.data.datasets.forEach((dataset, index) => {
@@ -241,6 +242,17 @@ class KevChart
         closestArea = thisArea;
       }
     });
+
+    this.config.data.datasets.forEach((dataset, index) => {
+
+      const datum = dataset.data.find(datum => datum.x == xCoord);
+      if(!datum) return;
+
+      const thisArea = datum.y;
+      if(thisArea < closestArea)
+        rank++;
+    });
+
 
     const scaledThreshold = 18 / Math.abs(this.#yScalor(1) - this.#yScalor(0));
 
@@ -260,7 +272,7 @@ class KevChart
       if(this.config.options.graphType == "annual")
       {
         title = closestYear;
-        subTitle = makeDate(xCoord);
+        subTitle = makeDate(xCoord) + " Rank: " + (rank == 0 ? "lowest" : ordinal_suffix_of(rank));
       }
       else
       {
@@ -540,5 +552,19 @@ function hexToHSL(hex) {
     return HSL;
   }
 
+function ordinal_suffix_of(i) {
+    var j = i % 10,
+        k = i % 100;
+    if (j == 1 && k != 11) {
+        return i + "st";
+    }
+    if (j == 2 && k != 12) {
+        return i + "nd";
+    }
+    if (j == 3 && k != 13) {
+        return i + "rd";
+    }
+    return i + "th";
+}
 
 export default KevChart;
