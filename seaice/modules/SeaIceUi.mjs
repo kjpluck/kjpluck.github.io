@@ -26,7 +26,7 @@ function addClickToAllInputs(doclick)
   });
 
 
-  const monthSelector = document.querySelectorAll("input[type=radio][name='monthSelect']");
+  const monthSelector = document.querySelectorAll("input[type=radio][name='month']");
   monthSelector.forEach(input => {
     input.onchange = function()
     {
@@ -44,7 +44,7 @@ function addClickToAllInputs(doclick)
 
 function clearMonthSelector()
 {
-  const monthSelector = document.querySelectorAll("input[type=radio][name='monthSelect']");
+  const monthSelector = document.querySelectorAll("input[type=radio][name='month']");
   monthSelector.forEach(input => {
     input.checked = false;
   })
