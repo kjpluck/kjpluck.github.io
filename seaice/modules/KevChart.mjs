@@ -194,6 +194,9 @@ class KevChart
 
     plottingClipArea
       .on("mousemove", this.#showToolTip.bind(this));
+    
+    plottingClipArea
+      .on("mouseleave", this.#hideTooltip.bind(this));
 
     this.#plottingArea = plottingClipArea
       .append("g")
