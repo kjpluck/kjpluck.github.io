@@ -70,6 +70,7 @@ class KevChart
         .append('g')
           .attr("clip-path", "url(#clip)")
           .append("text")
+          .attr("font-family", "sans-serif")
           .attr("x", this.#contentWidth - 10)
           .attr("y", this.#contentHeight - 10)
           .attr("font-size", 15)
