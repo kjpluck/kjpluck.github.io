@@ -249,7 +249,7 @@ class KevChart
       if(!datum) return;
 
       const thisArea = datum.y;
-      if(thisArea < closestArea)
+      if(thisArea && thisArea < closestArea)
         rank++;
     });
 
@@ -272,7 +272,7 @@ class KevChart
       if(this.config.options.graphType == "annual")
       {
         title = closestYear;
-        subTitle = makeDate(xCoord) + " Rank: " + (rank == 0 ? "lowest" : ordinal_suffix_of(rank));
+        subTitle = makeDate(xCoord) + " Rank: " + (rank == 1 ? "lowest" : ordinal_suffix_of(rank));
       }
       else
       {
