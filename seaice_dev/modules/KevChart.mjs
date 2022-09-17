@@ -1,5 +1,5 @@
-import * as d3 from "https://cdn.skypack.dev/d3@7";
-//import * as d3 from "d3";
+//import * as d3 from "https://cdn.skypack.dev/d3@7";
+import * as d3 from "d3";
 import Tools from "./tools.mjs";
 
 const margin = {top: 100, right: 200, bottom: 100, left:100};
@@ -209,7 +209,7 @@ class KevChart
       .append('g')
         .attr("clip-path", "url(#clip)");
 
-        
+
     plottingClipArea
       .on("mousemove", this.#showToolTip.bind(this));
     
@@ -376,8 +376,11 @@ class KevChart
 
     let datasets = this.config.data.datasets;
 
+    if(this.config.options.graphType !== "annual")
+      datasets = [];
+
     let yearSelectors = this.#yearSelectorArea
-      .selectAll("rect")
+      .selectAll("g")
       .data(datasets, d => d.id);
 
     yearSelectors.exit().remove();
