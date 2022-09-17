@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <title>Sea Ice Charts</title>
+  <link href="style.css" rel="stylesheet">
+  <script type="module" src="dist/bundle.js"></script>
+</head>
+<body>
+    <h1>Sea Ice</h1>
+    <form id="seaIceForm">
+      <div class="buttonRow">
+
+        <input id="Global" type="radio" name="hemisphere" value="Global" checked>
+        <label class="formButton" for="Global">Global</label>
+
+        <input id="Arctic" type="radio" name="hemisphere" value="North">
+        <label class="formButton" for="Arctic">Arctic</label>
+
+        <input id="Antarctic" type="radio" name="hemisphere" value="South">
+        <label class="formButton" for="Antarctic">Antarctic</label>
+
+      </div>
+
+      <div class="buttonRow">
+
+        <input id="Extent" type="radio" name="areaType" value="Extent" checked>
+        <label class="formButton" for="Extent">Extent</label>
+
+        <input id="Area" type="radio" name="areaType" value="Area">
+        <label class="formButton" for="Area">Area</label>
+
+      </div>
+
+      <div class="buttonRow">
+
+          <input id="Annual" type="radio" name="graphType" value="annual" checked>
+          <label class="formButton" for="Annual">Annual</label>
+
+          <input id="Minimum" type="radio" name="graphType" value="minimum">
+          <label class="formButton" for="Minimum">Minimum</label>
+
+          <input id="Average" type="radio" name="graphType" value="average">
+          <label class="formButton" for="Average">Average</label>
+
+          <input id="Maximum" type="radio" name="graphType" value="maximum">
+          <label class="formButton" for="Maximum">Maximum</label>
+      </div>
+
+      <div class="buttonRow">
+        <input id="Month" type="radio" name="graphType" value="month">
+
+        <input id="m1" type="radio" name="month" value="1">   <label class="formButton" for="m1">Jan</label>
+        <input id="m2" type="radio" name="month" value="2">   <label class="formButton" for="m2">Feb</label>
+        <input id="m3" type="radio" name="month" value="3">   <label class="formButton" for="m3">Mar</label>
+        <input id="m4" type="radio" name="month" value="4">   <label class="formButton" for="m4">Apr</label>
+        <input id="m5" type="radio" name="month" value="5">   <label class="formButton" for="m5">May</label>
+        <input id="m6" type="radio" name="month" value="6">   <label class="formButton" for="m6">Jun</label>
+        <input id="m7" type="radio" name="month" value="7">   <label class="formButton" for="m7">Jul</label>
+        <input id="m8" type="radio" name="month" value="8">   <label class="formButton" for="m8">Aug</label>
+        <input id="m9" type="radio" name="month" value="9">   <label class="formButton" for="m9">Sep</label>
+        <input id="m10" type="radio" name="month" value="10"> <label class="formButton" for="m10">Oct</label>
+        <input id="m11" type="radio" name="month" value="11"> <label class="formButton" for="m11">Nov</label>
+        <input id="m12" type="radio" name="month" value="12"> <label class="formButton" for="m12">Dec</label>
+      </div>
+      
+    </form>
+    <div id="chartBits">
+      <button id="CopyButton" type="button" title="(Ctrl-C) - Experimental"><img width="30" height="30" src="copy.svg"></button>
+      <div id="chart_div"></div>
+    </div>
+
+  <div id="pleaseWait">
+    <p>One moment... Just getting numbers and stuff</p>
+  </div>
+
+  <div id="snackbar"></div>
+</body>
+</html>

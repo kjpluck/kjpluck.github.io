@@ -1,4 +1,4 @@
-import * as d3 from "https://cdn.skypack.dev/d3@7";
+import * as d3 from "d3";
 import Tools from "./tools.mjs";
 
 const margin = {top: 100, right: 200, bottom: 100, left:100};

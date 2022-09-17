@@ -1,4 +1,3 @@
-import * as d3 from "https://cdn.skypack.dev/d3@7";
 import SeaIceUi from "./modules/SeaIceUi.mjs";
 import Data from "./modules/data.mjs";
 import KevChart from "./modules/KevChart.mjs";
@@ -118,4 +117,6 @@ function drawChart(areaType, hemisphere, graphType) {
   }
 }
 
-await initialise();
+initialise()
+  .then(x=>console.log(x))
+  .catch(err=>console.error(err));
