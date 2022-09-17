@@ -1,7 +1,7 @@
 import * as d3 from "https://cdn.skypack.dev/d3@7";
 import Tools from "./tools.mjs";
 
-const margin = {top: 100, right: 100, bottom: 100, left:100};
+const margin = {top: 100, right: 200, bottom: 100, left:100};
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan"];
 const monthStartDay = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366];
 
@@ -79,7 +79,7 @@ class KevChart
       .attr("height", this.#height)
       .attr("font-size", "1.5rem")
       .append("g")
-        .attr("transform", `translate(${margin.right},${margin.top})`);
+        .attr("transform", `translate(${margin.left},${margin.top})`);
     
     this.#chartTitle = this.#d3Svg.append("text")
     .attr("font-family", "sans-serif")
@@ -267,7 +267,7 @@ class KevChart
     if(closestDistance > scaledThreshold)
     {
       this.#hideTooltip();
-      this.#highlightYear(this.#tooltipYearIndex);
+      this.#highlightYear(null);
       return;
     }
     
@@ -356,9 +356,9 @@ class KevChart
     {
       this.#yearSelectorArea = this.#d3Svg
         .append('g')
-        .attr("transform", `translate(${this.#width - margin.right - margin.left}, ${margin.top})`);
-      
-      this.#yearSelectorArea.on("mousemove", this.#yearSelectorMouseMove.bind(this))
+        .attr("transform", `translate(${this.#width - margin.right - margin.left + 10}, 0)`);
+            
+      this.#yearSelectorArea.on("mousemove", this.#yearSelectorMouseMove.bind(this));
     }
 
     let datasets = this.config.data.datasets;
@@ -370,18 +370,43 @@ class KevChart
     yearSelectors.exit().remove();
 
     const graphType = this.config.options.graphType;
-    yearSelectors.enter()
+    const yearSelectorEntry = yearSelectors.enter().append("g").attr("font-size", 10).attr("fill", "white");
+
+    yearSelectorEntry
       .append("rect")
-      .attr("id", d => "yearSelector" + d.id)
-      .attr("stroke", "none")
-      .attr("fill", d => MakeColour(d, graphType))
-      .attr("height", 10)
-      .attr("width", 10)
-      .attr("opacity", 0)
-      .datum(d => d.id)
-      .attr("x", year => 15 * Math.floor((year -1970) / 10))
-      .attr("y", year => 15 * (year % 10))
-      .merge(yearSelectors);
+        .attr("id", d => "yearSelector" + d.id)
+        .attr("stroke", "none")
+        .attr("fill", d => MakeColour(d, graphType))
+        .attr("height", 10)
+        .attr("width", 10)
+        .attr("opacity", 0)
+        .datum(d => d.id)
+        .attr("x", calcYearX)
+        .attr("y", calcYearY);
+    
+    yearSelectorEntry
+      .append("text")
+        .datum(d => d.id)
+        .attr("x", year => calcYearX(year) + 14)
+        .attr("y", year => calcYearY(year) + 9)
+        .attr("cursor", "default")
+        .text(year => year);
+
+    yearSelectors = yearSelectors.merge(yearSelectorEntry);
+
+    function calcYearX(year)
+    {
+      if(year == 1979) return 10;
+
+      return 10 + 45 * Math.floor((year - 1980) / 20);
+    }
+
+    function calcYearY(year)
+    {
+      if(year == 1979) return 15;
+
+      return 30 + 15 * (year % 20);
+    }
   }
 
   #currentActiveYearSelector = 0;
@@ -389,17 +414,17 @@ class KevChart
   #yearSelectorMouseMove(event)
   {
     const pos = d3.pointer(event);
-    if(pos[0] % 15 >= 10 || pos[1] % 15 >= 10) return;
+    const posx = pos[0];
+    const posy = pos[1] - 30;
+    
+    const x = Math.floor(posx / 45);
+    const y = Math.floor(posy / 15);
 
-    const x = Math.floor(pos[0] / 15);
-    const y = Math.floor(pos[1] / 15);
-
-    const year = 1970 + (x * 10) + (y % 10);
+    const year = 1980 + (x * 20) + (y % 20);
     if(year != this.#currentActiveYearSelector)
     {
       this.#currentActiveYearSelector = year;
-      this.#highlightYear(year - 1979)
-      console.log(year);
+      this.#highlightYear(year - 1979);
     }
   }
   
