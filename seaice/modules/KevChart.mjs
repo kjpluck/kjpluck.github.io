@@ -267,7 +267,7 @@ class KevChart
     if(closestDistance > scaledThreshold)
     {
       this.#hideTooltip();
-      this.#highlightYear();
+      this.#highlightYear(this.#tooltipYearIndex);
       return;
     }
     
@@ -294,7 +294,7 @@ class KevChart
       this.#tooltipYearIndex = closestYearIndex;
       this.#tooltipXCoord = xCoord;
 
-      this.#highlightYear();
+      this.#highlightYear(this.#tooltipYearIndex);
     }
   }
 
@@ -306,15 +306,14 @@ class KevChart
     this.#tooltip.hide();
   }
 
-  #setPathOpacity(yearIndex)
+  #setPathOpacity(yearIndex, yearIndexToHighlight)
   {
     const yearType = this.config.data.datasets[yearIndex].type;
 
-    if(this.#tooltipYearIndex == null)
+    if(yearIndexToHighlight == null)
       return yearType == "normal year" ? 0.5 : 1.0;
     
-    
-    return this.#tooltipYearIndex == yearIndex ? 1.0 : 0.2;
+    return yearIndexToHighlight == yearIndex ? 1.0 : 0.2;
   }
 
   async #fadePlot()
@@ -323,15 +322,15 @@ class KevChart
       .transition().attr("opacity", 0).end();
   }
 
-  #highlightYear()
+  #highlightYear(yearIndexToHighlight)
   {
     if(this.config.options.graphType == "annual")
     {
       this.#plottingArea.selectAll("path")
-        .transition().attr("opacity", (_, i) => this.#setPathOpacity(i));
+        .transition().attr("opacity", (_, yearIndex) => this.#setPathOpacity(yearIndex, yearIndexToHighlight));
       
       this.#yearSelectorArea.selectAll("rect")
-        .transition().attr("opacity", (_, i) => this.#setPathOpacity(i));
+        .transition().attr("opacity", (_, yearIndex) => this.#setPathOpacity(yearIndex, yearIndexToHighlight));
     }
     else
     {
@@ -354,9 +353,13 @@ class KevChart
   #addYearSelectors()
   {
     if(!this.#yearSelectorArea)
+    {
       this.#yearSelectorArea = this.#d3Svg
         .append('g')
         .attr("transform", `translate(${this.#width - margin.right - margin.left}, ${margin.top})`);
+      
+      this.#yearSelectorArea.on("mousemove", this.#yearSelectorMouseMove.bind(this))
+    }
 
     let datasets = this.config.data.datasets;
 
@@ -379,6 +382,25 @@ class KevChart
       .attr("x", year => 15 * Math.floor((year -1970) / 10))
       .attr("y", year => 15 * (year % 10))
       .merge(yearSelectors);
+  }
+
+  #currentActiveYearSelector = 0;
+
+  #yearSelectorMouseMove(event)
+  {
+    const pos = d3.pointer(event);
+    if(pos[0] % 15 >= 10 || pos[1] % 15 >= 10) return;
+
+    const x = Math.floor(pos[0] / 15);
+    const y = Math.floor(pos[1] / 15);
+
+    const year = 1970 + (x * 10) + (y % 10);
+    if(year != this.#currentActiveYearSelector)
+    {
+      this.#currentActiveYearSelector = year;
+      this.#highlightYear(year - 1979)
+      console.log(year);
+    }
   }
   
   #idleTimeout;
@@ -442,7 +464,7 @@ class KevChart
         .merge(paths)
         .attr("d", this.#lineGenerator.bind(this));
     
-    this.#highlightYear();
+    this.#highlightYear(this.#tooltipYearIndex);
   }
 
 
