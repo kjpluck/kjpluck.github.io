@@ -1,4 +1,5 @@
-import * as d3 from "d3";
+import * as d3 from "https://cdn.skypack.dev/d3@7";
+//import * as d3 from "d3";
 import Tools from "./tools.mjs";
 
 const margin = {top: 100, right: 200, bottom: 100, left:100};
@@ -64,6 +65,18 @@ class KevChart
     this.#addZoomControl();
     this.#addYearSelectors();
     this.#plotData();
+
+    this.#d3Svg
+        .append('g')
+          .attr("clip-path", "url(#clip)")
+          .append("text")
+          .attr("x", this.#contentWidth - 10)
+          .attr("y", this.#contentHeight - 10)
+          .attr("font-size", 15)
+          .attr("fill", "white")
+          .attr("text-anchor", "end")
+          .text("@KevPluck");
+
     // Starting point for zooming with the use of clip paths and transforms:
     //  https://stackoverflow.com/questions/25142240/how-to-apply-d3-js-svg-clipping-after-zooming
 
@@ -196,7 +209,7 @@ class KevChart
       .append('g')
         .attr("clip-path", "url(#clip)");
 
-
+        
     plottingClipArea
       .on("mousemove", this.#showToolTip.bind(this));
     
