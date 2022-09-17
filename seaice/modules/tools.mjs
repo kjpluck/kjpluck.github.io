@@ -25,4 +25,12 @@ Tools.removeFeb29 = function(data)
   }
 }
 
+Tools.toast = function(message) {
+  var toastElement = document.getElementById("snackbar");
+  toastElement.className = "show";
+  toastElement.textContent = message;
+
+  setTimeout(function(){ toastElement.className = toastElement.className.replace("show", ""); }, 3000);
+}
+
 export default Tools;

@@ -1,4 +1,5 @@
 import * as d3 from "https://cdn.skypack.dev/d3@7";
+import Tools from "./tools.mjs";
 
 const margin = {top: 100, right: 100, bottom: 100, left:100};
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan"];
@@ -32,9 +33,12 @@ class KevChart
   #xAxisLabel; #yAxisLabel;
   #xAxisGenerator;
   #plottingArea;
+  #yearSelectorArea;
   #brushArea;
   #zoomBrush;
   #tooltip;
+
+  #showResetZoomMsg = true;
 
   config;
 
@@ -58,6 +62,7 @@ class KevChart
     this.#addAxes();
     this.#addPlottingArea();
     this.#addZoomControl();
+    this.#addYearSelectors();
     this.#plotData();
     // Starting point for zooming with the use of clip paths and transforms:
     //  https://stackoverflow.com/questions/25142240/how-to-apply-d3-js-svg-clipping-after-zooming
@@ -324,6 +329,9 @@ class KevChart
     {
       this.#plottingArea.selectAll("path")
         .transition().attr("opacity", (_, i) => this.#setPathOpacity(i));
+      
+      this.#yearSelectorArea.selectAll("rect")
+        .transition().attr("opacity", (_, i) => this.#setPathOpacity(i));
     }
     else
     {
@@ -341,6 +349,36 @@ class KevChart
     this.#brushArea
       .attr("id", "brush")
       .call(this.#zoomBrush);
+  }
+
+  #addYearSelectors()
+  {
+    if(!this.#yearSelectorArea)
+      this.#yearSelectorArea = this.#d3Svg
+        .append('g')
+        .attr("transform", `translate(${this.#width - margin.right - margin.left}, ${margin.top})`);
+
+    let datasets = this.config.data.datasets;
+
+    let yearSelectors = this.#yearSelectorArea
+      .selectAll("rect")
+      .data(datasets, d => d.id);
+
+    yearSelectors.exit().remove();
+
+    const graphType = this.config.options.graphType;
+    yearSelectors.enter()
+      .append("rect")
+      .attr("id", d => "yearSelector" + d.id)
+      .attr("stroke", "none")
+      .attr("fill", d => MakeColour(d, graphType))
+      .attr("height", 10)
+      .attr("width", 10)
+      .attr("opacity", 0)
+      .datum(d => d.id)
+      .attr("x", year => 15 * Math.floor((year -1970) / 10))
+      .attr("y", year => 15 * (year % 10))
+      .merge(yearSelectors);
   }
   
   #idleTimeout;
@@ -364,11 +402,15 @@ class KevChart
         return this.#idleTimeout = setTimeout(this.#idled.bind(this), 350); // This allows to wait a little bit
       
       this.#resetScale();
+      this.#showResetZoomMsg = false;
     }
 
     this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator).call(this.#xTickStyle);
     this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor));
     this.#plottingArea.transition().duration(1000).attr("transform", this.#createTransform());
+    
+    if(this.#showResetZoomMsg)
+      Tools.toast("Double tap/click to reset zoom")
   }
 
   #lineGenerator = d3.line()
@@ -408,6 +450,7 @@ class KevChart
   {
     this.#hideTooltip();
     this.#resetScale();
+    this.#addYearSelectors();
     await this.#fadePlot();
     await this.#updateAxis();
     this.#plotData();

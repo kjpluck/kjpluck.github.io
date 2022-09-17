@@ -1,3 +1,4 @@
+import Tools from "./tools.mjs";
 
 function SeaIceUi(){}
 
@@ -95,7 +96,7 @@ function copyGraphToClipboard()
 {
   if(typeof ClipboardItem == "undefined")
   {
-    toast("Unable to copy chart on this browser/device.");
+    Tools.toast("Unable to copy chart on this browser/device.");
     return;
   }
 
@@ -130,24 +131,16 @@ function copyGraphToClipboard()
         {
           let clipboardItem = new ClipboardItem({'image/png': theBlob});
           navigator.clipboard.write([clipboardItem]);
-          toast("Chart copied.")
+          Tools.toast("Chart copied.")
         }
         catch{
-          toast("Unable to copy chart on this browser/device.")
+          Tools.toast("Unable to copy chart on this browser/device.")
         }
         
       });
   }
 
   img.src = objectUrl;
-}
-
-function toast(message) {
-  var toastElement = document.getElementById("snackbar");
-  toastElement.className = "show";
-  toastElement.textContent = message;
-
-  setTimeout(function(){ toastElement.className = toastElement.className.replace("show", ""); }, 3000);
 }
 
 export default SeaIceUi;
