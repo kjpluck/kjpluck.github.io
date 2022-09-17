@@ -93,6 +93,12 @@ function getSvgString(svgElement)
 
 function copyGraphToClipboard()
 {
+  if(typeof ClipboardItem == "undefined")
+  {
+    toast("Unable to copy chart on this browser/device.");
+    return;
+  }
+
   let svgElement = document.getElementsByTagName("svg")[0];
   let svgString = getSvgString(svgElement);
 
@@ -115,16 +121,22 @@ function copyGraphToClipboard()
 
   img.onload = function()
   {
-    DOMURL.revokeObjectURL(objectUrl);
+      DOMURL.revokeObjectURL(objectUrl);
 
-    ctx.drawImage(img, 0, 0);
+      ctx.drawImage(img, 0, 0);
 
-    canvas.toBlob(theBlob => {
-      let clipboardItem = new ClipboardItem({'image/png': theBlob});
-      navigator.clipboard.write([clipboardItem]);
-    });
-
-    toast("Chart copied.")
+      canvas.toBlob(theBlob => {
+        try
+        {
+          let clipboardItem = new ClipboardItem({'image/png': theBlob});
+          navigator.clipboard.write([clipboardItem]);
+          toast("Chart copied.")
+        }
+        catch{
+          toast("Unable to copy chart on this browser/device.")
+        }
+        
+      });
   }
 
   img.src = objectUrl;
