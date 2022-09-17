@@ -370,7 +370,8 @@ class KevChart
     {
       this.#yearSelectorArea = this.#d3Svg
         .append('g')
-        .attr("transform", `translate(${this.#width - margin.right - margin.left + 10}, 0)`);
+        .attr("transform", `translate(${this.#width - margin.right - margin.left + 10}, 0)`)
+        .attr("font-family", "sans-serif");
             
       this.#yearSelectorArea.on("mousemove", this.#yearSelectorMouseMove.bind(this));
     }
