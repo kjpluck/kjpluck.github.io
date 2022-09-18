@@ -493,16 +493,11 @@ class KevChart
   {
     let datasets = this.config.data.datasets;
 
-    let paths = this.#plottingArea
-      .selectAll("path")
-      .data(datasets, d => d.id);
-
-    paths.exit().remove();
-
     const graphType = this.config.options.graphType;
-    paths.enter()
-      .append("path")
-        .attr("id", d => "path" + d.id)
+    this.#plottingArea
+      .selectAll("path")
+      .data(datasets)
+      .join("path")
         .attr("original-colour", d => MakeColour(d, graphType))
         .attr("stroke", d => MakeColour(d, graphType))
         .attr("stroke-width", graphType == "annual" ? 2 : 4)
@@ -510,9 +505,7 @@ class KevChart
         .datum(d => d.data)
         .attr("fill", "none")
         .attr("vector-effect", "non-scaling-stroke")
-        .merge(paths)
-        .attr("d", this.#lineGenerator.bind(this));
-    
+        .attr("d", this.#lineGenerator.bind(this));;
     
     this.#addYearSelectors();
     this.#highlightYear(null);
