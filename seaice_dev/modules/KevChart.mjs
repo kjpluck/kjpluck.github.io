@@ -63,7 +63,6 @@ class KevChart
     this.#addAxes();
     this.#addPlottingArea();
     this.#addZoomControl();
-    this.#addYearSelectors();
     this.#plotData();
 
     this.#d3Svg
@@ -320,7 +319,7 @@ class KevChart
     this.#tooltip.hide();
   }
 
-  #setPathOpacity(yearIndex, yearToHighlight)
+  #setYearOpacity(yearIndex, yearToHighlight)
   {
     const yearType = this.config.data.datasets[yearIndex].type;
 
@@ -330,10 +329,20 @@ class KevChart
     return yearToHighlight == (yearIndex + 1979) ? 1.0 : 0.2;
   }
 
-  async #fadePlot()
+  async #fadeOutPlot()
   {
-    await this.#plottingArea.selectAll("path")
-      .transition().attr("opacity", 0).end();
+    const promise1 = this.#plottingArea.transition().attr("opacity", 0).end();
+    const promise2 = this.#yearSelectorArea.transition().attr("opacity", 0).end();
+
+    await Promise.all([promise1, promise2]);
+  }
+  
+  async #fadeInPlot()
+  {
+    const promise1 = this.#plottingArea.transition().attr("opacity", 1).end();
+    const promise2 = this.#yearSelectorArea.transition().attr("opacity", 1).end();
+
+    await Promise.all([promise1, promise2]);
   }
 
   #highlightYear(yearToHighlight)
@@ -341,10 +350,10 @@ class KevChart
     if(this.config.options.graphType == "annual")
     {
       this.#plottingArea.selectAll("path")
-        .transition().attr("opacity", (_, yearIndex) => this.#setPathOpacity(yearIndex, yearToHighlight));
+        .transition().attr("opacity", (_, yearIndex) => this.#setYearOpacity(yearIndex, yearToHighlight));
       
       this.#yearSelectorArea.selectAll("rect")
-        .transition().attr("opacity", (_, yearIndex) => this.#setPathOpacity(yearIndex, yearToHighlight));
+        .transition().attr("opacity", (_, yearIndex) => this.#setYearOpacity(yearIndex, yearToHighlight));
     }
     else
     {
@@ -384,36 +393,42 @@ class KevChart
     if(this.config.options.graphType !== "annual")
       datasets = [];
 
-    let yearSelectors = this.#yearSelectorArea
-      .selectAll("g")
-      .data(datasets, d => d.id);
-
-    yearSelectors.exit().remove();
-
     const graphType = this.config.options.graphType;
-    const yearSelectorEntry = yearSelectors.enter().append("g");
 
-    yearSelectorEntry
-      .append("rect")
-        .attr("id", d => "yearSelector" + d.id)
+    this.#yearSelectorArea
+      .selectAll("g")
+      .data(datasets, d => d.id)
+      .join(
+        enter => addLegendItem(enter),
+        update => updateLegendItem(update),
+        exit => exit.remove()
+      );
+    
+    function addLegendItem(enter)
+    {
+      const legendItem = enter.append("g");
+
+      legendItem.append("rect")
         .attr("stroke", "none")
         .attr("fill", d => MakeColour(d, graphType))
         .attr("height", 10)
         .attr("width", 10)
         .attr("opacity", 0)
-        .datum(d => d.id)
         .attr("x", 10)
-        .attr("y", calcYearY);
-    
-    yearSelectorEntry
-      .append("text")
-        .datum(d => d.id)
+        .attr("y", d => calcYearY(d.id));
+      
+      legendItem.append("text")
         .attr("x", 25)
-        .attr("y", year => calcYearY(year) + 9)
+        .attr("y", d => calcYearY(d.id) + 9)
         .attr("cursor", "default")
-        .text(year => year);
+        .text(d => d.id);
+    }
 
-    yearSelectors = yearSelectors.merge(yearSelectorEntry);
+    function updateLegendItem(update)
+    {
+      update.select("rect").attr("fill", d => MakeColour(d, graphType));
+      return update;
+    }
 
     function calcYearY(year)
     {
@@ -498,6 +513,8 @@ class KevChart
         .merge(paths)
         .attr("d", this.#lineGenerator.bind(this));
     
+    
+    this.#addYearSelectors();
     this.#highlightYear(null);
   }
 
@@ -506,10 +523,10 @@ class KevChart
   {
     this.#hideTooltip();
     this.#resetScale();
-    this.#addYearSelectors();
-    await this.#fadePlot();
+    await this.#fadeOutPlot();
     await this.#updateAxis();
     this.#plotData();
+    await this.#fadeInPlot();
   }
 
   
