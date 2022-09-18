@@ -124,12 +124,6 @@ function GotNsidc(seaIceData, type, hemisphere)
     {
         var toReturn = [];
 
-        var dataCorrection = 1.0;
-        if(year < 1988 && hemisphere == "North" && type == "Area")
-        {
-            dataCorrection = 1.1;
-        }
-
         let avgAccumulator = 0;
         let avgCount = 0;
         let minimum = 100000;
@@ -137,6 +131,13 @@ function GotNsidc(seaIceData, type, hemisphere)
 
         for(let day = 1; day<=366; day++)
         {
+            var poleHoleArea = 0;
+
+            if(hemisphere == "North" && type == "Area")
+            {
+                poleHoleArea = getPoleHoleArea(year, day);
+            }
+
             if(seaIceData[year][day])
             {
                 var value = seaIceData[year][day];
@@ -145,7 +146,7 @@ function GotNsidc(seaIceData, type, hemisphere)
                 
                 if(value)
                 {
-                    value *= dataCorrection;
+                    value += poleHoleArea;
                     avgAccumulator += value;
                     avgCount++;
                     if(value < minimum)
@@ -232,12 +233,6 @@ function GetGlobal(type, northData, southData)
     
     for(let year = 1979; year <= maxYear; year++)
     {
-        var dataCorrection = 1.0;
-        if(year < 1988 && type == "Area")
-        {
-            dataCorrection = 1.1;
-        }
-
         var northYearData = northData[year];
         var southYearData = southData[year];
         global[year] = {};
@@ -249,12 +244,24 @@ function GetGlobal(type, northData, southData)
                 continue;
             }
 
-            global[year][day] = northYearData[day] * dataCorrection + southYearData[day];
+            global[year][day] = southYearData[day] + northYearData[day] + (type == "Area" ? getPoleHoleArea(year, day) : 0);
         }
     }
 
     GotNsidc(global, type, "Global");
     
+}
+
+function getPoleHoleArea(year, day)
+{
+    if(year < 1987) return 1.19;
+    
+    // July 31 1987
+    if(year == 1987 && day <= 212) return 1.19;
+
+    if(year <= 2007) return 0.31;
+
+    return 0.029;
 }
 
 
