@@ -2,7 +2,7 @@
 import * as d3 from "d3";
 import Tools from "./tools.mjs";
 
-const margin = {top: 100, right: 200, bottom: 100, left:100};
+const margin = {top: 100, right: 100, bottom: 100, left:100};
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan"];
 const monthStartDay = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366];
 
@@ -308,7 +308,7 @@ class KevChart
       this.#tooltipYearIndex = closestYearIndex;
       this.#tooltipXCoord = xCoord;
 
-      this.#highlightYear(this.#tooltipYearIndex);
+      this.#highlightYear(closestYear);
     }
   }
 
@@ -320,14 +320,14 @@ class KevChart
     this.#tooltip.hide();
   }
 
-  #setPathOpacity(yearIndex, yearIndexToHighlight)
+  #setPathOpacity(yearIndex, yearToHighlight)
   {
     const yearType = this.config.data.datasets[yearIndex].type;
 
-    if(yearIndexToHighlight == null)
+    if(yearToHighlight == null)
       return yearType == "normal year" ? 0.5 : 1.0;
     
-    return yearIndexToHighlight == yearIndex ? 1.0 : 0.2;
+    return yearToHighlight == (yearIndex + 1979) ? 1.0 : 0.2;
   }
 
   async #fadePlot()
@@ -336,15 +336,15 @@ class KevChart
       .transition().attr("opacity", 0).end();
   }
 
-  #highlightYear(yearIndexToHighlight)
+  #highlightYear(yearToHighlight)
   {
     if(this.config.options.graphType == "annual")
     {
       this.#plottingArea.selectAll("path")
-        .transition().attr("opacity", (_, yearIndex) => this.#setPathOpacity(yearIndex, yearIndexToHighlight));
+        .transition().attr("opacity", (_, yearIndex) => this.#setPathOpacity(yearIndex, yearToHighlight));
       
       this.#yearSelectorArea.selectAll("rect")
-        .transition().attr("opacity", (_, yearIndex) => this.#setPathOpacity(yearIndex, yearIndexToHighlight));
+        .transition().attr("opacity", (_, yearIndex) => this.#setPathOpacity(yearIndex, yearToHighlight));
     }
     else
     {
@@ -368,10 +368,13 @@ class KevChart
   {
     if(!this.#yearSelectorArea)
     {
+      const thisYear = (new Date()).getUTCFullYear();
+      const legendWidth = (thisYear - 1978) * 15;
+      const legendXPos = (this.#contentWidth / 2) - (legendWidth / 2);
       this.#yearSelectorArea = this.#d3Svg
         .append('g')
-        .attr("transform", `translate(${this.#width - margin.right - margin.left + 10}, 0)`)
-        .attr("font-family", "sans-serif");
+        .attr("transform", `translate(${legendXPos}, ${this.#contentHeight + 110}) rotate(-90)`)
+        .attr("font-family", "sans-serif").attr("font-size", 10).attr("fill", "white");
             
       this.#yearSelectorArea.on("mousemove", this.#yearSelectorMouseMove.bind(this));
     }
@@ -388,7 +391,7 @@ class KevChart
     yearSelectors.exit().remove();
 
     const graphType = this.config.options.graphType;
-    const yearSelectorEntry = yearSelectors.enter().append("g").attr("font-size", 10).attr("fill", "white");
+    const yearSelectorEntry = yearSelectors.enter().append("g");
 
     yearSelectorEntry
       .append("rect")
@@ -399,31 +402,23 @@ class KevChart
         .attr("width", 10)
         .attr("opacity", 0)
         .datum(d => d.id)
-        .attr("x", calcYearX)
+        .attr("x", 10)
         .attr("y", calcYearY);
     
     yearSelectorEntry
       .append("text")
         .datum(d => d.id)
-        .attr("x", year => calcYearX(year) + 14)
+        .attr("x", 25)
         .attr("y", year => calcYearY(year) + 9)
         .attr("cursor", "default")
         .text(year => year);
 
     yearSelectors = yearSelectors.merge(yearSelectorEntry);
 
-    function calcYearX(year)
-    {
-      if(year == 1979) return 10;
-
-      return 10 + 45 * Math.floor((year - 1980) / 20);
-    }
-
     function calcYearY(year)
     {
-      if(year == 1979) return 15;
-
-      return 30 + 15 * (year % 20);
+      const yearsSince1979 = year - 1979;
+      return 15 * yearsSince1979;
     }
   }
 
@@ -432,17 +427,13 @@ class KevChart
   #yearSelectorMouseMove(event)
   {
     const pos = d3.pointer(event);
-    const posx = pos[0];
-    const posy = pos[1] - 30;
-    
-    const x = Math.floor(posx / 45);
-    const y = Math.floor(posy / 15);
+    const y = Math.floor(pos[1] / 15);
+    const year = 1979 + y;
 
-    const year = 1980 + (x * 20) + (y % 20);
     if(year != this.#currentActiveYearSelector)
     {
       this.#currentActiveYearSelector = year;
-      this.#highlightYear(year - 1979);
+      this.#highlightYear(year);
     }
   }
   
@@ -507,7 +498,7 @@ class KevChart
         .merge(paths)
         .attr("d", this.#lineGenerator.bind(this));
     
-    this.#highlightYear(this.#tooltipYearIndex);
+    this.#highlightYear(null);
   }
 
 
