@@ -39,9 +39,6 @@ function addClickToAllInputs(doclick)
 
   let theCopyButton = document.getElementById("CopyButton");
   theCopyButton.onclick = copyGraphToClipboard;
-
-  if(isSafari())
-    Tools.toast("Safari detected. V6")
 }
 
 
