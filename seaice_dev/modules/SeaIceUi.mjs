@@ -41,7 +41,7 @@ function addClickToAllInputs(doclick)
   theCopyButton.onclick = copyGraphToClipboard;
 
   if(isSafari())
-    Tools.toast("Safari detected.")
+    Tools.toast("Safari detected. V2")
 }
 
 
@@ -138,7 +138,7 @@ function copyGraphToClipboard()
             blobby = theBlob;
 
           let clipboardItem = new ClipboardItem({'image/png': blobby});
-          navigator.clipboard.write([clipboardItem]);
+          navigator.clipboard.write([clipboardItem]).then(x=> console.log("Copied"));
           Tools.toast("Chart copied.")
         }
         catch{
