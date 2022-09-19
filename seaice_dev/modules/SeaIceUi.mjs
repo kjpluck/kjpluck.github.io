@@ -41,7 +41,7 @@ function addClickToAllInputs(doclick)
   theCopyButton.onclick = copyGraphToClipboard;
 
   if(isSafari())
-    Tools.toast("Safari detected. V5")
+    Tools.toast("Safari detected. V6")
 }
 
 
@@ -96,7 +96,7 @@ function getSvgString(svgElement)
 
 function copyGraphToClipboard()
 {
-  if(typeof ClipboardItem == "undefined")
+  if(typeof ClipboardItem == "undefined" || isSafari())
   {
     Tools.toast("Unable to copy chart on this browser/device.");
     return;
@@ -131,15 +131,9 @@ function copyGraphToClipboard()
       canvas.toBlob(theBlob => {
         try
         {
-          let blobby;
-          if (isSafari())
-            blobby = new Promise(async resolve => resolve(theBlob));
-          else
-            blobby = theBlob;
+          let clipboardItem = new ClipboardItem({'image/png': theBlob});
+          navigator.clipboard.write([clipboardItem]).then(x=> Tools.toast("Chart copied."), err => Tools.toast("Unable to copy chart on this browser/device."));
 
-          let clipboardItem = new ClipboardItem({'image/png': blobby});
-          navigator.clipboard.write([clipboardItem]).then(x=> console.log("Copied"), err => {console.log("Failed - " + err)});
-          Tools.toast("Chart copied.")
         }
         catch{
           Tools.toast("Unable to copy chart on this browser/device.")

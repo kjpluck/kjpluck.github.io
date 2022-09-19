@@ -118,5 +118,5 @@ function drawChart(areaType, hemisphere, graphType) {
 }
 
 initialise()
-  .then(x=>console.log(x))
+  .then(x=>{})
   .catch(err=>console.error(err));
