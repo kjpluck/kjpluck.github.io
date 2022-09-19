@@ -40,6 +40,8 @@ function addClickToAllInputs(doclick)
   let theCopyButton = document.getElementById("CopyButton");
   theCopyButton.onclick = copyGraphToClipboard;
 
+  if(isSafari())
+    Tools.toast("Safari detected.")
 }
 
 
@@ -129,7 +131,13 @@ function copyGraphToClipboard()
       canvas.toBlob(theBlob => {
         try
         {
-          let clipboardItem = new ClipboardItem({'image/png': theBlob});
+          let blobby;
+          if (isSafari())
+            blobby = new Promise(resolve => resolve(theBlob));
+          else
+            blobby = theBlob;
+
+          let clipboardItem = new ClipboardItem({'image/png': blobby});
           navigator.clipboard.write([clipboardItem]);
           Tools.toast("Chart copied.")
         }
@@ -141,6 +149,14 @@ function copyGraphToClipboard()
   }
 
   img.src = objectUrl;
+}
+
+function isSafari()
+{
+  return navigator.vendor.match(/apple/i) &&
+        !navigator.userAgent.match(/crios/i) &&
+        !navigator.userAgent.match(/fxios/i) &&
+        !navigator.userAgent.match(/Opera|OPT\//);
 }
 
 export default SeaIceUi;
