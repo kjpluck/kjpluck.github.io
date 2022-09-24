@@ -54,6 +54,7 @@ input[type="radio"] {
   z-index: 1;
   left: 0;
   top: 0;
+  color: white;
   background-color: rgb(0,0,0); /* Black fallback color */
   background-color: rgba(0,0,0, 0.9); /* Black w/opacity */
   overflow-x: hidden;
