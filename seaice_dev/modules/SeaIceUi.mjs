@@ -113,7 +113,7 @@ function copyGraphToClipboard()
   canvas.height = svgElement.attributes.height.value;
 
   var ctx = canvas.getContext("2d");
-  ctx.fillStyle = "rgb(17,24,39)";
+  ctx.fillStyle = window.getComputedStyle(document.body).backgroundColor;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 

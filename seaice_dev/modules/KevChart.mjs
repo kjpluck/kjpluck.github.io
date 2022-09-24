@@ -1,5 +1,5 @@
-//import * as d3 from "https://cdn.skypack.dev/d3@7";
-import * as d3 from "d3";
+import * as d3 from "https://cdn.skypack.dev/d3@7";
+//import * as d3 from "d3";
 import Tools from "./tools.mjs";
 
 const margin = {top: 100, right: 100, bottom: 110, left:100};
@@ -31,6 +31,7 @@ class KevChart
   #chartTitle;
   #xScalor; #yScalor;
   #xAxisElement; #yAxisElement;
+  #xAxisGridElement; #xAxisGridGenerator;
   #xAxisLabel; #yAxisLabel;
   #xAxisGenerator;
   #plottingArea;
@@ -69,11 +70,9 @@ class KevChart
         .append('g')
           .attr("clip-path", "url(#clip)")
           .append("text")
-          .attr("font-family", "sans-serif")
           .attr("x", this.#contentWidth - 10)
           .attr("y", this.#contentHeight - 10)
           .attr("font-size", 15)
-          .attr("fill", "white")
           .attr("text-anchor", "end")
           .text("@KevPluck");
 
@@ -92,13 +91,13 @@ class KevChart
       .attr("height", this.#height)
       .attr("font-size", "1.5rem")
       .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("transform", `translate(${margin.left},${margin.top})`)
+        .attr("font-family", "sans-serif");
     
     this.#chartTitle = this.#d3Svg.append("text")
-    .attr("font-family", "sans-serif")
     .attr("text-anchor", "middle")
+    .attr("font-size", "2rem")
     .attr("transform", `translate(${this.#contentWidth / 2},-50)`)
-    .attr("fill", "white")
     .text(this.config.data.title);
   }
 
@@ -112,44 +111,55 @@ class KevChart
     this.#xAxisGenerator = d3.axisBottom(this.#xScalor);
     this.#xAxisGenerator.tickValues(monthStartDay);
     this.#xAxisGenerator.tickFormat((_, i) => monthNames[i]);
-    this.#xAxisGenerator.tickSize(-this.#contentHeight);
 
+    this.#xAxisGridGenerator = d3.axisBottom(this.#xScalor);
+    this.#xAxisGridGenerator.tickValues(monthStartDay);
+    this.#xAxisGridGenerator.tickFormat("");
+    this.#xAxisGridGenerator.tickSize(-this.#contentHeight);
 
     this.#appendClipPath("xAxisClipPath", 0, 0,this.#contentWidth, this.#height, 10);
+
+    this.#xAxisGridElement = this.#d3Svg.append("g")
+      .attr("clip-path", "url(#xAxisClipPath)")
+      .append("g")
+      .attr("transform", `translate(0, ${this.#contentHeight})`)
+      .call(this.#xAxisGridGenerator).call(this.#xTickGridStyle);
+
     this.#xAxisElement = this.#d3Svg.append("g")
       .attr("clip-path", "url(#xAxisClipPath)")
       .append("g")
       .attr("transform", `translate(0, ${this.#contentHeight})`)
-      .call(this.#xAxisGenerator).call(this.#xTickStyle);
+      .call(this.#xAxisGenerator).call(this.#tickTextStyle);
     
     this.#xAxisLabel = this.#d3Svg.append("text")
-      .attr("font-family", "sans-serif")
-      .attr("font-size", "smaller")
       .attr("text-anchor", "middle")
-      .attr("transform", `translate(${this.#contentWidth / 2}, ${this.#contentHeight + 50})`)
-      .attr("fill", "white")
+      .attr("transform", `translate(${this.#contentWidth / 2}, ${this.#contentHeight + 45})`)
       .text(xConfig.title);
 
     this.#appendClipPath("yAxisClipPath", -margin.left, 0, this.#width, this.#contentHeight, 10);
     this.#yAxisElement = this.#d3Svg.append("g")
       .attr("clip-path", "url(#yAxisClipPath)")
       .append("g")
-      .call(d3.axisLeft(this.#yScalor)).style("color", "white");
+      .call(d3.axisLeft(this.#yScalor)).call(this.#tickTextStyle);
     
     this.#yAxisLabel = this.#d3Svg.append("text")
-      .attr("font-family", "sans-serif")
-      .attr("font-size", "smaller")
       .attr("text-anchor", "middle")
-      .attr("transform", `rotate(-90) translate(${-this.#contentHeight / 2},-50)`)
-      .attr("fill", "white")
+      .attr("transform", `rotate(-90) translate(${-this.#contentHeight / 2},-60)`)
       .text(yConfig.title);
   }
 
-  #xTickStyle(selection)
+  #xTickGridStyle(selection)
   {
-    selection.style("color", "white")
+    selection
       .call(g => g.selectAll(".tick line")
       .attr("stroke-opacity", 0.1))
+  }
+
+  #tickTextStyle(selection)
+  {
+    selection
+      .call(g => g.selectAll(".tick text")
+      .attr("font-size", "1rem"))
   }
 
   #appendClipPath(id, x, y, width, height, padding=0) 
@@ -177,18 +187,21 @@ class KevChart
     {
       this.#xAxisGenerator.tickValues(monthStartDay);
       this.#xAxisGenerator.tickFormat((_, i) => monthNames[i]);
+      this.#xAxisGridGenerator.tickValues(monthStartDay);
     }
     else
     {
       this.#xAxisGenerator.tickValues(null);
       this.#xAxisGenerator.tickFormat(d => d);
+      this.#xAxisGridGenerator.tickValues(null);
     }
 
-    let tran1 = this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator).call(this.#xTickStyle).end();
-    let tran2 = this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor)).style("color", "white").end();
+    let tran1 = this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator).call(this.#tickTextStyle).end();
+    let tran2 = this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor)).call(this.#tickTextStyle).end();
     let tran3 = this.#plottingArea.transition().duration(1000).attr("transform", this.#createTransform()).end();
+    let tran4 = this.#xAxisGridElement.transition().duration(1000).call(this.#xAxisGridGenerator).call(this.#xTickGridStyle).end();
 
-    await Promise.all([tran1, tran2, tran3]);
+    await Promise.all([tran1, tran2, tran3, tran4]);
     this.#xAxisLabel.text(this.config.options.axes.x.title);
     this.#yAxisLabel.text(this.config.options.axes.y.title);
     this.#chartTitle.text(this.config.data.title);
@@ -383,7 +396,7 @@ class KevChart
       this.#yearSelectorArea = this.#d3Svg
         .append('g')
         .attr("transform", `translate(${legendXPos}, ${this.#contentHeight + 110}) rotate(-90)`)
-        .attr("font-family", "sans-serif").attr("font-size", 10).attr("fill", "white");
+        .attr("font-size", 10);
             
       this.#yearSelectorArea.on("mousemove", this.#yearSelectorMouseMove.bind(this));
     }
@@ -476,8 +489,9 @@ class KevChart
       this.#showResetZoomMsg = false;
     }
 
-    this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator).call(this.#xTickStyle);
-    this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor));
+    this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator).call(this.#tickTextStyle);
+    this.#xAxisGridElement.transition().duration(1000).call(this.#xAxisGridGenerator).call(this.#xTickGridStyle);
+    this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor)).call(this.#tickTextStyle);
     this.#plottingArea.transition().duration(1000).attr("transform", this.#createTransform());
     
     if(this.#showResetZoomMsg)
@@ -500,7 +514,7 @@ class KevChart
       .join("path")
         .attr("original-colour", d => MakeColour(d, graphType))
         .attr("stroke", d => MakeColour(d, graphType))
-        .attr("stroke-width", graphType == "annual" ? 2 : 4)
+        .attr("stroke-width", d => MakeStrokeWidth(d, graphType))
         .attr("opacity", 0)
         .datum(d => d.data)
         .attr("fill", "none")
@@ -540,7 +554,6 @@ class Tooltip
   constructor(svgGroup, width, height, maxX, maxY)
   {
     this.svgGroup = svgGroup;
-    this.svgGroup.attr("font-family", "sans-serif");
     this.bg = svgGroup.append("rect").attr("fill", "white").attr("width", width).attr("height", height);
     this.height = height;
     this.width = width;
@@ -604,8 +617,16 @@ class Tooltip
   }
 }
 
+function MakeStrokeWidth(yearData, graphType)
+{
+  if(yearData.type == "record low year" || yearData.type == "current year")
+    return 4;
 
-const palette = ["#003f5c", "#444e86", "#955196", "#dd5182", "#ff6e54", "#ffa600"];
+  return graphType == "annual" ? 2 : 4;
+}
+
+//const palette = ["#003f5c", "#444e86", "#955196", "#dd5182", "#ff6e54", "#ffa600"];
+const palette = ["#fa9fb5", "#f768a1", "#dd3497", "#ae017e", "#7a0177", "#49006a"];
 
 function MakeColour(yearData, graphType)
 {
@@ -613,10 +634,10 @@ function MakeColour(yearData, graphType)
     return "#0076ae";
 
   if(yearData.type == "record low year")
-    return "#ffffff";
+    return "#3497DD";
 
   if(yearData.type == "current year")
-    return "#ff00ff";
+    return "#000000";
   
   var range = 2022 - 1979;
   var pos = yearData.id - 1970;
