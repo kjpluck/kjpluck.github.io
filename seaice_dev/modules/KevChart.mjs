@@ -72,7 +72,7 @@ class KevChart
           .append("text")
           .attr("x", this.#contentWidth - 10)
           .attr("y", this.#contentHeight - 10)
-          .attr("font-size", 15)
+          .attr("font-size", "15px")
           .attr("text-anchor", "end")
           .text("@KevPluck");
 
@@ -89,14 +89,14 @@ class KevChart
       .append("svg")
       .attr("width", this.#width)
       .attr("height", this.#height)
-      .attr("font-size", "1.5rem")
+      .attr("font-size", "23px")
       .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`)
         .attr("font-family", "sans-serif");
     
     this.#chartTitle = this.#d3Svg.append("text")
     .attr("text-anchor", "middle")
-    .attr("font-size", "2rem")
+    .attr("font-size", "30px")
     .attr("transform", `translate(${this.#contentWidth / 2},-50)`)
     .text(this.config.data.title);
   }
@@ -159,7 +159,7 @@ class KevChart
   {
     selection
       .call(g => g.selectAll(".tick text")
-      .attr("font-size", "1rem"))
+      .attr("font-size", "15px"))
   }
 
   #appendClipPath(id, x, y, width, height, padding=0) 
@@ -396,7 +396,7 @@ class KevChart
       this.#yearSelectorArea = this.#d3Svg
         .append('g')
         .attr("transform", `translate(${legendXPos}, ${this.#contentHeight + 110}) rotate(-90)`)
-        .attr("font-size", 10);
+        .attr("font-size", "10px");
             
       this.#yearSelectorArea.on("mousemove", this.#yearSelectorMouseMove.bind(this));
     }
@@ -558,9 +558,9 @@ class Tooltip
     this.height = height;
     this.width = width;
     this.centre = width / 2;
-    this.title = svgGroup.append("text").attr("x", 10).attr("y", 20).attr("font-size", 15).attr("font-weight", "bold");
-    this.subTitle = svgGroup.append("text").attr("x", 10).attr("y", 40).attr("font-size", 15);
-    this.area = svgGroup.append("text").attr("x", 10).attr("y", 60).attr("font-size", 15);
+    this.title = svgGroup.append("text").attr("x", 10).attr("y", 20).attr("font-size", "15px").attr("font-weight", "bold");
+    this.subTitle = svgGroup.append("text").attr("x", 10).attr("y", 40).attr("font-size", "15px");
+    this.area = svgGroup.append("text").attr("x", 10).attr("y", 60).attr("font-size", "15px");
     this.mark = svgGroup.append("circle").attr("cx", this.centre).attr("cy", height + 20).attr("fill", "grey").attr("r", 5);
     this.maxX = maxX;
     this.maxY = maxY;
