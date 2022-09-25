@@ -110,3 +110,16 @@ input[type="radio"] {
   from {bottom: 30px; opacity: 1;}
   to {bottom: 0; opacity: 0;}
 }
+
+/* Disables double-tap zoom*/
+svg { touch-action: manipulation; }
+
+svg text {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+}
+svg text::selection {
+  background: none;
+}
