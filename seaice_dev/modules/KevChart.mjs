@@ -334,12 +334,17 @@ class KevChart
 
   #setYearOpacity(yearIndex, yearsToHighlight)
   {
+    const year = yearIndex + 1979;
+
     const yearType = this.config.data.datasets[yearIndex].type;
 
-    if(yearsToHighlight.length == 0)
+    if(yearsToHighlight.length == 0 && this.#selectedYears.length == 0)
       return yearType == "normal year" ? 0.5 : 1.0;
     
-    return yearsToHighlight.includes(yearIndex + 1979) ? 1.0 : 0.1;
+    if(this.#selectedYears.includes(year)) 
+      return 1.0;
+    
+    return yearsToHighlight.includes(year) ? 1.0 : 0.1;
   }
 
   async #fadeOutPlot()
@@ -404,6 +409,7 @@ class KevChart
           
     this.#legendArea.on("mousemove", this.#legendMouseMove.bind(this));
     this.#legendArea.on("mouseleave", this.#legendMouseLeave.bind(this));
+    this.#legendArea.on("click", this.#legendClick.bind(this));
 
     this.#legendArea.append("rect")
       .attr("y", -50)
@@ -418,10 +424,10 @@ class KevChart
 
     if(this.config.options.graphType == "annual")
     {
-      this.#legendArea.append("text").attr("x", calcYearX(1985)).attr("y", -35).attr("cursor", "default").text("1980's");
-      this.#legendArea.append("text").attr("x", calcYearX(1995)).attr("y", -35).attr("cursor", "default").text("1990's");
-      this.#legendArea.append("text").attr("x", calcYearX(2005)).attr("y", -35).attr("cursor", "default").text("2000's");
-      this.#legendArea.append("text").attr("x", calcYearX(2015)).attr("y", -35).attr("cursor", "default").text("2010/20's");
+      this.#legendArea.append("text").attr("x", this.#calcYearX(1985)).attr("y", -35).attr("cursor", "default").text("1980's");
+      this.#legendArea.append("text").attr("x", this.#calcYearX(1995)).attr("y", -35).attr("cursor", "default").text("1990's");
+      this.#legendArea.append("text").attr("x", this.#calcYearX(2005)).attr("y", -35).attr("cursor", "default").text("2000's");
+      this.#legendArea.append("text").attr("x", this.#calcYearX(2015)).attr("y", -35).attr("cursor", "default").text("2010/20's");
     }
     else
       datasets = [];
@@ -433,37 +439,41 @@ class KevChart
       .selectAll("rect")
       .data(datasets, d => d.id)
       .join(
-        enter => addLegendItem(enter),
-        update => updateLegendItem(update),
+        enter => this.#addLegendItem(enter),
+        update => this.#updateLegendItem(update),
         exit => exit.remove()
       );
     
-    function addLegendItem(enter)
-    {
-      enter.append("rect")
-        .attr("stroke", "none")
-        .attr("fill", d => MakeColour(d, graphType))
-        .attr("height", 10)
-        .attr("width", 10)
-        .attr("opacity", 0)
-        .attr("x", d => calcYearX(d.id))
-        .attr("y", -20);
-    }
+  }
 
-    function updateLegendItem(update)
-    {
-      update.select("rect").attr("fill", d => MakeColour(d, graphType));
-      return update;
-    }
+  #calcYearX(year)
+  {
+    const yearsSince1979 = year - 1979;
+    return 15 * yearsSince1979;
+  }
 
-    function calcYearX(year)
-    {
-      const yearsSince1979 = year - 1979;
-      return 15 * yearsSince1979;
-    }
+  #updateLegendItem(update)
+  {
+    update.select("rect").attr("fill", d => this.#MakeColour(d));
+    return update;
+  }
+
+
+    
+  #addLegendItem(enter)
+  {
+    enter.append("rect")
+      .attr("stroke", d => this.#selectedYears.includes(d.id) ? "black" : "none")
+      .attr("fill", d => this.#MakeColour(d))
+      .attr("height", 10)
+      .attr("width", 10)
+      .attr("opacity", 0)
+      .attr("x", d => this.#calcYearX(d.id))
+      .attr("y", -20);
   }
 
   #currentActiveYearSelector = 0;
+  #selectedYears = [];
 
   #legendMouseMove(event)
   {
@@ -509,6 +519,53 @@ class KevChart
   {
     this.#currentActiveYearSelector = 0;
     this.#highlightYears([]);
+  }
+
+  #legendClick(event)
+  {
+    const pos = d3.pointer(event);
+    const x = Math.floor(pos[0] / 15);
+    const y = pos[1];
+
+    const year = 1979 + x;
+
+    if(y < -35)
+    {
+      let firstYear = Math.floor(year / 10) * 10;
+
+      if(firstYear == 2020) firstYear = 2010;
+
+      let min = 0, max = 10;
+
+      if(firstYear == 1980)
+        min = -1;           // include 1979
+      
+      if(firstYear == 2010)
+        max = 14;           // include upto 2023
+
+      for(let yearDelta = min; yearDelta < max; yearDelta++)
+      {
+        const theYear = firstYear + yearDelta;
+        if(this.#selectedYears.includes(theYear))
+          this.#selectedYears = this.#selectedYears.filter(y=>y != theYear);
+        else
+          this.#selectedYears.push(theYear);
+      }
+
+    }
+    else
+    {
+      if(this.#selectedYears.includes(year))
+        this.#selectedYears = this.#selectedYears.filter(y=>y != year);
+      else
+        this.#selectedYears.push(year);
+    }
+
+    this.#legendArea
+      .select("#yearRects")
+      .selectAll("rect")
+      .attr("stroke", d => this.#selectedYears.includes(d.id) ? "black" : "none")
+
   }
   
   #idleTimeout;
@@ -558,8 +615,8 @@ class KevChart
       .selectAll("path")
       .data(datasets)
       .join("path")
-        .attr("original-colour", d => MakeColour(d, graphType))
-        .attr("stroke", d => MakeColour(d, graphType))
+        .attr("original-colour", d => this.#MakeColour(d))
+        .attr("stroke", d => this.#MakeColour(d))
         .attr("stroke-width", d => MakeStrokeWidth(d, graphType))
         .attr("opacity", 0)
         .datum(d => d.data)
@@ -569,6 +626,41 @@ class KevChart
     
     this.#addLegend();
     this.#highlightYears([]);
+  }
+
+  
+
+  //#palette = ["#003f5c", "#444e86", "#955196", "#dd5182", "#ff6e54", "#ffa600"];
+  #palette = ["#fa9fb5", "#f768a1", "#dd3497", "#ae017e", "#7a0177", "#49006a"];
+    
+  #MakeColour(yearData)
+  {
+    if(this.config.options.graphType !== "annual")
+      return "#0076ae";
+
+    if(yearData.type == "record low year")
+      return "#3497DD";
+
+    if(yearData.type == "current year")
+      return "#000000";
+    
+    var range = 2022 - 1979;
+    var pos = yearData.id - 1970;
+
+    const decade = Math.floor(pos/10);
+    const yearOfDecade = pos % 10;
+
+    return this.#palette[decade];
+    const decadeColour = hexToHSL(palette[decade]);
+    
+
+
+
+    var lerp = 1 - pos / range;
+
+    var rgb = 150 + Math.floor(lerp * 100);
+    var hex = rgb.toString(16);
+    return "#" + hex + hex + hex;
   }
 
 
@@ -671,38 +763,6 @@ function MakeStrokeWidth(yearData, graphType)
   return graphType == "annual" ? 2 : 4;
 }
 
-//const palette = ["#003f5c", "#444e86", "#955196", "#dd5182", "#ff6e54", "#ffa600"];
-const palette = ["#fa9fb5", "#f768a1", "#dd3497", "#ae017e", "#7a0177", "#49006a"];
-
-function MakeColour(yearData, graphType)
-{
-  if(graphType !== "annual")
-    return "#0076ae";
-
-  if(yearData.type == "record low year")
-    return "#3497DD";
-
-  if(yearData.type == "current year")
-    return "#000000";
-  
-  var range = 2022 - 1979;
-  var pos = yearData.id - 1970;
-
-  const decade = Math.floor(pos/10);
-  const yearOfDecade = pos % 10;
-
-  return palette[decade];
-  const decadeColour = hexToHSL(palette[decade]);
-  
-
-
-
-  var lerp = 1 - pos / range;
-
-  var rgb = 150 + Math.floor(lerp * 100);
-  var hex = rgb.toString(16);
-  return "#" + hex + hex + hex;
-}
 
 function hexToHSL(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
