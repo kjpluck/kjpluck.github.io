@@ -2,7 +2,7 @@ import * as d3 from "https://cdn.skypack.dev/d3@7";
 //import * as d3 from "d3";
 import Tools from "./tools.mjs";
 
-const margin = {top: 100, right: 100, bottom: 110, left:100};
+const margin = {top: 120, right: 100, bottom: 110, left:100};
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan"];
 const monthStartDay = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366];
 
@@ -50,7 +50,7 @@ class KevChart
     this.config = config;
 
     this.#width = 1000;
-    this.#height = 710;
+    this.#height = 730;
 
     this.#contentWidth = this.#width - margin.right - margin.left;
     this.#contentHeight = this.#height - margin.top - margin.bottom;
