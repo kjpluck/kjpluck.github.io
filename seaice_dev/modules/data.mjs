@@ -86,6 +86,8 @@ function getMonthlyAverages(theMonth, dataCorrectionRequired, data1, data2)
     startOfMonthInYear += monthLengths[i];
   }
 
+  startOfMonthInYear++; // So it's the 1st of the the month
+
   let endOfMonthInYear = startOfMonthInYear + lengthOfMonth - 1;
 
   let monthlyAverages = {};
