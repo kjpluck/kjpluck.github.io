@@ -8,14 +8,13 @@ const monthStartDay = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 36
 
 function makeDate(dayIndex)
 {
-  let day = dayIndex + 1;
   let month = 1;
-  while(day > monthStartDay[month] - 1)
+  while(dayIndex > monthStartDay[month] - 1)
   {
     month++;
   }
   
-  return `${day - (monthStartDay[month-1] - 1)} ${monthNames[month-1]}` 
+  return `${dayIndex - (monthStartDay[month-1] - 1)} ${monthNames[month-1]}` 
 }
 
 class KevChart
