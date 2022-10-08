@@ -227,6 +227,9 @@ class KevChart
     
     plottingClipArea
       .on("mouseleave", this.#hideTooltip.bind(this));
+  
+    plottingClipArea
+      .on("click", this.#selectYearFromPlot.bind(this));
 
     this.#plottingArea = plottingClipArea
       .append("g")
@@ -321,6 +324,12 @@ class KevChart
 
       this.#highlightYears([closestYear]);
     }
+  }
+
+  #selectYearFromPlot()
+  {
+    console.log(this.#tooltipYear)
+    if(this.#tooltipYear) this.#toggleSelectedYear(this.#tooltipYear);
   }
 
   #hideTooltip()
@@ -545,26 +554,29 @@ class KevChart
       for(let yearDelta = min; yearDelta < max; yearDelta++)
       {
         const theYear = firstYear + yearDelta;
-        if(this.#selectedYears.includes(theYear))
-          this.#selectedYears = this.#selectedYears.filter(y=>y != theYear);
-        else
-          this.#selectedYears.push(theYear);
+        this.#toggleSelectedYear(theYear);
       }
 
     }
     else
     {
-      if(this.#selectedYears.includes(year))
-        this.#selectedYears = this.#selectedYears.filter(y=>y != year);
-      else
-        this.#selectedYears.push(year);
+      this.#toggleSelectedYear(year)
     }
+
+  }
+
+  #toggleSelectedYear(year)
+  {
+    if(this.#selectedYears.includes(year))
+      this.#selectedYears = this.#selectedYears.filter(y=>y != year);
+    else
+      this.#selectedYears.push(year);
+      
 
     this.#legendArea
       .select("#yearRects")
       .selectAll("rect")
       .attr("stroke", d => this.#selectedYears.includes(d.id) ? "black" : "none")
-
   }
   
   #idleTimeout;
