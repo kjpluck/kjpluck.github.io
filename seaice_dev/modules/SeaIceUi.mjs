@@ -85,6 +85,8 @@ SeaIceUi.getState = function()
 function getSvgString(svgElement)
 {
   let svgElementClone = svgElement.cloneNode(true);
+  svgElementClone.getElementById("legendYearTooltipText").textContent = "";
+  svgElementClone.getElementById("clearSelectedYearsButton").style.visibility = "hidden";
 
   var svgString = (new XMLSerializer()).serializeToString(svgElementClone);
 
@@ -99,7 +101,6 @@ function copyGraphToClipboard()
     return;
   }
 
-  document.getElementById("legendYearTooltipText").textContent = "";
   
   let svgElement = document.getElementsByTagName("svg")[0];
   let svgString = getSvgString(svgElement);

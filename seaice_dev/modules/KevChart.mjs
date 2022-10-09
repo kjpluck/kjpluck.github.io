@@ -36,6 +36,7 @@ class KevChart
   #plottingArea;
   #legendArea;
   #legendYearTooltipText;
+  #clearSelectedYearsButton;
   #brushArea;
   #zoomBrush;
   #tooltip;
@@ -333,7 +334,7 @@ class KevChart
   {
     if(this.config.options.graphType != "annual") 
       return;
-      
+
     if(this.#tooltipYear) this.#toggleSelectedYear(this.#tooltipYear);
   }
 
@@ -446,8 +447,6 @@ class KevChart
     else
       datasets = [];
 
-    const graphType = this.config.options.graphType;
-
     this.#legendArea
       .select("#yearRects")
       .selectAll("rect")
@@ -458,6 +457,15 @@ class KevChart
         exit => exit.remove()
       );
     
+    this.#clearSelectedYearsButton = this.#legendArea
+        .append("circle")
+        .attr("id", "clearSelectedYearsButton")
+        .attr("cx", this.#calcYearX(this.#thisYear + 1) + 5)
+        .attr("cy", -15)
+        .attr("r", 5)
+        .attr("fill", "red")
+        .attr("visibility", "hidden")
+        .on("click", this.#clearSelectedYears.bind(this));
   }
 
   #calcYearX(year)
@@ -471,8 +479,6 @@ class KevChart
     update.select("rect").attr("fill", d => this.#MakeColour(d));
     return update;
   }
-
-
     
   #addLegendItem(enter)
   {
@@ -548,6 +554,8 @@ class KevChart
 
     const year = 1979 + x;
 
+    if(year > this.#thisYear) return;
+
     if(y < -35)
     {
       let firstYear = Math.floor(year / 10) * 10;
@@ -576,6 +584,14 @@ class KevChart
 
   }
 
+  #clearSelectedYears()
+  {
+    this.#selectedYears = [];
+    this.#highlightYears([]);
+    this.#renderSelectedYearRects();
+    this.#legendYearTooltipText.text("");
+  }
+
   #toggleSelectedYear(year)
   {
     if(this.#selectedYears.includes(year))
@@ -583,6 +599,14 @@ class KevChart
     else
       this.#selectedYears.push(year);
       
+    this.#renderSelectedYearRects();
+  }
+
+  #renderSelectedYearRects()
+  {
+    this.#selectedYears.length > 0 ?
+      this.#clearSelectedYearsButton.attr("visibility", "visible"):
+      this.#clearSelectedYearsButton.attr("visibility", "hidden");
 
     this.#legendArea
       .select("#yearRects")
