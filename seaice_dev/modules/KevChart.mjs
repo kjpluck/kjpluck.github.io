@@ -457,15 +457,18 @@ class KevChart
         exit => exit.remove()
       );
     
-    this.#clearSelectedYearsButton = this.#legendArea
+    if(this.config.options.graphType == "annual")
+    {
+      this.#clearSelectedYearsButton = this.#legendArea
         .append("circle")
         .attr("id", "clearSelectedYearsButton")
         .attr("cx", this.#calcYearX(this.#thisYear + 1) + 5)
         .attr("cy", -15)
         .attr("r", 5)
         .attr("fill", "red")
-        .attr("visibility", "hidden")
+        .attr("visibility", this.#selectedYears.length > 0 ? "visible" : "hidden")
         .on("click", this.#clearSelectedYears.bind(this));
+    }
   }
 
   #calcYearX(year)
