@@ -99,6 +99,8 @@ function copyGraphToClipboard()
     return;
   }
 
+  document.getElementById("legendYearTooltipText").textContent = "";
+  
   let svgElement = document.getElementsByTagName("svg")[0];
   let svgString = getSvgString(svgElement);
 

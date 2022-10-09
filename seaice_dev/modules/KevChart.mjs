@@ -35,9 +35,12 @@ class KevChart
   #xAxisGenerator;
   #plottingArea;
   #legendArea;
+  #legendYearTooltipText;
   #brushArea;
   #zoomBrush;
   #tooltip;
+  
+  #thisYear = (new Date()).getUTCFullYear();
 
   #showResetZoomMsg = true;
 
@@ -328,7 +331,9 @@ class KevChart
 
   #selectYearFromPlot()
   {
-    console.log(this.#tooltipYear)
+    if(this.config.options.graphType != "annual") 
+      return;
+      
     if(this.#tooltipYear) this.#toggleSelectedYear(this.#tooltipYear);
   }
 
@@ -406,8 +411,7 @@ class KevChart
       this.#legendArea.remove();
     }
     
-    const thisYear = (new Date()).getUTCFullYear();
-    const legendWidth = (thisYear - 1978) * 15;
+    const legendWidth = (this.#thisYear - 1978) * 15;
     const legendXPos = (this.#contentWidth / 2) - (legendWidth / 2);
     this.#legendArea = this.#d3Svg
       .append('g')
@@ -436,6 +440,8 @@ class KevChart
       this.#legendArea.append("text").attr("x", this.#calcYearX(1995)).attr("y", -35).attr("cursor", "default").text("1990's");
       this.#legendArea.append("text").attr("x", this.#calcYearX(2005)).attr("y", -35).attr("cursor", "default").text("2000's");
       this.#legendArea.append("text").attr("x", this.#calcYearX(2015)).attr("y", -35).attr("cursor", "default").text("2010/20's");
+
+      this.#legendYearTooltipText = this.#legendArea.append("text").attr("id", "legendYearTooltipText").attr("x", (this.#contentWidth / 2) - legendXPos).attr("y", -120);
     }
     else
       datasets = [];
@@ -491,6 +497,8 @@ class KevChart
 
     const year = 1979 + x;
 
+    if(year > this.#thisYear) return;
+
     if(y < -35)
     {
       let firstYear = Math.floor(year / 10) * 10;
@@ -513,6 +521,7 @@ class KevChart
       if(firstYear == 2010) yearsToHighlight = yearsToHighlight.concat([2020,2021,2022,2023]);
 
       this.#highlightYears(yearsToHighlight);
+      this.#legendYearTooltipText.text("");
       return;
     }
 
@@ -520,6 +529,7 @@ class KevChart
     {
       this.#currentActiveYearSelector = year;
       this.#highlightYears([year]);
+      this.#legendYearTooltipText.text(year);
     }
   }
   
@@ -527,6 +537,7 @@ class KevChart
   {
     this.#currentActiveYearSelector = 0;
     this.#highlightYears([]);
+    this.#legendYearTooltipText.text("");
   }
 
   #legendClick(event)
