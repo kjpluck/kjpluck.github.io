@@ -54,16 +54,16 @@ function hidePleaseWait()
 
 const ranges = {
   Global:{
-      Extent:{annual:{min:14, max:30}, average:{min:20, max:26}, minimum:{min:15.5, max:20}, maximum:{min:22, max:30}},
-      Area:  {annual:{min:12, max:24}, average:{min:15, max:21}, minimum:{min:13, max:17}, maximum:{min:17, max:25}}
+      Extent:{annual:{min:14, max:30}, average:{min:20, max:26}, minimum:{min:15.5, max:20}, maximum:{min:22, max:30}, anomaly:{min:-5, max:5}},
+      Area:  {annual:{min:12, max:24}, average:{min:15, max:21}, minimum:{min:13, max:17}, maximum:{min:17, max:25}, anomaly:{min:-5, max:5}}
   },
   North: {
-      Extent:{annual:{min:0,  max:18}, average:{min:9, max:13}, minimum:{min:2, max:9}, maximum:{min:13, max:18}},
-      Area:  {annual:{min:0,  max:16}, average:{min:8, max:11}, minimum:{min:0, max:6 }, maximum:{min:12, max:15}}
+      Extent:{annual:{min:0,  max:18}, average:{min:9, max:13}, minimum:{min:2, max:9}, maximum:{min:13, max:18}, anomaly:{min:-5, max:5}},
+      Area:  {annual:{min:0,  max:16}, average:{min:8, max:11}, minimum:{min:0, max:6 }, maximum:{min:12, max:15}, anomaly:{min:-5, max:5}}
   },
   South: {
-      Extent:{annual:{min:0,  max:22}, average:{min:9.5, max:13.5}, minimum:{min:0, max:5}, maximum:{min:17, max:21}},
-      Area:  {annual:{min:0,  max:18}, average:{min:7,  max:11}, minimum:{min:0, max:3.5}, maximum:{min:13, max:17}}
+      Extent:{annual:{min:0,  max:22}, average:{min:9.5, max:13.5}, minimum:{min:0, max:5}, maximum:{min:17, max:21}, anomaly:{min:-5, max:5}},
+      Area:  {annual:{min:0,  max:18}, average:{min:7,  max:11}, minimum:{min:0, max:3.5}, maximum:{min:13, max:17}, anomaly:{min:-5, max:5}}
   }
 };
 
@@ -74,7 +74,7 @@ function drawChart(areaType, hemisphere, graphType) {
   options.graphType = graphType;
   options.areaType = areaType;
   
-  if(graphType == "annual")
+  if(graphType == "annual" || graphType == "anomaly")
   {
     options.axes.x.title = "Month";
     options.axes.x.min = 1;
@@ -98,7 +98,7 @@ function drawChart(areaType, hemisphere, graphType) {
     options.axes.y.max = ranges[hemisphere][areaType][graphType].max;
   }
 
-  options.axes.y.title = areaType + " (Millions of square kilometers)";
+  options.axes.y.title = areaType + (graphType == "anomaly" ? " anomaly " : "") + " (Millions of square kilometers)";
 
   const config =
   {

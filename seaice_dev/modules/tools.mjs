@@ -11,18 +11,23 @@ Tools.removeFeb29 = function(data)
   let maxYear = (new Date()).getFullYear();
   for (var year = 1979; year <= maxYear; year++)
   {
-    if(!data.hasOwnProperty(year.toString())) continue;
-    let thisYearsData = data[year];
+    if(!data.hasOwnProperty(year.toString())) 
+      continue;
 
-    if(!thisYearsData.hasOwnProperty("366")) continue;
-
-    for(let day = 60; day <= 365; day++)
-    {
-      thisYearsData[day] = thisYearsData[day+1];
-    }
-
-    delete thisYearsData["366"];
+    Tools.removeFeb29FromYearsData(data[year]);
   }
+}
+
+Tools.removeFeb29FromYearsData = function(thisYearsData)
+{
+  if(!thisYearsData.hasOwnProperty("366")) return;
+
+  for(let day = 60; day <= 365; day++)
+  {
+    thisYearsData[day] = thisYearsData[day+1];
+  }
+
+  delete thisYearsData["366"];
 }
 
 Tools.toast = function(message) {

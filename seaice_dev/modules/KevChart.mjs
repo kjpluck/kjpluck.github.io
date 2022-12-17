@@ -1,5 +1,5 @@
-import * as d3 from "https://cdn.skypack.dev/d3@7";
-//import * as d3 from "d3";
+//import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3 from "d3";
 import Tools from "./tools.mjs";
 
 const margin = {top: 120, right: 100, bottom: 110, left:100};
@@ -186,7 +186,7 @@ class KevChart
 
   async #updateAxis()
   {
-    if(this.config.options.graphType == "annual")
+    if(this.config.options.graphType == "annual" || this.config.options.graphType == "anomaly")
     {
       this.#xAxisGenerator.tickValues(monthStartDay);
       this.#xAxisGenerator.tickFormat((_, i) => monthNames[i]);
@@ -309,7 +309,7 @@ class KevChart
     {
       let title = "";
       let subTitle = "";
-      if(this.config.options.graphType == "annual")
+      if(this.config.options.graphType == "annual" || this.config.options.graphType == "anomaly")
       {
         title = closestYear;
         subTitle = makeDate(xCoord) + " Rank: " + (rank == 1 ? "lowest" : ordinal_suffix_of(rank));
@@ -332,7 +332,7 @@ class KevChart
 
   #selectYearFromPlot()
   {
-    if(this.config.options.graphType != "annual") 
+    if(this.config.options.graphType != "annual" || this.config.options.graphType == "anomaly") 
       return;
 
     if(this.#tooltipYear) this.#toggleSelectedYear(this.#tooltipYear);
@@ -379,7 +379,7 @@ class KevChart
 
   #highlightYears(yearsToHighlight)
   {
-    if(this.config.options.graphType == "annual")
+    if(this.config.options.graphType == "annual" || this.config.options.graphType == "anomaly")
     {
       this.#plottingArea.selectAll("path")
         .transition().attr("opacity", (_, yearIndex) => this.#setYearOpacity(yearIndex, yearsToHighlight));
@@ -435,13 +435,15 @@ class KevChart
 
     let datasets = this.config.data.datasets;
 
-    if(this.config.options.graphType == "annual")
+    if(this.config.options.graphType == "annual" || this.config.options.graphType == "anomaly")
     {
       this.#legendArea.append("text").attr("x", this.#calcYearX(1985)).attr("y", -35).attr("cursor", "default").text("1980's");
       this.#legendArea.append("text").attr("x", this.#calcYearX(1995)).attr("y", -35).attr("cursor", "default").text("1990's");
       this.#legendArea.append("text").attr("x", this.#calcYearX(2005)).attr("y", -35).attr("cursor", "default").text("2000's");
       this.#legendArea.append("text").attr("x", this.#calcYearX(2015)).attr("y", -35).attr("cursor", "default").text("2010/20's");
 
+      this.#legendArea.append("rect").attr("x",-55).attr("y", -130).attr("fill", "#3497DD").attr("height", 10).attr("width", 10);
+      this.#legendArea.append("text").attr("x", 15).attr("y", -120).text("Record low year");
       this.#legendYearTooltipText = this.#legendArea.append("text").attr("id", "legendYearTooltipText").attr("x", (this.#contentWidth / 2) - legendXPos).attr("y", -120);
     }
     else
@@ -457,7 +459,7 @@ class KevChart
         exit => exit.remove()
       );
     
-    if(this.config.options.graphType == "annual")
+    if(this.config.options.graphType == "annual" || this.config.options.graphType == "anomaly")
     {
       this.#clearSelectedYearsButton = this.#legendArea
         .append("circle")
@@ -684,7 +686,7 @@ class KevChart
     
   #MakeColour(yearData)
   {
-    if(this.config.options.graphType !== "annual")
+    if(!(this.config.options.graphType == "annual" || this.config.options.graphType == "anomaly"))
       return "#0076ae";
 
     if(yearData.type == "record low year")
@@ -809,7 +811,7 @@ function MakeStrokeWidth(yearData, graphType)
   if(yearData.type == "record low year" || yearData.type == "current year")
     return 4;
 
-  return graphType == "annual" ? 2 : 4;
+  return (graphType == "annual" || graphType == "anomaly") ? 2 : 4;
 }
 
 

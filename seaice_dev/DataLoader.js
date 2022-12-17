@@ -1,18 +1,18 @@
 const maxYear = (new Date()).getUTCFullYear();
 
-
 onmessage = function(e){
     if(!e.data.hemisphere) return;
+
     if(e.data.hemisphere == "Global") 
     {
-        GetGlobal(e.data.type, e.data.northData, e.data.southData);
+        GetGlobal(e.data.type, e.data.northData, e.data.southData, e.data.northMeanData, e.data.southMeanData);
         return;
     }
 
-    GetNsidc(e.data.type, e.data.hemisphere, e.data.cachedData);
+    GetNsidc(e.data.type, e.data.hemisphere, e.data.cachedData, e.data.meanData);
 }
 
-function GetNsidc(type, hemisphere, cachedData)
+function GetNsidc(type, hemisphere, cachedData, meanData)
 {   
 
     if(hemisphere == "Global")
@@ -24,9 +24,15 @@ function GetNsidc(type, hemisphere, cachedData)
     var seaIceData={};
 
     if(hemisphere == "South")
+    {
         seaIceData.title = "Antarctic Sea Ice " + type + " - NSIDC";
+        seaIceData.anomalyTitle = "Antarctic Sea Ice " + type + " Anomaly - NSIDC";
+    }
     else
+    {
         seaIceData.title = "Arctic Sea Ice " + type + " - NSIDC";
+        seaIceData.anomalyTitle = "Arctic Sea Ice " + type + " Anomaly - NSIDC";
+    }
 
     var years = [];
     for (var i = 1979; i <= maxYear; i++) {
@@ -42,7 +48,7 @@ function GetNsidc(type, hemisphere, cachedData)
         done -= 1;
         if(done == 0) 
         {
-            GotNsidc(seaIceData, type, hemisphere);
+            GotNsidc(seaIceData, type, hemisphere, meanData);
         }
     }
 
@@ -79,12 +85,17 @@ function dateFromDay(year, day){
     return (new Date(date.setDate(day))).toLocaleDateString(undefined, {year: "numeric", month: 'long', day: 'numeric' }); // add the number of days
   }
 
-function GotNsidc(seaIceData, type, hemisphere)
+function GotNsidc(seaIceData, type, hemisphere, meanData)
 {    
     removeFeb29(seaIceData);
 
     var dataTable = {
         annual:{
+            title:"",
+            datasets:[]
+        },
+
+        anomaly:{
             title:"",
             datasets:[]
         },
@@ -122,7 +133,7 @@ function GotNsidc(seaIceData, type, hemisphere)
 
     function processData(year)
     {
-        var toReturn = [];
+        var toReturn = {annual:[], anomaly:[]};
 
         let avgAccumulator = 0;
         let avgCount = 0;
@@ -140,9 +151,14 @@ function GotNsidc(seaIceData, type, hemisphere)
 
             if(seaIceData[year][day])
             {
-                var value = seaIceData[year][day];
+                let value = seaIceData[year][day];
+                let anomaly = 0;
+
                 if(value == -1)
-                    value = null
+                {
+                    value = null;
+                    anomaly = null;
+                }
                 
                 if(value)
                 {
@@ -157,13 +173,17 @@ function GotNsidc(seaIceData, type, hemisphere)
                     {
                         maximum = value;
                     }
+
+                    anomaly = value - meanData[day];
                 }
 
-                toReturn.push({x:day, y:value});
+                toReturn.annual.push({x:day, y:value});
+                toReturn.anomaly.push({x:day, y:anomaly});
             }
             else
             {
-                toReturn.push({x:day, y:null});
+                toReturn.annual.push({x:day, y:null});
+                toReturn.anomaly.push({x:day, y:null});
             }
         }
 
@@ -175,14 +195,24 @@ function GotNsidc(seaIceData, type, hemisphere)
     }
 
     dataTable.annual.title = seaIceData.title;
+    dataTable.anomaly.title = seaIceData.anomalyTitle;
 
     for(let year = 1979; year <= maxYear; year++)
     {        
+        const processedData = processData(year);
+
         dataTable.annual.datasets.push(
         {
             id: year,
             type: IsRecordLowYear(hemisphere, year, type) ? "record low year" : year == maxYear ? "current year" : "normal year",
-            data: processData(year)
+            data: processedData.annual
+        });
+
+        dataTable.anomaly.datasets.push(
+        {
+            id:year,
+            type: IsRecordLowYear(hemisphere, year, type) ? "record low year" : year == maxYear ? "current year" : "normal year",
+            data: processedData.anomaly
         });
     }
     
@@ -226,15 +256,16 @@ function IsRecordLowYear(hemisphere, year, type)
     return false;
 }
 
-function GetGlobal(type, northData, southData)
+function GetGlobal(type, northData, southData, northMeanData, southMeanData)
 {
     
-    var global = {title: "Global Sea Ice " + type + " - NSIDC"};
+    let global = {title: "Global Sea Ice " + type + " - NSIDC", anomalyTitle: "Global Sea Ice " + type + " Anomaly - NSIDC"};
     
     for(let year = 1979; year <= maxYear; year++)
     {
-        var northYearData = northData[year];
-        var southYearData = southData[year];
+        const northYearData = northData[year];
+        const southYearData = southData[year];
+
         global[year] = {};
         for(let day = 0; day < 366; day++)
         {
@@ -248,7 +279,14 @@ function GetGlobal(type, northData, southData)
         }
     }
 
-    GotNsidc(global, type, "Global");
+    let globalMean = {};
+    
+    for(let day = 0; day < 366; day++)
+    {
+        globalMean[day] = southMeanData[day] + northMeanData[day];
+    }
+
+    GotNsidc(global, type, "Global", globalMean);
     
 }
 

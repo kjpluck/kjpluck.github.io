@@ -19,7 +19,11 @@ Data.loadAllData = async function()
   (
     hemisphere => areaTypes.forEach
     (
-      areaType => Tools.removeFeb29(cachedData[hemisphere][areaType])
+      areaType => 
+      {
+        Tools.removeFeb29(cachedData[hemisphere][areaType]);
+        Tools.removeFeb29FromYearsData(cachedData.Mean[hemisphere][areaType]);
+      }
     )
   );
 
@@ -175,7 +179,7 @@ function loadFreshData()
                 }
             }
 
-            dataLoaderWorker.postMessage({type:areaType, hemisphere:hemisphere, cachedData:cachedData[hemisphere][areaType]});
+            dataLoaderWorker.postMessage({type:areaType, hemisphere:hemisphere, cachedData:cachedData[hemisphere][areaType], meanData: cachedData.Mean[hemisphere][areaType]});
 
         });
     });
@@ -184,7 +188,7 @@ function loadFreshData()
 
 function splitDataTable(dataTable, areaType, hemisphere)
 {
-    ["annual", "minimum", "average", "maximum"].forEach(function(graphType){
+    ["annual", "anomaly", "minimum", "average", "maximum"].forEach(function(graphType){
         dataTables[hemisphere][areaType][graphType] = dataTable[graphType];
     })
 }
@@ -201,7 +205,17 @@ function generateGlobalData()
             return;
         }
     }
-    globalWorker.postMessage({type:"Area", hemisphere:"Global", northData: loadedData.North.Area, southData: loadedData.South.Area});
+    globalWorker.postMessage
+    (
+      {
+        type:"Area", 
+        hemisphere:"Global", 
+        northData: loadedData.North.Area, 
+        southData: loadedData.South.Area,
+        northMeanData: cachedData.Mean.North.Area,
+        southMeanData: cachedData.Mean.South.Area
+      }
+    );
   });
   
   const p2 = new Promise(resolve=>{
@@ -214,7 +228,17 @@ function generateGlobalData()
             return;
         }
     }
-    globalWorker.postMessage({type:"Extent", hemisphere:"Global", northData: loadedData.North.Extent, southData: loadedData.South.Extent});
+    globalWorker.postMessage
+    (
+      {
+        type:"Extent", 
+        hemisphere:"Global", 
+        northData: loadedData.North.Extent, 
+        southData: loadedData.South.Extent,
+        northMeanData: cachedData.Mean.North.Extent,
+        southMeanData: cachedData.Mean.South.Extent
+      }
+    );
   });
 
   return Promise.all([p1, p2]);
