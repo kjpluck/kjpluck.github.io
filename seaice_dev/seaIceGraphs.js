@@ -9,7 +9,7 @@ var options =
   graphType: "annual",
   axes:
   {
-    x:{title: "Month"},
+    x:{title: "Date"},
     y:{title: "Extent"}
   }
 };
@@ -76,7 +76,7 @@ function drawChart(areaType, hemisphere, graphType) {
   
   if(graphType == "annual" || graphType == "anomaly")
   {
-    options.axes.x.title = "Month";
+    options.axes.x.title = "Date";
     options.axes.x.min = 1;
     options.axes.x.max = 366;
   }

@@ -1,10 +1,25 @@
-//import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import * as d3 from "d3";
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+//import * as d3 from "d3";
 import Tools from "./tools.mjs";
 
 const margin = {top: 120, right: 100, bottom: 110, left:100};
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan"];
 const monthStartDay = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366];
+const zoomedTickMarks = 
+                    [
+                        1,   5,  10,  15,  20, 25, 
+                       32,  36,  41,  46,  51, 56,
+                       60,  64,  69,  74,  79, 84,
+                       91,  95, 100, 105, 110, 115,
+                      121, 125, 130, 135, 140, 145,
+                      152, 156, 161, 166, 171, 176,
+                      182, 186, 191, 196, 201, 206,
+                      213, 217, 222, 227, 232, 237,
+                      244, 248, 253, 258, 263, 268,
+                      274, 278, 283, 288, 293, 298,
+                      305, 309, 314, 319, 324, 329,
+                      335, 339, 344, 349, 354, 359,
+                      366];
 
 function makeDate(dayIndex)
 {
@@ -15,6 +30,17 @@ function makeDate(dayIndex)
   }
   
   return `${dayIndex - (monthStartDay[month-1] - 1)} ${monthNames[month-1]}` 
+}
+
+function makeDay(dayIndex)
+{
+  let month = 1;
+  while(dayIndex > monthStartDay[month] - 1)
+  {
+    month++;
+  }
+  
+  return dayIndex - (monthStartDay[month-1] - 1);
 }
 
 class KevChart
@@ -104,6 +130,18 @@ class KevChart
     .text(this.config.data.title);
   }
 
+  zoomedTickFormat(i, zoomLevel){
+    let doy = zoomedTickMarks[i];
+    let monthStart = monthStartDay.indexOf(doy);
+    if(monthStart > 0) 
+      return monthNames[monthStart];
+    
+    if(zoomLevel > 18)
+      return makeDate(doy);
+
+    return makeDay(doy);
+  }
+
   #addAxes()
   {    
     const xConfig = this.config.options.axes.x;
@@ -190,7 +228,7 @@ class KevChart
     {
       this.#xAxisGenerator.tickValues(monthStartDay);
       this.#xAxisGenerator.tickFormat((_, i) => monthNames[i]);
-      this.#xAxisGridGenerator.tickValues(monthStartDay);
+      this.#xAxisGridGenerator.tickValues(monthStartDay); 
     }
     else
     {
@@ -622,7 +660,7 @@ class KevChart
   #idleTimeout;
   #idled() { this.#idleTimeout = null; }
 
-  #zoomed(event)
+  async #zoomed(event)
   {
     
 
@@ -643,13 +681,44 @@ class KevChart
       this.#showResetZoomMsg = false;
     }
 
-    this.#xAxisElement.transition().duration(1000).call(this.#xAxisGenerator).call(this.#tickTextStyle);
-    this.#xAxisGridElement.transition().duration(1000).call(this.#xAxisGridGenerator).call(this.#xTickGridStyle);
-    this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor)).call(this.#tickTextStyle);
-    this.#plottingArea.transition().duration(1000).attr("transform", this.#createTransform());
+    await Promise.all([
+      this.#xAxisElement.transition().duration(1000).call(this.#setXAxisTicks.bind(this)).call(this.#xAxisGenerator).call(this.#tickTextStyle).end(),
+      this.#xAxisGridElement.transition().duration(1000).call(this.#xAxisGridGenerator).call(this.#xTickGridStyle).end(),
+      this.#yAxisElement.transition().duration(1000).call(d3.axisLeft(this.#yScalor)).call(this.#tickTextStyle).end(),
+      this.#plottingArea.transition().duration(1000).attr("transform", this.#createTransform()).end()
+    ]);
+
     
     if(this.#showResetZoomMsg)
       Tools.toast("Double tap/click to reset zoom")
+  }
+
+  #setXAxisTicks(selection)
+  {
+  
+    if(this.config.options.graphType == "annual" || this.config.options.graphType == "anomaly")
+    {
+      let zoomLevel = this.#xScalor(1) - this.#xScalor(0);
+      if(zoomLevel > 10)
+      {
+        this.#xAxisGenerator.tickValues(zoomedTickMarks);
+        this.#xAxisGenerator.tickFormat(function(_, i){return this.zoomedTickFormat(i, zoomLevel)}.bind(this));
+        this.#xAxisGridGenerator.tickValues(monthStartDay);
+      }
+      else
+      {
+        this.#xAxisGenerator.tickValues(monthStartDay);
+        this.#xAxisGenerator.tickFormat((_, i) => monthNames[i]);
+        this.#xAxisGridGenerator.tickValues(monthStartDay);
+      }
+    }
+    else
+    {
+      this.#xAxisGenerator.tickValues(null);
+      this.#xAxisGenerator.tickFormat(d => d);
+      this.#xAxisGridGenerator.tickValues(null);
+    }
+
   }
 
   #lineGenerator = d3.line()
