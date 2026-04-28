@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<head>
+    <title>Results chart</title>
+    <style>
+        .box {
+            border: 2px dotted rgb(96 139 168);
+            display: flex;
+            overflow-x: scroll;
+            width: 10000px;
+        }
+    </style>
+</head>
+<textarea id="results" style="width: 640px; height: 100px;"></textarea>
+<div class="box" id="container">
+<script type="module">
+
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+    let athlete = {name: '', results: {}}
+
+    const convertDistance = (dist) => {
+        dist = dist.replace(/\s+/,'')
+        dist = dist.replace(/\s*\(.*?\)/,'')
+        
+        const regMatch = dist.match(/([0-9\.]+)([a-z]+)/i)
+        const value = regMatch[1]
+        const unit = regMatch[2]
+
+        if(unit == 'm') return +value
+        if(unit == 'km') return value * 1000
+        if(unit.toLowerCase() == 'mile' || unit.toLowerCase() == 'miles') return value * 1609
+    }
+
+    const convertTime = (time) => {
+        if(time == 'DNF') return null
+        time = time.replace(/[a-z]/i, '')
+
+        if(!time.includes(':')) return +time
+        const timeBits = time.split(':')
+        const minutes = +timeBits[0]
+        const seconds = +timeBits[1]
+        return minutes*60 + seconds
+    }
+
+    const processData = (data)=>{
+        const lines = data.split('\n')
+        let skip = true
+        lines.forEach(line => {
+            if(skip && !line.startsWith('Athlete: '))
+                return
+
+            skip = false
+
+            if(line.startsWith('Athlete: ')){
+                athlete.name = line.split('. ')[0].split(': ')[1]
+            }
+
+            if(/^\d\d\d\d-\d\d-\d\d/.test(line)){
+                const lineBits = line.split('\t')
+                const result = {date: null, time: null, venue: null}
+
+                result.date = Date.parse(lineBits[0])
+                const distance = convertDistance(lineBits[1])
+                result.time = convertTime(lineBits[3])
+                result.venue = lineBits[5]  
+
+                if(athlete.results[distance]) 
+                    athlete.results[distance].push(result)
+                else
+                    athlete.results[distance] = [result]
+            }
+
+        });
+    }
+
+    const chartAthlete = (athlete) => {
+        // Declare the chart dimensions and margins.
+        const width = 640;
+        const height = 400;
+        const marginTop = 20;
+        const marginRight = 20;
+        const marginBottom = 50;
+        const marginLeft = 40;
+
+        const results = athlete.results
+
+        const distances = Object.getOwnPropertyNames(results)
+
+        distances.forEach((distance) => {
+            const times = results[distance]
+            const latestDate = times[0].date
+            const count = times.length
+            const earliestDate = times[count-1].date
+
+            // Declare the x (horizontal position) scale.
+            const x = d3.scaleUtc(d3.extent(times, d => d.date), [marginLeft, width - marginRight])
+
+            // Declare the y (vertical position) scale.
+            const y = d3.scaleLinear([d3.min(times, d => d.time), d3.max(times, d => d.time)], [height - marginBottom, marginTop])
+
+            const line = d3.line()
+                .x(d => x(d.date))
+                .y(d => y(d.time)); 
+
+            // Create the SVG container.
+            const svg = d3.create("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            // Add the x-axis.
+            svg.append("g")
+                .attr("transform", `translate(0,${height - marginBottom})`)
+                .call(d3.axisBottom(x))
+                .call(g => g.append("text")
+                    .attr("x", marginLeft)
+                    .attr("y", marginBottom)
+                    .attr("fill", "#000")
+                    .attr("font-weight", "bold")
+                    .text(`${distance}m`));
+
+            // Add the y-axis.
+            svg.append("g")
+                .attr("transform", `translate(${marginLeft},0)`)
+                .call(d3.axisLeft(y));
+
+            
+            // Append a path for the line.
+            svg.append("path")
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 1.5)
+                .attr("d", line(times));
+
+            // Append the SVG element.
+            container.append(svg.node());
+        })
+            
+
+
+    }
+
+    document.getElementById('results').onchange = (e)=>{
+        processData(e.target.value)
+        chartAthlete(athlete)
+    }
+
+
+</script>
