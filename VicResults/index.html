@@ -3,7 +3,6 @@
     <title>Results chart</title>
     <style>
         .box {
-            border: 2px dotted rgb(96 139 168);
             display: flex;
             overflow-x: scroll;
             width: 10000px;
@@ -11,6 +10,7 @@
     </style>
 </head>
 <textarea id="results" style="width: 640px; height: 100px;"></textarea>
+<button>Chart data</button>
 <div class="box" id="container">
 <script type="module">
 
@@ -112,8 +112,8 @@
                 .attr("transform", `translate(0,${height - marginBottom})`)
                 .call(d3.axisBottom(x))
                 .call(g => g.append("text")
-                    .attr("x", marginLeft)
-                    .attr("y", marginBottom)
+                    .attr("x", width/2)
+                    .attr("y", marginBottom - 10)
                     .attr("fill", "#000")
                     .attr("font-weight", "bold")
                     .text(`${distance}m`));
@@ -139,7 +139,7 @@
 
     }
 
-    document.getElementById('results').onchange = (e)=>{
+    document.getElementById('results').onchange  = (e)=>{
         processData(e.target.value)
         chartAthlete(athlete)
     }
